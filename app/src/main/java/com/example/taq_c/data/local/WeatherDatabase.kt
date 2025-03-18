@@ -1,4 +1,4 @@
-package com.example.taq_c.data
+package com.example.taq_c.data.local
 
 import android.content.Context
 import androidx.room.Database

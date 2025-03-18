@@ -1,4 +1,4 @@
-package com.example.taq_c.data
+package com.example.taq_c.data.remote
 
 import com.example.taq_c.data.model.WeatherResponse
 import retrofit2.http.GET
@@ -11,12 +11,12 @@ interface WeatherApi {
         @Query("lat") lat:Double
        ,@Query("lon") lon :Double
        ,@Query("appid") apiKey:String ="fd4d75a2fe0a3c6c1bcf90187e30a7b0"
-       ,@Query("units") units:String?=null):WeatherResponse
+       ,@Query("units") units:String?=null): WeatherResponse
 
     @GET("forecast")
     suspend fun get5D_3HForecastData(
         @Query("lat") lat:Double
         ,@Query("lon") lon :Double
         ,@Query("appid") apiKey:String ="fd4d75a2fe0a3c6c1bcf90187e30a7b0"
-        ,@Query("units") units:String?=null):WeatherResponse
+        ,@Query("units") units:String?=null): WeatherResponse
 }

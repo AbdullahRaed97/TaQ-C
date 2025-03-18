@@ -1,4 +1,4 @@
-package com.example.taq_c.data
+package com.example.taq_c.data.local
 
 import androidx.room.Dao
 import androidx.room.Delete

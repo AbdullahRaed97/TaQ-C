@@ -1,4 +1,4 @@
-package com.example.taq_c.data
+package com.example.taq_c.data.remote
 
 import com.example.taq_c.data.model.WeatherResponse
 
