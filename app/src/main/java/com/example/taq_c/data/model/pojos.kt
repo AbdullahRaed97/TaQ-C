@@ -7,9 +7,7 @@ import androidx.room.TypeConverters
 import com.example.taq_c.utilities.TypeConverter
 import com.google.gson.annotations.SerializedName
 
-
 data class Clouds(var all: Int = 0)
-
 //This class is for the coordinates
 data class Coord(var lon: Double = 0.0,
             var lat: Double = 0.0)
