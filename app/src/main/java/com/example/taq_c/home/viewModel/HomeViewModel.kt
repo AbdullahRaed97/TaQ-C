@@ -1,5 +1,6 @@
 package com.example.taq_c.home.viewModel
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -15,12 +16,13 @@ class HomeViewModel(private val weatherRepository: WeatherRepository) : ViewMode
     private val message_ : MutableLiveData<String> = MutableLiveData()
     val message : LiveData<String> = message_
 
-    fun getCurrentWeatherData(lat: Double,lon: Double,units: String){
+    fun getCurrentWeatherData(lat: String,lon: String,units: String){
         viewModelScope.launch {
             try{
                val result= weatherRepository.getCurrentWeatherData(lat,lon,units)
                 if(result!=null){
                     weatherResponse_.postValue(result)
+                    Log.d("TAG", "getCurrentWeatherData: ")
                 }else{
                     message_.postValue("Something went wrong")
                 }
@@ -29,7 +31,7 @@ class HomeViewModel(private val weatherRepository: WeatherRepository) : ViewMode
             }
         }
     }
-    fun get5D_3HForecastData(lat: Double,lon: Double,units: String){
+    fun get5D_3HForecastData(lat: String,lon: String,units: String){
         viewModelScope.launch {
             try{
                 val result= weatherRepository.getCurrentWeatherData(lat,lon,units)
