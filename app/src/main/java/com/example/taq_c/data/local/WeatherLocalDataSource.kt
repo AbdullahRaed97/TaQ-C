@@ -2,10 +2,11 @@ package com.example.taq_c.data.local
 
 import android.content.Context
 import com.example.taq_c.data.model.City
+import kotlinx.coroutines.flow.Flow
 
 class WeatherLocalDataSource private constructor(val weatherDao: WeatherDao) {
 
-    suspend fun getAllFavCities(): List<City>{
+    suspend fun getAllFavCities():Flow<List<City>>{
         return weatherDao.getAllFavCities()
     }
     suspend fun insertFavCity(city: City): Long{

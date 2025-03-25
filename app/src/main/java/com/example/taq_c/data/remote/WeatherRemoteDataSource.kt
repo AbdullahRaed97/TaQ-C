@@ -1,14 +1,18 @@
 package com.example.taq_c.data.remote
 
+import com.example.taq_c.data.model.ForecastResponse
 import com.example.taq_c.data.model.WeatherResponse
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 
 class WeatherRemoteDataSource private constructor(val weatherApi: WeatherApi) {
 
-    suspend fun getCurrentWeather(lat:Double,lon:Double,units:String): WeatherResponse{
-        return weatherApi.getCurrentWeather(lat,lon,units)
+    suspend fun getCurrentWeather(lat: Double, lon: Double, units:String): Flow<WeatherResponse> {
+
+        return flowOf(weatherApi.getCurrentWeather(lat=lat,lon=lon, units = units))
     }
-    suspend fun get5D_3HForecastData(lat:Double,lon:Double,units:String): WeatherResponse{
-        return weatherApi.get5D_3HForecastData(lat,lon,units)
+    suspend fun get5D_3HForecastData(lat: Double, lon: Double, units:String): Flow<ForecastResponse> {
+        return flowOf(weatherApi.get5D_3HForecastData(lat = lat, lon = lon, units = units))
     }
 
 companion object {

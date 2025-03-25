@@ -1,16 +1,16 @@
 package com.example.taq_c.utilities
 
 import androidx.room.TypeConverter
-import com.example.taq_c.data.model.Coord
+import com.example.taq_c.data.model.Coordinates
 
 class TypeConverter {
 
     @TypeConverter
-    fun fromCoordinates(coordinates: Coord?):String?{
+    fun fromCoordinates(coordinates: Coordinates?):String?{
         return "${coordinates?.lat},${coordinates?.lon}"
     }
     @TypeConverter
-    fun toCoordinates(str:String?): Coord? {
+    fun toCoordinates(str:String?): Coordinates? {
         if (str == null)
             return null
         val coordinates = str.split(",")
@@ -22,6 +22,6 @@ class TypeConverter {
         if (lat == null || lon == null) {
             throw IllegalArgumentException("Invalid Coordinates values : $coordinates")
         }
-        return Coord(lat = lat, lon = lon)
+        return Coordinates(lat = lat, lon = lon)
     }
 }

@@ -6,6 +6,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.example.taq_c.data.model.City
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface WeatherDao {
@@ -14,5 +15,5 @@ interface WeatherDao {
     @Delete
     suspend fun deleteFavCity(city:City):Int
     @Query("select * from Cities")
-    suspend fun getAllFavCities():List<City>
+    fun getAllFavCities():Flow<List<City>>
 }

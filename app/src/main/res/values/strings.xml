@@ -1,3 +1,16 @@
 <resources>
     <string name="app_name">TaQ-C</string>
+    <string name="home_screen">Home Screen</string>
+    <string name="insertion_success">Insertion  Success</string>
+    <string name="today">Today</string>
+    <string name="sunset">Sunset</string>
+    <string name="sunrise">Sunrise</string>
+    <string name="pressure">Pressure</string>
+    <string name="humidity">Humidity</string>
+    <string name="wind_speed">Wind Speed</string>
+    <string name="clouds">Clouds</string>
+    <string name="_5days_forecast">5 Days Forecast :</string>
+    <string name="hourly_details">Hourly Details :</string>
+    <string name="_5_days_forecast">Next 5 Days Forecast :</string>
+    <string name="feels_like">🌡Feels Like</string>
 </resources>
