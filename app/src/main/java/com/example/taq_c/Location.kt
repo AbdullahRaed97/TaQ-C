@@ -4,11 +4,9 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.location.Location
 import android.location.LocationManager
 import android.os.Looper
 import android.provider.Settings
-import androidx.compose.runtime.MutableState
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
@@ -21,7 +19,7 @@ object Location {
     //class that will return the location
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     //Because location will always changed
-    lateinit var locationState: MutableState<Location>
+    //lateinit var locationState: MutableState<Location>
     //REQUEST_CODE
     val REQUEST_CODE = 0
 
@@ -49,7 +47,7 @@ object Location {
             object: LocationCallback(){
                 override fun onLocationResult(p0: LocationResult) {
                     super.onLocationResult(p0)
-                    locationState.value=p0.lastLocation?: Location(LocationManager.GPS_PROVIDER)
+                    //locationState.value=p0.lastLocation?: Location(LocationManager.GPS_PROVIDER)
                 }
             },
             Looper.myLooper()

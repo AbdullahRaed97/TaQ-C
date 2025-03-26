@@ -13,4 +13,7 @@
     <string name="hourly_details">Hourly Details :</string>
     <string name="_5_days_forecast">Next 5 Days Forecast :</string>
     <string name="feels_like">🌡Feels Like</string>
+    <string name="latitude">Latitude : </string>
+    <string name="longitude">"Longitude : "</string>
+    <string name="country_name">"Country Name : "</string>
 </resources>

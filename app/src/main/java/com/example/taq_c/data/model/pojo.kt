@@ -39,10 +39,10 @@ data class Coordinates(var lon: Double = 0.0,
 @Entity(tableName = "Cities")
 data class City (  @PrimaryKey
                    var id: Int =0,
-                   var name: String?=null,
+                   var name: String? =null,
                    @TypeConverters(TypeConverter::class)
                    var coord: Coordinates? = null,
-                   var country: String? = null,
+                   var country: String = "",
                    @Ignore
                    var population: Int = 0,
                    var timezone: Int = 0,

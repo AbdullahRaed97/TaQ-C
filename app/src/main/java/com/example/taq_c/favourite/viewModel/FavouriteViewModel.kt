@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.taq_c.data.model.City
+import com.example.taq_c.data.model.ForecastResponse
 import com.example.taq_c.data.model.Response
 import com.example.taq_c.data.model.WeatherResponse
 import com.example.taq_c.data.repository.WeatherRepository
@@ -18,9 +19,10 @@ class FavouriteViewModel(private val weatherRepository: WeatherRepository): View
     private val favCitiesResponse_: MutableStateFlow<Response<List<City>?>> =
         MutableStateFlow(Response.Loading)
     val favCitiesResponse = favCitiesResponse_.asStateFlow()
-    private val weatherResponse_: MutableStateFlow<Response<WeatherResponse>> =
+    private val forecastResponse_ : MutableStateFlow<Response<ForecastResponse>> =
         MutableStateFlow(Response.Loading)
-    val weatherResponse = weatherResponse_.asStateFlow()
+    val forecastResponse =
+        forecastResponse_.asStateFlow()
     private val message_: MutableSharedFlow<String?> = MutableSharedFlow()
     val message = message_.asSharedFlow()
 
@@ -39,6 +41,7 @@ class FavouriteViewModel(private val weatherRepository: WeatherRepository): View
                 favCitiesResponse_.emit(Response.Failure(e))
             }
         }
+    }
         fun insertFavCity(city: City) {
             viewModelScope.launch {
                 try {
@@ -70,23 +73,23 @@ class FavouriteViewModel(private val weatherRepository: WeatherRepository): View
             }
         }
 
-        fun getCurrentWeatherData(lat: Double, lon: Double, units: String) {
+        fun get5D_3HForeCastData(lat: Double, lon: Double, units: String) {
             viewModelScope.launch {
                 try {
-                    weatherRepository.getCurrentWeatherData(lat = lat, lon = lon, units = units)
+                    weatherRepository.get5D_3HForeCastData(lat = lat, lon = lon, units = units)
                         .catch {
-                            weatherResponse_.emit(Response.Failure(it))
+                            forecastResponse_.emit(Response.Failure(it))
                             message_.emit(it.message.toString())
                         }.collect {
-                            weatherResponse_.emit(Response.Success<WeatherResponse>(it as WeatherResponse))
+                            forecastResponse_.emit(Response.Success<ForecastResponse>(it as ForecastResponse))
                         }
                 } catch (e: Exception) {
-                    weatherResponse_.emit(Response.Failure(e))
+                    forecastResponse_.emit(Response.Failure(e))
                     message_.emit(e.message.toString())
                 }
             }
         }
-    }
+
 }
 
 class FavouriteFactory(private val repository: WeatherRepository): ViewModelProvider.Factory{

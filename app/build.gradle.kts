@@ -78,6 +78,15 @@ dependencies {
     implementation ("androidx.compose.runtime:runtime-livedata:$compose_version")
     //Serialization for NavArgs and Navigation
     val nav_version ="2.8.8"
+
     implementation("androidx.navigation:navigation-compose:$nav_version")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.0")
+
+
+
+    // google maps utils
+    implementation ("com.google.maps.android:android-maps-utils:3.4.0")
+    implementation ("com.google.maps.android:maps-compose:2.11.5")
+    implementation ("com.google.android.gms:play-services-maps:18.1.0")
+    implementation ("com.google.android.gms:play-services-location:21.0.1")
 }

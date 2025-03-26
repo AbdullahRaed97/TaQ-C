@@ -417,9 +417,10 @@ fun CircularIndicator() {
 fun HomeLazyColumnItem(forecastResponse: ForecastResponse, units: String , index :Int){
     Card (
         modifier = Modifier
-            .height(160.dp),
+            .height(160.dp)
+            .padding(vertical = 6.dp),
         elevation = CardDefaults.cardElevation(8.dp),
-        colors = CardDefaults.cardColors(Color.Gray)
+        colors = CardDefaults.cardColors(Color.Gray),
     ){
         Row(modifier = Modifier
             .fillMaxWidth()
@@ -432,7 +433,9 @@ fun HomeLazyColumnItem(forecastResponse: ForecastResponse, units: String , index
                     //Day name
                     Log.i("TAG", "HomeLazyColumnItem: $index")
                     Text(
-                        text= getDayName(forecastResponse.weatherForecastList?.get(index)?.dt ?: 0),
+                        text= getDayName(
+                            (forecastResponse.weatherForecastList?.get(index)?.dt ?:0) + 86400
+                        ),
                         fontSize = 25.sp,
                         color = Color.White
                     )
@@ -453,7 +456,7 @@ fun HomeLazyColumnItem(forecastResponse: ForecastResponse, units: String , index
                 //Temp
                 Text(
                     text= forecastResponse.weatherForecastList?.get(index)?.weatherDetails?.temp.toString(),
-                    fontSize = 22.sp,
+                    fontSize = 18.sp,
                     color = Color.White
                 )
                 //Unit
@@ -464,7 +467,7 @@ fun HomeLazyColumnItem(forecastResponse: ForecastResponse, units: String , index
                 )
                 Text(
                     text = "/",
-                    fontSize = 22.sp
+                    fontSize = 18.sp
                 )
             }
             Column(modifier = Modifier
@@ -474,25 +477,24 @@ fun HomeLazyColumnItem(forecastResponse: ForecastResponse, units: String , index
                 verticalArrangement = Arrangement.Center) {
                 Text(
                     text= stringResource(R.string.feels_like),
-                    fontSize = 22.sp,
+                    fontSize = 18.sp,
                     color = Color.White
                 )
                 Row(modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(5.dp),
+                    .fillMaxWidth(),
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically) {
                     //Feels_like
                     Text(
                         text = forecastResponse.weatherForecastList?.get(index)?.weatherDetails?.feels_like.toString(),
-                        fontSize = 15.sp,
+                        fontSize = 12.sp,
                         color = Color.White
                     )
                     //Unit
                     Text(
                         text = getUnit(units),
                         color = Color.White,
-                        fontSize = 10.sp
+                        fontSize = 8.sp
                     )
                 }
             }

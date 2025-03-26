@@ -1,6 +1,6 @@
 package com.example.taq_c
 
-import android.icu.text.DateFormat
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -32,10 +32,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.unit.dp
+import androidx.core.app.ActivityCompat
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -47,8 +45,6 @@ import com.example.taq_c.home.view.BottomNavigationItem
 import com.example.taq_c.home.view.HomeScreen
 import com.example.taq_c.settings.SettingsScreen
 import com.example.taq_c.utilities.NavigationRoute
-import java.text.NumberFormat
-import java.util.Date
 
 
 class MainActivity : ComponentActivity() {
@@ -87,50 +83,50 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-//    override fun onStart() {
-//        super.onStart()
-//        //check permission
-//        if(Location.checkPermission(this)){
-//            //check if the location is enabled
-//            if(Location.locationEnabled(this)){
-//                Location.getFreshLocation(this)
-//            }else{
-//                //enable the Location service
-//                Location.enableLocationService(this)
-//            }
-//        }else{
-//            //No permission supported so request permission
-//            ActivityCompat.requestPermissions(this ,
-//                arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION
-//                    ,android.Manifest.permission.ACCESS_COARSE_LOCATION),
-//                Location.REQUEST_CODE
-//            )
-//        }
-//    }
-//    override fun onRequestPermissionsResult(
-//        requestCode: Int,
-//        permissions: Array<out String>,
-//        grantResults: IntArray,
-//        deviceId: Int
-//    ) {
-//        super.onRequestPermissionsResult(requestCode, permissions, grantResults, deviceId)
-//        if(requestCode==Location.REQUEST_CODE){
-//            if(grantResults.get(0)== PackageManager.PERMISSION_GRANTED || grantResults.get(1) == PackageManager.PERMISSION_GRANTED){
-//                if(Location.locationEnabled(this)){
-//                    Location.getFreshLocation(this)
-//                }else{
-//                    Location.enableLocationService(this)
-//                }
-//            }else{
-//                ActivityCompat.requestPermissions(this ,
-//                    arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION
-//                        ,android.Manifest.permission.ACCESS_COARSE_LOCATION),
-//                    Location.REQUEST_CODE
-//                )
-//            }
-//
-//        }
-//    }package
+    override fun onStart() {
+        super.onStart()
+        //check permission
+        if(Location.checkPermission(this)){
+            //check if the location is enabled
+            if(Location.locationEnabled(this)){
+                Location.getFreshLocation(this)
+            }else{
+                //enable the Location service
+                Location.enableLocationService(this)
+            }
+        }else{
+            //No permission supported so request permission
+            ActivityCompat.requestPermissions(this ,
+                arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION
+                    ,android.Manifest.permission.ACCESS_COARSE_LOCATION),
+                Location.REQUEST_CODE
+            )
+        }
+    }
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray,
+        deviceId: Int
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults, deviceId)
+        if(requestCode==Location.REQUEST_CODE){
+            if(grantResults.get(0)== PackageManager.PERMISSION_GRANTED || grantResults.get(1) == PackageManager.PERMISSION_GRANTED){
+                if(Location.locationEnabled(this)){
+                    Location.getFreshLocation(this)
+                }else{
+                    Location.enableLocationService(this)
+                }
+            }else{
+                ActivityCompat.requestPermissions(this ,
+                    arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION
+                        ,android.Manifest.permission.ACCESS_COARSE_LOCATION),
+                    Location.REQUEST_CODE
+                )
+            }
+
+        }
+    }
 
 }
 
