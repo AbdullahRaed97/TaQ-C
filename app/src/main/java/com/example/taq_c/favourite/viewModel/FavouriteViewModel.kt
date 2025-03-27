@@ -6,7 +6,6 @@ import androidx.lifecycle.viewModelScope
 import com.example.taq_c.data.model.City
 import com.example.taq_c.data.model.ForecastResponse
 import com.example.taq_c.data.model.Response
-import com.example.taq_c.data.model.WeatherResponse
 import com.example.taq_c.data.repository.WeatherRepository
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow

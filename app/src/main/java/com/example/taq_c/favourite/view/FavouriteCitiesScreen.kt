@@ -110,7 +110,7 @@ fun FavoriteCityScreen(navController: NavController) {
                         verticalArrangement = Arrangement.Center) {
                         if(favCityResponse.data!=null) {
                             itemsIndexed(favCityResponse.data) {index,item ->
-                                    FavCityItem(item,favViewModel)
+                                    FavCityItem(navController,item,favViewModel)
                             }
                         }
                     }
@@ -122,13 +122,22 @@ fun FavoriteCityScreen(navController: NavController) {
 }
 
 @Composable
-fun FavCityItem(city: City,favViewModel: FavouriteViewModel){
+fun FavCityItem(navController: NavController,city: City,favViewModel: FavouriteViewModel){
     var showDialog by remember { mutableStateOf(false) }
     Card (
         modifier = Modifier
             .height(120.dp)
             .fillMaxWidth()
-            .padding(15.dp),
+            .padding(15.dp)
+            .clickable{
+                navController.navigate(NavigationRoute.HomeScreen(
+                    city.coord?.lat?:0.0,city.coord?.lon?:0.0,"metric"
+                )){
+                    popUpTo(NavigationRoute.FavoriteScreen){
+                        inclusive=true
+                    }
+                }
+            },
         elevation = CardDefaults.cardElevation(8.dp),
         colors = CardDefaults.cardColors(Color.Gray)){
         Row(modifier = Modifier
