@@ -16,4 +16,7 @@
     <string name="latitude">Latitude : </string>
     <string name="longitude">"Longitude : "</string>
     <string name="country_name">"Country Name : "</string>
+    <string name="language">Language</string>
+    <string name="temperature">Temperature</string>
+    <string name="speed_unit">Speed Unit</string>
 </resources>
