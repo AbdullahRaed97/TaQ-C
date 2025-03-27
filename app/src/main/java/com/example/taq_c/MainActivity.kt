@@ -1,5 +1,6 @@
 package com.example.taq_c
 
+import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
@@ -38,16 +39,37 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import com.example.taq_c.alarm.AlarmScreen
 import com.example.taq_c.favourite.view.FavoriteCityScreen
 import com.example.taq_c.favourite.view.MapScreen
 import com.example.taq_c.home.view.BottomNavigationItem
 import com.example.taq_c.home.view.HomeScreen
-import com.example.taq_c.settings.SettingsScreen
+import com.example.taq_c.settings.view.SettingsScreen
 import com.example.taq_c.utilities.NavigationRoute
+import java.util.Locale
 
 
 class MainActivity : ComponentActivity() {
+
+    override fun attachBaseContext(newBase: Context?) {
+        //get app language
+        val sharedPreferences = newBase?.getSharedPreferences("Settings", Context.MODE_PRIVATE)
+        val appLanguage = sharedPreferences?.getString("Language","en")?:"en"
+        //create new Locale and make it default
+        val locale = Locale(appLanguage)
+        Locale.setDefault(locale)
+        //get the configuration of the app
+        val resources = newBase?.resources
+        val config = resources?.configuration
+        //adjust the configuration
+        config?.setLocale(locale)
+        config?.setLayoutDirection(locale)
+        //send the new context with the new configuration
+        if(config!=null) {
+            super.attachBaseContext(newBase.createConfigurationContext(config))
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,11 +83,15 @@ class MainActivity : ComponentActivity() {
             ) { contentPadding ->
                 NavHost(
                     navController = navController,
-                    startDestination = NavigationRoute.HomeScreen,
+                    startDestination = NavigationRoute.HomeScreen(31.0,30.0,"metric"),
                     modifier = Modifier.padding(contentPadding)
                 ) {
                     composable<NavigationRoute.HomeScreen> {
-                        HomeScreen(31.0,30.0,"metric")
+                        val receivedObject = it.toRoute<NavigationRoute.HomeScreen>()
+                        val lat = receivedObject.lat
+                        val lon = receivedObject.lon
+                        val units = receivedObject.units
+                        HomeScreen(lat,lon,units)
                     }
                     composable<NavigationRoute.SettingScreen> {
                         SettingsScreen()
@@ -138,7 +164,7 @@ fun BottomActionBar(navController: NavController){
             selectedIcon = Icons.Filled.Home,
             unSelectedIcon = Icons.Outlined.Home,
             hasNews = false,
-            navigationAction = {navController.navigate(NavigationRoute.HomeScreen)}
+            navigationAction = {navController.navigate(NavigationRoute.HomeScreen(31.0,30.0,"metric"))}
         ),
         BottomNavigationItem(
             title = "Favorite",
