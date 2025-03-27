@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 sealed class NavigationRoute {
     @Serializable
-    object HomeScreen : NavigationRoute()
+    data class HomeScreen(val lat: Double,val lon: Double,val units: String) : NavigationRoute()
     @Serializable
     object FavoriteScreen : NavigationRoute()
     @Serializable
