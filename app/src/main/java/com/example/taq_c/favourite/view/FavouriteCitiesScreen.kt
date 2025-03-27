@@ -13,7 +13,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FloatingActionButton
@@ -23,6 +24,7 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -34,7 +36,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -108,8 +109,8 @@ fun FavoriteCityScreen(navController: NavController) {
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center) {
                         if(favCityResponse.data!=null) {
-                            itemsIndexed(favCityResponse.data) { index, item ->
-                                    FavCityItem(item)
+                            itemsIndexed(favCityResponse.data) {index,item ->
+                                    FavCityItem(item,favViewModel)
                             }
                         }
                     }
@@ -121,8 +122,8 @@ fun FavoriteCityScreen(navController: NavController) {
 }
 
 @Composable
-fun FavCityItem(city: City){
-    var isClicked by remember { mutableStateOf(false) }
+fun FavCityItem(city: City,favViewModel: FavouriteViewModel){
+    var showDialog by remember { mutableStateOf(false) }
     Card (
         modifier = Modifier
             .height(120.dp)
@@ -144,20 +145,42 @@ fun FavCityItem(city: City){
                 text = city.name.toString()
             )
             Icon(
-                imageVector = Icons.Default.ArrowForward,
+                imageVector = Icons.Default.Delete,
                 contentDescription = null,
-                tint = if(isClicked) Color.Red else Color.White,
+                tint = Color.White,
                 modifier = Modifier.clickable{
-                    isClicked = !isClicked
-                    //Navigate to the current details
-                }.scale(if(isClicked) 1.2f else 1f)
-                    .animateContentSize()
+                    showDialog = true
+                }.scale( 1.2f ,1f)
+            )
+        }
+        if (showDialog){
+            AlertDialog(
+                onDismissRequest = { showDialog = false },
+                title = { Text("Delete City") },
+                text = { Text("Are you sure you want to delete this city") },
+                confirmButton = {
+                    TextButton(
+                        onClick = { showDialog = false
+                            favViewModel.deleteFavCity(city)
+                        }
+                    ) {
+                        Text("Delete")
+                    }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = { showDialog = false }
+                    ) {
+                        Text("Cancel")
+                    }
+                }
             )
         }
     }
 }
-@Preview(showSystemUi = true)
+
 @Composable
-private fun FavCityPrev() {
-    FavCityItem(City())
+fun ShowAlertDialog( showAlertDialog: Boolean , city: City , favViewModel: FavouriteViewModel){
+    var showDialog by remember { mutableStateOf(showAlertDialog) }
+
 }

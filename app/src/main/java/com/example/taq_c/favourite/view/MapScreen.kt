@@ -86,6 +86,7 @@ fun ShowMap() {
             ),
             onMapClick = { coordinates ->
                 defaultLocation = coordinates
+
             }
         ) {
             Marker(
@@ -94,8 +95,7 @@ fun ShowMap() {
             )
         }
     }
-    ShowDialog(defaultLocation.latitude, defaultLocation.longitude, favViewModel)
-
+    ShowCardDetails(defaultLocation.latitude, defaultLocation.longitude, favViewModel)
 }
 
 @Composable
@@ -124,12 +124,9 @@ fun MapScreen(navController: NavController) {
 }
 
 @Composable
-fun ShowDialog(lat : Double, lon : Double ,favViewModel: FavouriteViewModel){
+fun ShowCardDetails(lat : Double, lon : Double ,favViewModel: FavouriteViewModel){
     val forecastResponse  =  favViewModel.forecastResponse.collectAsStateWithLifecycle().value
-
-    LaunchedEffect(Unit) {
-        favViewModel.get5D_3HForeCastData(lat = lat, lon = lon, units = "metric")
-    }
+    favViewModel.get5D_3HForeCastData(lat = lat, lon = lon, units = "metric")
     Column(modifier = Modifier
         .fillMaxSize()
         .padding(15.dp),
