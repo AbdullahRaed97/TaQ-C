@@ -38,7 +38,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -53,9 +52,6 @@ import com.example.taq_c.data.model.WeatherResponse
 import com.example.taq_c.data.repository.WeatherRepository
 import com.example.taq_c.home.viewModel.HomeFactory
 import com.example.taq_c.home.viewModel.HomeViewModel
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 data class BottomNavigationItem(
     val title: String,
@@ -76,7 +72,7 @@ fun HomeScreen(lat: Double, lon: Double) {
 
     val appTempUnit = homeViewModel.getAppUnit(context)
     val appLanguage = homeViewModel.getAppLanguage(context)
-
+    val appLocationType =
     LaunchedEffect(Unit) {
         homeViewModel.getCurrentWeatherData(lat = lat, lon = lon, units = appTempUnit, lang = appLanguage)
         homeViewModel.get5D_3HForecastData(lat = lat, lon = lon, units = appTempUnit , lang = appLanguage)
