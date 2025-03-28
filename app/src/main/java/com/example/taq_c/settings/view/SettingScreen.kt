@@ -42,7 +42,9 @@ import com.example.taq_c.settings.viewModel.SettingViewModel
 fun SettingsScreen() {
 
     val context = LocalContext.current
-    val settingViewModel = viewModel<SettingViewModel>(factory = SettingFactory(LocalContext.current))
+    val settingViewModel =
+        viewModel<SettingViewModel>(factory = SettingFactory(LocalContext.current))
+
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Top,
@@ -120,7 +122,32 @@ fun SettingsScreen() {
                     color = Color.White
                 )
             }
-            //SpeedUnitSetting
+            SpeedUnitSetting(context,settingViewModel)
+        }
+        Spacer(modifier = Modifier.height(10.dp))
+        Card(
+            modifier = Modifier
+                .height(120.dp)
+                .padding(vertical = 15.dp),
+            elevation = CardDefaults.cardElevation(8.dp),
+            colors = CardDefaults.cardColors(Color.Gray)
+        ) {
+            Row(horizontalArrangement = Arrangement.Start) {
+                Icon(
+                    painter = painterResource(R.drawable.location),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(50.dp)
+                        .padding(end = 6.dp, start = 6.dp),
+                    tint = Color.White
+                )
+                Text(
+                    text = stringResource(R.string.location),
+                    fontSize = 25.sp,
+                    color = Color.White
+                )
+            }
+            //LocationSetting
         }
     }
 }
@@ -130,9 +157,13 @@ private fun LanguageSettings(
     settingViewModel: SettingViewModel,
     context: Context
 ) {
-    val langOptions = listOf("Arabic", "English", "Default")
+    val langOptions = listOf(
+        stringResource(R.string.arabic),
+        stringResource(R.string.english),
+        stringResource(R.string.defaultLang)
+    )
     val selectedLanguage = settingViewModel.getTheSelectedLanguage(context)
-    var selectedLang by remember { mutableStateOf(langOptions[selectedLanguage]) }
+    var selectedOption by remember { mutableStateOf(langOptions[selectedLanguage]) }
 
     Row(
         modifier = Modifier
@@ -147,9 +178,9 @@ private fun LanguageSettings(
                 modifier = Modifier.padding(horizontal = 8.dp)
             ) {
                 RadioButton(
-                    selected = (language == selectedLang),
+                    selected = (language == selectedOption),
                     onClick = {
-                        selectedLang = language
+                        selectedOption = language
                         when (language) {
                             "Arabic" -> {
                                 settingViewModel.setLanguage("ar")
@@ -197,9 +228,13 @@ private fun TemperatureSettings(
     context: Context,
     settingViewModel: SettingViewModel
 ){
-    val tempOptions = listOf("Celsius", "Kelvin", "Fahrenheit")
+    val tempOptions = listOf(
+        stringResource(R.string.celsius),
+        stringResource(R.string.kelvin),
+        stringResource(R.string.fahrenheit)
+    )
     val selectedTemp = settingViewModel.getTheSelectedTemperature(context)
-    var selectedLang by remember { mutableStateOf(tempOptions[selectedTemp]) }
+    var selectedOption by remember { mutableStateOf(tempOptions[selectedTemp]) }
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -213,9 +248,9 @@ private fun TemperatureSettings(
                 modifier = Modifier.padding(horizontal = 8.dp)
             ) {
                 RadioButton(
-                    selected = (temp == selectedLang),
+                    selected = (temp == selectedOption),
                     onClick = {
-                        selectedLang = temp
+                        selectedOption = temp
                         when (temp) {
                             "Celsius" -> {
                                 settingViewModel.setTemperatureUnit("metric")
@@ -246,6 +281,126 @@ private fun TemperatureSettings(
                 )
                 Text(
                     text = temp,
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.padding(start = 4.dp)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun SpeedUnitSetting(
+    context: Context,
+    settingViewModel: SettingViewModel
+){
+    val speedOptions = listOf(
+        stringResource(R.string.km_h),
+        stringResource(R.string.mph)
+    )
+    val selectedSpeed = settingViewModel.getTheSelectedSpeedUnit(context)
+    Log.i("TAG", "SpeedUnitSetting: $selectedSpeed")
+    var selectedOption by remember { mutableStateOf(speedOptions[selectedSpeed]) }
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        horizontalArrangement = Arrangement.SpaceEvenly,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        speedOptions.forEach { speed ->
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(horizontal = 8.dp)
+            ) {
+                RadioButton(
+                    selected = (speed == selectedOption),
+                    onClick = {
+                        selectedOption = speed
+                        when (speed) {
+                            "km/h" -> {
+                                settingViewModel.setWindSpeedUnit(speed)
+                                settingViewModel.setTheSelectedSpeedUnit(context, speed)
+                            }
+
+                            "mph" -> {
+                                settingViewModel.setWindSpeedUnit(speed)
+                                settingViewModel.setTheSelectedSpeedUnit(context, speed)
+                            }
+                            else -> {
+                                settingViewModel.setWindSpeedUnit()
+                                settingViewModel.setTheSelectedSpeedUnit(context, speed)
+                            }
+                        }
+                        Log.i("TAG", "SettingsScreen: ${settingViewModel.getWindSpeedUnit()}")
+                    },
+                    colors = RadioButtonDefaults.colors(
+                        selectedColor = Color.Red,
+                        unselectedColor = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                )
+                Text(
+                    text = speed,
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.padding(start = 4.dp)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun LocationSetting(
+    context: Context,
+    settingViewModel: SettingViewModel
+){
+    val speedOptions = listOf(
+        stringResource(R.string.gps),
+        stringResource(R.string.map)
+    )
+    val selectedLocation = settingViewModel.getTheSelectedSpeedUnit(context)
+    Log.i("TAG", "SpeedUnitSetting: $selectedLocation")
+    var selectedOption by remember { mutableStateOf(speedOptions[selectedLocation]) }
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        horizontalArrangement = Arrangement.SpaceEvenly,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        speedOptions.forEach { location ->
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(horizontal = 8.dp)
+            ) {
+                RadioButton(
+                    selected = (location == selectedOption),
+                    onClick = {
+                        selectedOption = location
+                        when (location) {
+                            "GPS" -> {
+                                settingViewModel.setWindSpeedUnit(location)
+                                settingViewModel.setTheSelectedSpeedUnit(context, location)
+                            }
+
+                            "Map" -> {
+                                settingViewModel.setWindSpeedUnit(location)
+                                settingViewModel.setTheSelectedSpeedUnit(context, location)
+                            }
+                            else -> {
+                                settingViewModel.setWindSpeedUnit()
+                                settingViewModel.setTheSelectedSpeedUnit(context, location)
+                            }
+                        }
+                        Log.i("TAG", "SettingsScreen: ${settingViewModel.getWindSpeedUnit()}")
+                    },
+                    colors = RadioButtonDefaults.colors(
+                        selectedColor = Color.Red,
+                        unselectedColor = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                )
+                Text(
+                    text = location,
                     style = MaterialTheme.typography.bodyLarge,
                     modifier = Modifier.padding(start = 4.dp)
                 )

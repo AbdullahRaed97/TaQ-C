@@ -14,7 +14,7 @@ class SettingViewModel(context: Context) : ViewModel() {
        }
     }
 
-    fun setWindSpeedUnit(value: String="km/hr"){
+    fun setWindSpeedUnit(value: String="km/h"){
         sharedPreferences.edit().apply {
             putString("WindSpeedUnit",value)
             apply()
@@ -48,7 +48,7 @@ class SettingViewModel(context: Context) : ViewModel() {
     }
 
     fun getWindSpeedUnit():String{
-        return sharedPreferences.getString("WindSpeedUnit","km/hr")?:"km/hr"
+        return sharedPreferences.getString("WindSpeedUnit","km/h")?:"km/h"
     }
 
     fun setTheSelectedLanguage(context: Context,lang: String){
@@ -107,6 +107,28 @@ class SettingViewModel(context: Context) : ViewModel() {
 
     fun getTheSelectedTemperature(context: Context) :Int{
         val sharedPreferences = context.getSharedPreferences("SelectedTempUnit", Context.MODE_PRIVATE)
+        return sharedPreferences.getInt("Code",0)
+    }
+
+    fun setTheSelectedSpeedUnit(context: Context,speed: String){
+        val sharedPreferences = context.getSharedPreferences("SelectedSpeedUnit", Context.MODE_PRIVATE)
+        when(speed){
+            "km/h"->{
+                sharedPreferences.edit().apply {
+                    putInt("Code",0)
+                    apply()
+                }
+            }
+            "mph" ->{
+                sharedPreferences.edit().apply {
+                    putInt("Code",1)
+                    apply()
+                }
+            }
+        }
+    }
+    fun getTheSelectedSpeedUnit(context: Context) :Int{
+        val sharedPreferences = context.getSharedPreferences("SelectedSpeedUnit", Context.MODE_PRIVATE)
         return sharedPreferences.getInt("Code",0)
     }
 }
