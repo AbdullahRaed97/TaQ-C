@@ -93,7 +93,7 @@ class MainActivity : ComponentActivity() {
                         HomeScreen(lat,lon)
                     }
                     composable<NavigationRoute.SettingScreen> {
-                        SettingsScreen()
+                        SettingsScreen(navController)
                     }
                     composable<NavigationRoute.FavoriteScreen> {
                         FavoriteCityScreen(navController)
@@ -102,7 +102,9 @@ class MainActivity : ComponentActivity() {
                         AlarmScreen()
                     }
                     composable<NavigationRoute.MapScreen>{
-                        MapScreen(navController)
+                        val receivedObject = it.toRoute<NavigationRoute.MapScreen>()
+                        val fromSetting = receivedObject.fromSetting
+                        MapScreen(fromSetting,navController)
                     }
                 }
             }
