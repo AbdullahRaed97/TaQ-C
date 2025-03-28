@@ -66,15 +66,20 @@ data class BottomNavigationItem(
 )
 
 @Composable
-fun HomeScreen(lat: Double, lon: Double, units: String) {
-    val weatherRepository = WeatherRepository.getInstance(LocalContext.current)
+fun HomeScreen(lat: Double, lon: Double) {
+
+    val context = LocalContext.current
+    val weatherRepository = WeatherRepository.getInstance(context)
     val homeViewModel = viewModel<HomeViewModel>(
         factory = HomeFactory(weatherRepository)
     )
+
+    val appTempUnit = homeViewModel.getAppUnit(context)
+    val appLanguage = homeViewModel.getAppLanguage(context)
+
     LaunchedEffect(Unit) {
-        //Data that will be wrapped in the Response sealed class
-        homeViewModel.getCurrentWeatherData(lat = lat, lon = lon, units = units)
-        homeViewModel.get5D_3HForecastData(lat = lat, lon = lon, units = units)
+        homeViewModel.getCurrentWeatherData(lat = lat, lon = lon, units = appTempUnit, lang = appLanguage)
+        homeViewModel.get5D_3HForecastData(lat = lat, lon = lon, units = appTempUnit , lang = appLanguage)
     }
     val weatherResponse = homeViewModel.weatherResponse.collectAsStateWithLifecycle().value
     val forecastResponse = homeViewModel.forecastResponse.collectAsStateWithLifecycle().value
@@ -95,7 +100,7 @@ fun HomeScreen(lat: Double, lon: Double, units: String) {
         ) {
             when (weatherResponse) {
                 is Response.Success<WeatherResponse> -> {
-                    WeatherResponseData(weatherResponse.data, units = units)
+                    WeatherResponseData(weatherResponse.data, units = appTempUnit,homeViewModel)
                 }
 
                 is Response.Failure -> {
@@ -153,7 +158,7 @@ fun HomeScreen(lat: Double, lon: Double, units: String) {
                             val list = forecastResponse.data.weatherForecastList
                             if (list != null) {
                                 itemsIndexed(list) { index, item ->
-                                    HomeLazyRowItem(item, units)
+                                    HomeLazyRowItem(item, appTempUnit,homeViewModel)
                                 }
                             }
                         }
@@ -171,9 +176,9 @@ fun HomeScreen(lat: Double, lon: Double, units: String) {
                         ) {
                             if (forecastResponse.data.weatherForecastList != null) {
                                 val forecastList =
-                                    filterForecastList(forecastResponse.data.weatherForecastList)
+                                    homeViewModel.filterForecastList(forecastResponse.data.weatherForecastList)
                                 forecastList.forEachIndexed {
-                                    index, item -> HomeLazyColumnItem(forecastResponse.data, units, index)
+                                    index, item -> HomeLazyColumnItem(forecastResponse.data, appTempUnit, index,homeViewModel)
                                 }
                                 Log.i("TAG", "HomeScreen: ${forecastList}")
                             }
@@ -187,7 +192,7 @@ fun HomeScreen(lat: Double, lon: Double, units: String) {
 }
 
 @Composable
-private fun WeatherResponseData(weatherResponse: WeatherResponse, units: String) {
+private fun WeatherResponseData(weatherResponse: WeatherResponse, units: String,homeViewModel: HomeViewModel) {
     Row(
         modifier = Modifier
             .padding(start = 10.dp, end = 5.dp, top = 20.dp)
@@ -219,7 +224,7 @@ private fun WeatherResponseData(weatherResponse: WeatherResponse, units: String)
                 fontSize = 18.sp,
             )
             Text(
-                text = convertTimeStampToDate(weatherResponse.dt),
+                text = homeViewModel.convertTimeStampToDate(weatherResponse.dt),
                 color = Color.White,
                 fontSize = 18.sp
             )
@@ -245,7 +250,7 @@ private fun WeatherResponseData(weatherResponse: WeatherResponse, units: String)
                 )
                 //Unit
                 Text(
-                    text = getUnit(units),
+                    text = homeViewModel.getUnit(units),
                     color = Color.White,
                     fontSize = 32.sp
                 )
@@ -258,7 +263,7 @@ private fun WeatherResponseData(weatherResponse: WeatherResponse, units: String)
             ) {
                 //Country
                 Text(
-                    text = getCountryName(weatherResponse.sys?.country),
+                    text = homeViewModel.getCountryName(weatherResponse.sys?.country),
                     color = Color.White,
                     fontSize = 18.sp
                 )
@@ -299,7 +304,7 @@ private fun WeatherResponseData(weatherResponse: WeatherResponse, units: String)
                 )
                 //Sunset Time
                 Text(
-                    text = convertTimeStampToDate(weatherResponse.sys?.sunset ?: 0),
+                    text = homeViewModel.convertTimeStampToDate(weatherResponse.sys?.sunset ?: 0),
                     color = Color.White,
                     fontSize = 18.sp
                 )
@@ -320,7 +325,7 @@ private fun WeatherResponseData(weatherResponse: WeatherResponse, units: String)
                 )
                 //Sunrise Time
                 Text(
-                    text = convertTimeStampToTime(weatherResponse.sys?.sunrise ?: 0),
+                    text = homeViewModel.convertTimeStampToTime(weatherResponse.sys?.sunrise ?: 0),
                     color = Color.White,
                     fontSize = 18.sp,
                 )
@@ -328,12 +333,12 @@ private fun WeatherResponseData(weatherResponse: WeatherResponse, units: String)
         }
     }
     Spacer(modifier = Modifier.height(20.dp))
-    WeatherCard(weatherResponse)
+    WeatherCard(weatherResponse,homeViewModel)
 }
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-fun HomeLazyRowItem(weatherResponse: Forecast, units: String) {
+private fun HomeLazyRowItem(weatherResponse: Forecast, units: String,homeViewModel: HomeViewModel) {
     Card(
         modifier = Modifier
             .width(100.dp)
@@ -351,7 +356,7 @@ fun HomeLazyRowItem(weatherResponse: Forecast, units: String) {
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = convertTimeStampToTime(weatherResponse.dt),
+                text = homeViewModel.convertTimeStampToTime(weatherResponse.dt),
                 color = Color.Black,
                 fontSize = 18.sp
             )
@@ -374,19 +379,13 @@ fun HomeLazyRowItem(weatherResponse: Forecast, units: String) {
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = getUnit(units),
+                    text = homeViewModel.getUnit(units),
                     color = Color.Black,
                     fontSize = 12.sp
                 )
             }
         }
     }
-}
-
-@Preview(showSystemUi = true)
-@Composable
-private fun HomeScreenPrev() {
-    WeatherCard(WeatherResponse())
 }
 
 @Composable
@@ -406,7 +405,7 @@ fun CircularIndicator() {
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-fun HomeLazyColumnItem(forecastResponse: ForecastResponse, units: String , index :Int){
+private fun HomeLazyColumnItem(forecastResponse: ForecastResponse, units: String , index :Int,homeViewModel: HomeViewModel){
     Card (
         modifier = Modifier
             .height(160.dp)
@@ -425,14 +424,14 @@ fun HomeLazyColumnItem(forecastResponse: ForecastResponse, units: String , index
                     //Day name
                     Log.i("TAG", "HomeLazyColumnItem: $index")
                     Text(
-                        text= getDayName(
+                        text= homeViewModel.getDayName(
                             (forecastResponse.weatherForecastList?.get(index)?.dt ?:0) + 86400
                         ),
                         fontSize = 25.sp,
                         color = Color.White
                     )
                     Text(
-                        text= convertTimeStampToDate(forecastResponse.weatherForecastList?.get(index)?.dt ?: 0),
+                        text= homeViewModel.convertTimeStampToDate(forecastResponse.weatherForecastList?.get(index)?.dt ?: 0),
                         fontSize = 20.sp,
                         color = Color.White
                     )
@@ -453,7 +452,7 @@ fun HomeLazyColumnItem(forecastResponse: ForecastResponse, units: String , index
                 )
                 //Unit
                 Text(
-                    text = getUnit(units),
+                    text = homeViewModel.getUnit(units),
                     color = Color.White,
                     fontSize = 10.sp
                 )
@@ -484,7 +483,7 @@ fun HomeLazyColumnItem(forecastResponse: ForecastResponse, units: String , index
                     )
                     //Unit
                     Text(
-                        text = getUnit(units),
+                        text = homeViewModel.getUnit(units),
                         color = Color.White,
                         fontSize = 8.sp
                     )
@@ -495,7 +494,10 @@ fun HomeLazyColumnItem(forecastResponse: ForecastResponse, units: String , index
 }
 
 @Composable
-private fun WeatherCard(weatherResponse: WeatherResponse) {
+private fun WeatherCard(weatherResponse: WeatherResponse , homeViewModel: HomeViewModel) {
+    val context = LocalContext.current
+    val speedUnit = homeViewModel.getAppWindSpeedUnit(context)
+    val windSpeed = homeViewModel.calculateWindSpeed(speedUnit,weatherResponse)
     Card(
         modifier = Modifier
             .height(160.dp)
@@ -518,10 +520,19 @@ private fun WeatherCard(weatherResponse: WeatherResponse) {
                     text = stringResource(R.string.pressure),
                     fontSize = 24.sp
                 )
-                Text(
-                    text = weatherResponse.weatherDetails?.pressure.toString(),
-                    fontSize = 20.sp
-                )
+                Row(
+                    modifier = Modifier.padding(start = 5.dp)
+                ) {
+                    Text(
+                        text = weatherResponse.weatherDetails?.pressure.toString(),
+                        fontSize = 20.sp
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = stringResource(R.string.hpa),
+                        fontSize = 16.sp
+                    )
+                }
                 Text(
                     text = stringResource(R.string.humidity),
                     fontSize = 24.sp
@@ -540,10 +551,19 @@ private fun WeatherCard(weatherResponse: WeatherResponse) {
                     text = stringResource(R.string.wind_speed),
                     fontSize = 24.sp
                 )
-                Text(
-                    text = weatherResponse.wind?.windSpeed.toString(),
-                    fontSize = 20.sp
-                )
+                Row(
+                    modifier = Modifier.padding(start = 5.dp)
+                ){
+                    Text(
+                        text = windSpeed,
+                        fontSize = 20.sp
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = speedUnit,
+                        fontSize = 16.sp
+                    )
+                }
                 Text(
                     text = stringResource(R.string.clouds),
                     fontSize = 24.sp
@@ -557,63 +577,3 @@ private fun WeatherCard(weatherResponse: WeatherResponse) {
     }
 }
 
-fun filterForecastList(forecastList:List<Forecast>):List<Forecast>{
-    val finalList = mutableListOf<Forecast>()
-    val datesFound = mutableSetOf<String>()
-    for (forecast in forecastList) {
-        val date = forecast.dt_txt?.substringBefore(" ") ?: continue
-        val time = forecast.dt_txt?.substringAfter(" ") ?: continue
-        if (time.startsWith("12:00") && !datesFound.contains(date)) {
-            finalList.add(forecast)
-            datesFound.add(date)
-            if (finalList.size >= 5) {
-                break
-            }
-        }
-    }
-    Log.i("TAG", "filterForecastList: $finalList")
-    return finalList
-}
-
-fun convertTimeStampToTime(timeStamp: Long): String {
-    val date = Date(timeStamp * 1000L)
-    val sdf = SimpleDateFormat("h:mm a", Locale.getDefault())
-    return sdf.format(date)
-}
-
-fun convertTimeStampToDate(timeStamp: Long): String {
-    val date = Date(timeStamp * 1000L)
-    val sdf = SimpleDateFormat("MMMM d, yyyy", Locale.getDefault())
-    return sdf.format(date)
-}
-
-fun getCountryName(countryCode: String?): String {
-    return Locale("", countryCode).displayCountry ?: "UnSpecified"
-}
-
-fun getUnit(units: String): String {
-    when (units) {
-        "metric" -> {
-            return "°C"
-        }
-
-        "kelvin" -> {
-            return "K"
-        }
-
-        "imperial" -> {
-            return "°f"
-        }
-
-        else -> {
-            return "°C"
-        }
-    }
-}
-
-fun getDayName(dt: Long): String {
-    val date = Date(dt * 1000L) // Convert seconds to milliseconds
-    val sdf = SimpleDateFormat("EEEE", Locale.getDefault())
-    Log.i("TAG", "getDayName: ${sdf.format(date)} , dt : $dt , date : $date")
-    return sdf.format(date)
-}
