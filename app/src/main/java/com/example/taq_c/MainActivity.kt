@@ -83,15 +83,14 @@ class MainActivity : ComponentActivity() {
             ) { contentPadding ->
                 NavHost(
                     navController = navController,
-                    startDestination = NavigationRoute.HomeScreen(31.0,30.0,"metric"),
+                    startDestination = NavigationRoute.HomeScreen(31.0,30.0),
                     modifier = Modifier.padding(contentPadding)
                 ) {
                     composable<NavigationRoute.HomeScreen> {
                         val receivedObject = it.toRoute<NavigationRoute.HomeScreen>()
                         val lat = receivedObject.lat
                         val lon = receivedObject.lon
-                        val units = receivedObject.units
-                        HomeScreen(lat,lon,units)
+                        HomeScreen(lat,lon)
                     }
                     composable<NavigationRoute.SettingScreen> {
                         SettingsScreen()
@@ -164,7 +163,7 @@ fun BottomActionBar(navController: NavController){
             selectedIcon = Icons.Filled.Home,
             unSelectedIcon = Icons.Outlined.Home,
             hasNews = false,
-            navigationAction = {navController.navigate(NavigationRoute.HomeScreen(31.0,30.0,"metric"))}
+            navigationAction = {navController.navigate(NavigationRoute.HomeScreen(31.0,30.0))}
         ),
         BottomNavigationItem(
             title = "Favorite",
