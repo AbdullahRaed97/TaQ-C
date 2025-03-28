@@ -19,4 +19,16 @@
     <string name="language">Language</string>
     <string name="temperature">Temperature</string>
     <string name="speed_unit">Speed Unit</string>
+    <string name="hpa">hpa</string>
+    <string name="km_h">km/h</string>
+    <string name="mph">mph</string>
+    <string name="celsius">Celsius</string>
+    <string name="kelvin">Kelvin</string>
+    <string name="fahrenheit">Fahrenheit</string>
+    <string name="arabic">Arabic</string>
+    <string name="english">English</string>
+    <string name="defaultLang">Default</string>
+    <string name="location">Location</string>
+    <string name="gps">GPS</string>
+    <string name="map">Map</string>
 </resources>
