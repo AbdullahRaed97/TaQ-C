@@ -7,12 +7,12 @@ import kotlinx.coroutines.flow.flowOf
 
 class WeatherRemoteDataSource private constructor(val weatherApi: WeatherApi) {
 
-    suspend fun getCurrentWeather(lat: Double, lon: Double, units:String): Flow<WeatherResponse> {
+    suspend fun getCurrentWeather(lat: Double, lon: Double, units:String , lang: String): Flow<WeatherResponse> {
 
-        return flowOf(weatherApi.getCurrentWeather(lat=lat,lon=lon, units = units))
+        return flowOf(weatherApi.getCurrentWeather(lat=lat,lon=lon, units = units , lang = lang))
     }
-    suspend fun get5D_3HForecastData(lat: Double, lon: Double, units:String): Flow<ForecastResponse> {
-        return flowOf(weatherApi.get5D_3HForecastData(lat = lat, lon = lon, units = units))
+    suspend fun get5D_3HForecastData(lat: Double, lon: Double, units:String ,lang: String): Flow<ForecastResponse> {
+        return flowOf(weatherApi.get5D_3HForecastData(lat = lat, lon = lon, units = units, lang = lang))
     }
 
 companion object {

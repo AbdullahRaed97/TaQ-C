@@ -21,11 +21,11 @@ class WeatherRepository private constructor(val localDataSource: WeatherLocalDat
     suspend fun deleteFavCity(city: City):Int{
         return localDataSource.deleteFavCity(city)
     }
-    suspend fun getCurrentWeatherData(lat: Double, lon: Double, units:String): Flow<WeatherResponse?> {
-        return remoteDataSource.getCurrentWeather(lat=lat,lon=lon,units=units)
+    suspend fun getCurrentWeatherData(lat: Double, lon: Double, units:String , lang: String): Flow<WeatherResponse?> {
+        return remoteDataSource.getCurrentWeather(lat = lat , lon = lon , units = units , lang = lang)
     }
-    suspend fun get5D_3HForeCastData(lat: Double, lon: Double, units:String): Flow<ForecastResponse?> {
-        return remoteDataSource.get5D_3HForecastData(lat=lat,lon=lon,units=units)
+    suspend fun get5D_3HForeCastData(lat: Double, lon: Double, units:String , lang: String): Flow<ForecastResponse?> {
+        return remoteDataSource.get5D_3HForecastData( lat = lat , lon = lon , units = units , lang = lang)
     }
 
     companion object{
