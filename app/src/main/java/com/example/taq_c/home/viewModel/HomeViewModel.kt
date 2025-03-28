@@ -50,6 +50,7 @@ class HomeViewModel(private val weatherRepository: WeatherRepository) : ViewMode
             }
         }
     }
+
     fun get5D_3HForecastData(lat: Double,lon: Double,units: String,lang: String){
         viewModelScope.launch {
             try{
@@ -98,6 +99,35 @@ class HomeViewModel(private val weatherRepository: WeatherRepository) : ViewMode
         }
         return speed
     }
+
+    fun getAppLatitude(lat: Double,context: Context) : Double{
+        var latitude = 0.0
+        val locationType = context.getSharedPreferences("Settings", Context.MODE_PRIVATE)
+            .getString("Location","GPS")
+        when(locationType){
+            "Map" -> {
+                val sharedPreferences = context.getSharedPreferences("Coordinates", Context.MODE_PRIVATE)
+                latitude = sharedPreferences.getLong("Latitude",0).toDouble()
+            }
+            "GPS" -> latitude = lat
+        }
+        return latitude
+    }
+
+    fun getAppLongitude(lon: Double,context: Context) : Double{
+        var longitude = 0.0
+        val locationType = context.getSharedPreferences("Settings", Context.MODE_PRIVATE)
+            .getString("Location","GPS")
+        when(locationType){
+            "Map" -> {
+                val sharedPreferences = context.getSharedPreferences("Coordinates", Context.MODE_PRIVATE)
+                longitude = sharedPreferences.getLong("Longitude",0).toDouble()
+            }
+            "GPS" -> longitude = lon
+        }
+        return longitude
+    }
+
     fun filterForecastList(forecastList:List<Forecast>):List<Forecast>{
         val finalList = mutableListOf<Forecast>()
         val datesFound = mutableSetOf<String>()
@@ -129,7 +159,16 @@ class HomeViewModel(private val weatherRepository: WeatherRepository) : ViewMode
     }
 
     fun getCountryName(countryCode: String?): String {
-        return Locale("", countryCode).displayCountry ?: "UnSpecified"
+        return if (!countryCode.isNullOrBlank()) {
+            try {
+                Locale("", countryCode).displayCountry ?: "Unspecified"
+            } catch (e: Exception) {
+                Log.i("TAG", "getCountryName: error is ${e.message} ")
+                "Unspecified"
+            }
+        } else {
+            "Unspecified"
+        }
     }
 
     fun getUnit(units: String): String {

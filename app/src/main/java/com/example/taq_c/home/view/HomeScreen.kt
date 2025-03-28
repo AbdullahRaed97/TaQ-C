@@ -72,10 +72,12 @@ fun HomeScreen(lat: Double, lon: Double) {
 
     val appTempUnit = homeViewModel.getAppUnit(context)
     val appLanguage = homeViewModel.getAppLanguage(context)
-    val appLocationType =
+    val appLatitude = homeViewModel.getAppLatitude(lat,context)
+    val appLongitude = homeViewModel.getAppLongitude(lon,context)
+
     LaunchedEffect(Unit) {
-        homeViewModel.getCurrentWeatherData(lat = lat, lon = lon, units = appTempUnit, lang = appLanguage)
-        homeViewModel.get5D_3HForecastData(lat = lat, lon = lon, units = appTempUnit , lang = appLanguage)
+        homeViewModel.getCurrentWeatherData(lat = appLatitude, lon = appLongitude, units = appTempUnit, lang = appLanguage)
+        homeViewModel.get5D_3HForecastData(lat = appLatitude, lon = appLongitude, units = appTempUnit , lang = appLanguage)
     }
     val weatherResponse = homeViewModel.weatherResponse.collectAsStateWithLifecycle().value
     val forecastResponse = homeViewModel.forecastResponse.collectAsStateWithLifecycle().value
