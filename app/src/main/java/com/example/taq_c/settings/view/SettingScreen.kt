@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
@@ -33,13 +34,16 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.example.taq_c.R
+import com.example.taq_c.favourite.view.MapScreen
 import com.example.taq_c.settings.viewModel.SettingFactory
 import com.example.taq_c.settings.viewModel.SettingViewModel
+import com.example.taq_c.utilities.NavigationRoute
 
 
 @Composable
-fun SettingsScreen() {
+fun SettingsScreen(navController: NavController) {
 
     val context = LocalContext.current
     val settingViewModel =
@@ -147,7 +151,7 @@ fun SettingsScreen() {
                     color = Color.White
                 )
             }
-            //LocationSetting
+            LocationSetting(context,settingViewModel,navController)
         }
     }
 }
@@ -352,15 +356,17 @@ private fun SpeedUnitSetting(
 @Composable
 private fun LocationSetting(
     context: Context,
-    settingViewModel: SettingViewModel
+    settingViewModel: SettingViewModel,
+    navController: NavController
 ){
     val speedOptions = listOf(
         stringResource(R.string.gps),
         stringResource(R.string.map)
     )
-    val selectedLocation = settingViewModel.getTheSelectedSpeedUnit(context)
+    val selectedLocation = settingViewModel.getTheSelectedLocationType(context)
     Log.i("TAG", "SpeedUnitSetting: $selectedLocation")
     var selectedOption by remember { mutableStateOf(speedOptions[selectedLocation]) }
+    var showMap by remember { mutableStateOf(false) }
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -379,17 +385,18 @@ private fun LocationSetting(
                         selectedOption = location
                         when (location) {
                             "GPS" -> {
-                                settingViewModel.setWindSpeedUnit(location)
-                                settingViewModel.setTheSelectedSpeedUnit(context, location)
+                                settingViewModel.setLocationType(location)
+                                settingViewModel.setTheSelectedLocationType(context, location)
                             }
 
                             "Map" -> {
-                                settingViewModel.setWindSpeedUnit(location)
-                                settingViewModel.setTheSelectedSpeedUnit(context, location)
+                                settingViewModel.setLocationType(location)
+                                settingViewModel.setTheSelectedLocationType(context, location)
+                                navController.navigate(NavigationRoute.MapScreen(true))
                             }
                             else -> {
-                                settingViewModel.setWindSpeedUnit()
-                                settingViewModel.setTheSelectedSpeedUnit(context, location)
+                                settingViewModel.setLocationType()
+                                settingViewModel.setTheSelectedLocationType(context, location)
                             }
                         }
                         Log.i("TAG", "SettingsScreen: ${settingViewModel.getWindSpeedUnit()}")
@@ -408,5 +415,3 @@ private fun LocationSetting(
         }
     }
 }
-
-

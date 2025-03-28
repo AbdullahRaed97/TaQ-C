@@ -28,7 +28,7 @@ class SettingViewModel(context: Context) : ViewModel() {
         }
     }
 
-    fun setLocationType(value : String="Map"){
+    fun setLocationType(value : String="GPS"){
         sharedPreferences.edit().apply {
             putString("Location",value)
             apply()
@@ -40,11 +40,11 @@ class SettingViewModel(context: Context) : ViewModel() {
     }
 
     fun getTemperatureUnit():String{
-        return sharedPreferences.getString("TemperatureUnit","c")?:"c"
+        return sharedPreferences.getString("TemperatureUnit","metric")?:"metric"
     }
 
     fun getLocationType():String{
-        return sharedPreferences.getString("Location","Map")?:"Map"
+        return sharedPreferences.getString("Location","GPS")?:"GPS"
     }
 
     fun getWindSpeedUnit():String{
@@ -129,6 +129,29 @@ class SettingViewModel(context: Context) : ViewModel() {
     }
     fun getTheSelectedSpeedUnit(context: Context) :Int{
         val sharedPreferences = context.getSharedPreferences("SelectedSpeedUnit", Context.MODE_PRIVATE)
+        return sharedPreferences.getInt("Code",0)
+    }
+
+    fun setTheSelectedLocationType(context: Context,type: String){
+        val sharedPreferences = context.getSharedPreferences("SelectedLocationType", Context.MODE_PRIVATE)
+        when(type){
+            "GPS"->{
+                sharedPreferences.edit().apply {
+                    putInt("Code",0)
+                    apply()
+                }
+            }
+            "Map" ->{
+                sharedPreferences.edit().apply {
+                    putInt("Code",1)
+                    apply()
+                }
+            }
+        }
+    }
+
+    fun getTheSelectedLocationType(context: Context) :Int{
+        val sharedPreferences = context.getSharedPreferences("SelectedLocationType", Context.MODE_PRIVATE)
         return sharedPreferences.getInt("Code",0)
     }
 }
