@@ -103,6 +103,22 @@ class FavouriteViewModel(private val weatherRepository: WeatherRepository): View
         return sharedPreferences.getString("Language","en")?:"en"
     }
 
+    fun setAppLatitude(context: Context,lat: Double){
+        val sharedPreferences = context.getSharedPreferences("Coordinates", Context.MODE_PRIVATE)
+        sharedPreferences.edit().apply {
+            putLong("Latitude",lat.toLong())
+            apply()
+        }
+    }
+
+    fun setAppLongitude(context: Context,lon: Double){
+        val sharedPreferences = context.getSharedPreferences("Coordinates", Context.MODE_PRIVATE)
+        sharedPreferences.edit().apply {
+            putLong("Longitude",lon.toLong())
+            apply()
+        }
+    }
+
     fun getCountryName(context: Context, latitude: Double, longitude: Double): String? {
         val geocoder = Geocoder(context)
         return try {

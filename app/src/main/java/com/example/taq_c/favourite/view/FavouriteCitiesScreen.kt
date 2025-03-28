@@ -67,7 +67,7 @@ fun FavoriteCityScreen(navController: NavController) {
         },
         floatingActionButton = {
             FloatingActionButton(onClick = {
-                navController.navigate(NavigationRoute.MapScreen)
+                navController.navigate(NavigationRoute.MapScreen(false))
             },
                 contentColor = Color.White,
                 containerColor =  Color.DarkGray,
