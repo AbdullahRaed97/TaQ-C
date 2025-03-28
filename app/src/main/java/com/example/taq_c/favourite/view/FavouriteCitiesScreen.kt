@@ -47,7 +47,6 @@ import com.example.taq_c.data.repository.WeatherRepository
 import com.example.taq_c.favourite.viewModel.FavouriteFactory
 import com.example.taq_c.favourite.viewModel.FavouriteViewModel
 import com.example.taq_c.home.view.CircularIndicator
-import com.example.taq_c.home.view.getCountryName
 import com.example.taq_c.utilities.NavigationRoute
 
 
@@ -131,7 +130,7 @@ fun FavCityItem(navController: NavController,city: City,favViewModel: FavouriteV
             .padding(15.dp)
             .clickable{
                 navController.navigate(NavigationRoute.HomeScreen(
-                    city.coord?.lat?:0.0,city.coord?.lon?:0.0,"metric"
+                    city.coord?.lat?:0.0,city.coord?.lon?:0.0
                 )){
                     popUpTo(NavigationRoute.FavoriteScreen){
                         inclusive=true
@@ -146,7 +145,7 @@ fun FavCityItem(navController: NavController,city: City,favViewModel: FavouriteV
             horizontalArrangement = Arrangement.SpaceAround,
             verticalAlignment = Alignment.CenterVertically){
             Text(
-                text = getCountryName(city.country),
+                text = favViewModel.getCountryName(city.country),
                 fontSize = 25.sp,
                 color = Color.White
             )
@@ -186,10 +185,4 @@ fun FavCityItem(navController: NavController,city: City,favViewModel: FavouriteV
             )
         }
     }
-}
-
-@Composable
-fun ShowAlertDialog( showAlertDialog: Boolean , city: City , favViewModel: FavouriteViewModel){
-    var showDialog by remember { mutableStateOf(showAlertDialog) }
-
 }

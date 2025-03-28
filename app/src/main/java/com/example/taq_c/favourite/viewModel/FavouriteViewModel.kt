@@ -1,5 +1,7 @@
 package com.example.taq_c.favourite.viewModel
 
+import android.content.Context
+import android.location.Geocoder
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -13,6 +15,8 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
+import java.io.IOException
+import java.util.Locale
 
 class FavouriteViewModel(private val weatherRepository: WeatherRepository): ViewModel() {
     private val favCitiesResponse_: MutableStateFlow<Response<List<City>?>> =
@@ -72,10 +76,10 @@ class FavouriteViewModel(private val weatherRepository: WeatherRepository): View
             }
         }
 
-        fun get5D_3HForeCastData(lat: Double, lon: Double, units: String) {
+        fun get5D_3HForeCastData(lat: Double, lon: Double, units: String,lang: String) {
             viewModelScope.launch {
                 try {
-                    weatherRepository.get5D_3HForeCastData(lat = lat, lon = lon, units = units)
+                    weatherRepository.get5D_3HForeCastData(lat = lat, lon = lon, units = units, lang = lang)
                         .catch {
                             forecastResponse_.emit(Response.Failure(it))
                             message_.emit(it.message.toString())
@@ -88,6 +92,35 @@ class FavouriteViewModel(private val weatherRepository: WeatherRepository): View
                 }
             }
         }
+
+    fun getAppUnit(context: Context): String{
+        val sharedPreferences = context.getSharedPreferences("Settings", Context.MODE_PRIVATE)
+        return sharedPreferences.getString("TemperatureUnit","metric")?:"metric"
+    }
+
+    fun getAppLanguage(context: Context): String{
+        val sharedPreferences = context.getSharedPreferences("Settings", Context.MODE_PRIVATE)
+        return sharedPreferences.getString("Language","en")?:"en"
+    }
+
+    fun getCountryName(context: Context, latitude: Double, longitude: Double): String? {
+        val geocoder = Geocoder(context)
+        return try {
+            val addresses = geocoder.getFromLocation(latitude, longitude, 1)
+            if (addresses?.isNotEmpty() == true) {
+                addresses[0].countryName
+            } else {
+                null
+            }
+        } catch (e: IOException) {
+            e.printStackTrace()
+            null
+        }
+    }
+
+    fun getCountryName(countryCode: String?): String {
+        return Locale("", countryCode).displayCountry ?: "UnSpecified"
+    }
 
 }
 
