@@ -42,7 +42,6 @@ import com.example.taq_c.data.repository.WeatherRepository
 import com.example.taq_c.favourite.viewModel.FavouriteFactory
 import com.example.taq_c.favourite.viewModel.FavouriteViewModel
 import com.example.taq_c.home.view.CircularIndicator
-import com.example.taq_c.home.view.getCountryName
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -53,7 +52,6 @@ import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
-import java.io.IOException
 
 @Composable
 fun ShowMap() {
@@ -65,7 +63,7 @@ fun ShowMap() {
 
     LaunchedEffect(defaultLocation) {
         cameraPositionState.animate(update = CameraUpdateFactory.newLatLngZoom(defaultLocation,10f))
-        markerTitle = getCountryName(context, defaultLocation.latitude, defaultLocation.longitude) ?: ""
+        markerTitle = favViewModel.getCountryName(context, defaultLocation.latitude, defaultLocation.longitude) ?: ""
     }
 
     Column(
@@ -125,8 +123,13 @@ fun MapScreen(navController: NavController) {
 
 @Composable
 fun ShowCardDetails(lat : Double, lon : Double ,favViewModel: FavouriteViewModel){
+    val context = LocalContext.current
+
+    val appUnit = favViewModel.getAppUnit(context)
+    val appLanguage = favViewModel.getAppLanguage(context)
+
     val forecastResponse  =  favViewModel.forecastResponse.collectAsStateWithLifecycle().value
-    favViewModel.get5D_3HForeCastData(lat = lat, lon = lon, units = "metric")
+    favViewModel.get5D_3HForeCastData(lat = lat, lon = lon, units = appUnit , lang = appLanguage )
     Column(modifier = Modifier
         .fillMaxSize()
         .padding(15.dp),
@@ -200,7 +203,7 @@ fun ShowCardDetails(lat : Double, lon : Double ,favViewModel: FavouriteViewModel
                             modifier = Modifier.padding(end=10.dp)
                         )
                         Text(
-                            text =getCountryName(forecastResponse.data.city?.country),
+                            text = favViewModel.getCountryName(forecastResponse.data.city?.country),
                             fontSize = 25.sp,
                             color = Color.White
                         )
@@ -226,21 +229,6 @@ fun ShowCardDetails(lat : Double, lon : Double ,favViewModel: FavouriteViewModel
                 }
             }
         }
-    }
-}
-
-fun getCountryName(context: Context, latitude: Double, longitude: Double): String? {
-    val geocoder = Geocoder(context)
-    return try {
-        val addresses = geocoder.getFromLocation(latitude, longitude, 1)
-        if (addresses?.isNotEmpty() == true) {
-            addresses[0].countryName
-        } else {
-            null
-        }
-    } catch (e: IOException) {
-        e.printStackTrace()
-        null
     }
 }
 
