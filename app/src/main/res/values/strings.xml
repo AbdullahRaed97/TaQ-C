@@ -31,4 +31,5 @@
     <string name="location">Location</string>
     <string name="gps">GPS</string>
     <string name="map">Map</string>
+    <string name="add_to_favourite">Add To Favourite</string>
 </resources>
