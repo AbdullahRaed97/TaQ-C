@@ -229,12 +229,4 @@ fun BottomActionBar(navController: NavController){
             )
         }
     }
-//    val configuration = LocalConfiguration.current
-//    val language = configuration.locales[0]
-//    Log.i("TAG", "BottomActionBar: ${configuration.toString()}")
-//    Log.i("TAG", "BottomActionBar: ${language.toString()}")
-//    val numberFormatted = NumberFormat.getInstance(language).format(1234.5)
-//    val dateFormatted = DateFormat.getDateInstance(java.text.DateFormat.LONG,language).format(Date())
-//    Log.i("TAG", "BottomActionBar: ${dateFormatted}")
-//    Log.i("TAG", "BottomActionBar: ${numberFormatted}")
 }
