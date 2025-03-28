@@ -1,14 +1,10 @@
 package com.example.taq_c.favourite.view
 
-import android.Manifest
-import android.app.Activity
-import android.content.Context
-import android.content.pm.PackageManager
-import android.location.Geocoder
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -31,8 +27,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -42,6 +36,7 @@ import com.example.taq_c.data.repository.WeatherRepository
 import com.example.taq_c.favourite.viewModel.FavouriteFactory
 import com.example.taq_c.favourite.viewModel.FavouriteViewModel
 import com.example.taq_c.home.view.CircularIndicator
+import com.example.taq_c.utilities.NavigationRoute
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -54,7 +49,7 @@ import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 
 @Composable
-fun ShowMap() {
+fun MapScreen(fromSetting: Boolean = false , navController: NavController) {
     var defaultLocation by remember { mutableStateOf(LatLng(30.0444,  31.2357))}// Cairo coordinates
     val cameraPositionState = rememberCameraPositionState { position = CameraPosition.fromLatLngZoom(defaultLocation, 10f) }
     var markerTitle by remember {mutableStateOf("Egypt")}
@@ -93,31 +88,10 @@ fun ShowMap() {
             )
         }
     }
-    ShowCardDetails(defaultLocation.latitude, defaultLocation.longitude, favViewModel)
-}
-
-@Composable
-fun MapScreen(navController: NavController) {
-    val context = LocalContext.current
-    var hasLocationPermission by remember { mutableStateOf(false) }
-    LaunchedEffect(Unit) {
-        hasLocationPermission = ContextCompat.checkSelfPermission(
-            context,
-            Manifest.permission.ACCESS_FINE_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED
-
-        if (!hasLocationPermission) {
-            ActivityCompat.requestPermissions(
-                context as Activity,
-                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                1001
-            )
-        }
-    }
-    if (hasLocationPermission) {
-        ShowMap()
-    } else {
-        Text("Location permission required")
+    if(fromSetting) {
+        FromSettingConfiguration(favViewModel,navController,defaultLocation.latitude, defaultLocation.longitude)
+    }else{
+        ShowCardDetails(defaultLocation.latitude, defaultLocation.longitude, favViewModel)
     }
 }
 
@@ -221,13 +195,39 @@ fun ShowCardDetails(lat : Double, lon : Double ,favViewModel: FavouriteViewModel
                         colors = ButtonDefaults.buttonColors(Color.Black)
                     ) {
                         Text(
-                            text = "Add To Favourite",
+                            text = stringResource(R.string.add_to_favourite),
                             color = Color.White,
                             fontSize = 20.sp
                         )
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun FromSettingConfiguration(favViewModel: FavouriteViewModel,navController: NavController,lat : Double, lon : Double ){
+    val context = LocalContext.current
+    Column (
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Bottom
+    ){
+        Button(
+            onClick = {
+                favViewModel.setAppLatitude(context,lat)
+                favViewModel.setAppLongitude(context,lon)
+                navController.navigate(NavigationRoute.SettingScreen)
+            },
+            colors = ButtonDefaults.buttonColors(Color.Black)
+
+        ) {
+            Text(
+                text = stringResource(R.string.set_your_location),
+                color = Color.White,
+                fontSize = 20.sp
+            )
         }
     }
 }
