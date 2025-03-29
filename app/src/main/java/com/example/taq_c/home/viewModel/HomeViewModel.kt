@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.example.taq_c.LocationHelper
 import com.example.taq_c.data.model.Forecast
 import com.example.taq_c.data.model.ForecastResponse
 import com.example.taq_c.data.model.Response
@@ -33,6 +34,8 @@ class HomeViewModel(private val weatherRepository: WeatherRepository) : ViewMode
         MutableSharedFlow()
     val message  =
         message_.asSharedFlow()
+
+    val currentLocation = LocationHelper.locationState
 
     fun getCurrentWeatherData(lat: Double,lon: Double,units: String , lang: String){
         viewModelScope.launch {
@@ -101,7 +104,7 @@ class HomeViewModel(private val weatherRepository: WeatherRepository) : ViewMode
     }
 
     fun getAppLatitude(lat: Double,context: Context) : Double{
-        var latitude = 0.0
+        var latitude = lat
         val locationType = context.getSharedPreferences("Settings", Context.MODE_PRIVATE)
             .getString("Location","GPS")
         when(locationType){
@@ -115,7 +118,7 @@ class HomeViewModel(private val weatherRepository: WeatherRepository) : ViewMode
     }
 
     fun getAppLongitude(lon: Double,context: Context) : Double{
-        var longitude = 0.0
+        var longitude = lon
         val locationType = context.getSharedPreferences("Settings", Context.MODE_PRIVATE)
             .getString("Location","GPS")
         when(locationType){
@@ -126,6 +129,22 @@ class HomeViewModel(private val weatherRepository: WeatherRepository) : ViewMode
             "GPS" -> longitude = lon
         }
         return longitude
+    }
+
+    fun setLatitude(context: Context , lat : Double){
+        val sharedPreferences =context.getSharedPreferences("Coordinates", Context.MODE_PRIVATE)
+        sharedPreferences.edit().apply {
+            putLong("Latitude",lat.toLong())
+            apply()
+        }
+    }
+
+    fun setLongitude(context: Context, lon: Double){
+        val sharedPreferences =context.getSharedPreferences("Coordinates", Context.MODE_PRIVATE)
+        sharedPreferences.edit().apply {
+            putLong("Longitude",lon.toLong())
+            apply()
+        }
     }
 
     fun filterForecastList(forecastList:List<Forecast>):List<Forecast>{
@@ -197,6 +216,7 @@ class HomeViewModel(private val weatherRepository: WeatherRepository) : ViewMode
         Log.i("TAG", "getDayName: ${sdf.format(date)} , dt : $dt , date : $date")
         return sdf.format(date)
     }
+
 }
 
 class HomeFactory(private val repository: WeatherRepository): ViewModelProvider.Factory{

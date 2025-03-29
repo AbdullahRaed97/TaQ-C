@@ -3,9 +3,9 @@ package com.example.taq_c
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -28,11 +28,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.navigation.NavController
@@ -49,13 +49,11 @@ import com.example.taq_c.settings.view.SettingsScreen
 import com.example.taq_c.utilities.NavigationRoute
 import java.util.Locale
 
-
 class MainActivity : ComponentActivity() {
-
     override fun attachBaseContext(newBase: Context?) {
         //get app language
         val sharedPreferences = newBase?.getSharedPreferences("Settings", Context.MODE_PRIVATE)
-        val appLanguage = sharedPreferences?.getString("Language","en")?:"en"
+        val appLanguage = sharedPreferences?.getString("Language", "en") ?: "en"
         //create new Locale and make it default
         val locale = Locale(appLanguage)
         Locale.setDefault(locale)
@@ -66,7 +64,7 @@ class MainActivity : ComponentActivity() {
         config?.setLocale(locale)
         config?.setLayoutDirection(locale)
         //send the new context with the new configuration
-        if(config!=null) {
+        if (config != null) {
             super.attachBaseContext(newBase.createConfigurationContext(config))
         }
     }
@@ -74,23 +72,28 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            val scope = rememberCoroutineScope()
             val navController = rememberNavController()
             Scaffold(
                 bottomBar = {
                     BottomActionBar(navController)
-                }, containerColor = Color(0xFF0c1a4d),
+                },
+                containerColor = Color(0xFF0c1a4d),
+                modifier = Modifier.fillMaxSize()
             ) { contentPadding ->
                 NavHost(
                     navController = navController,
-                    startDestination = NavigationRoute.HomeScreen(31.0,30.0),
+                    startDestination = NavigationRoute.HomeScreen
+                        (
+                        LocationHelper.getLatitude(this),
+                        LocationHelper.getLongitude(this)
+                    ),
                     modifier = Modifier.padding(contentPadding)
                 ) {
                     composable<NavigationRoute.HomeScreen> {
                         val receivedObject = it.toRoute<NavigationRoute.HomeScreen>()
                         val lat = receivedObject.lat
                         val lon = receivedObject.lon
-                        HomeScreen(lat,lon)
+                        HomeScreen(lat, lon)
                     }
                     composable<NavigationRoute.SettingScreen> {
                         SettingsScreen(navController)
@@ -101,35 +104,40 @@ class MainActivity : ComponentActivity() {
                     composable<NavigationRoute.AlarmScreen> {
                         AlarmScreen()
                     }
-                    composable<NavigationRoute.MapScreen>{
+                    composable<NavigationRoute.MapScreen> {
                         val receivedObject = it.toRoute<NavigationRoute.MapScreen>()
                         val fromSetting = receivedObject.fromSetting
-                        MapScreen(fromSetting,navController)
+                        MapScreen(fromSetting, navController)
                     }
                 }
             }
         }
     }
+
     override fun onStart() {
         super.onStart()
         //check permission
-        if(Location.checkPermission(this)){
+        if (LocationHelper.checkPermission(this)) {
             //check if the location is enabled
-            if(Location.locationEnabled(this)){
-                Location.getFreshLocation(this)
-            }else{
+            if (LocationHelper.locationEnabled(this)) {
+                LocationHelper.getFreshLocation(this)
+            } else {
                 //enable the Location service
-                Location.enableLocationService(this)
+                LocationHelper.enableLocationService(this)
             }
-        }else{
+        } else {
             //No permission supported so request permission
-            ActivityCompat.requestPermissions(this ,
-                arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION
-                    ,android.Manifest.permission.ACCESS_COARSE_LOCATION),
-                Location.REQUEST_CODE
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(
+                    android.Manifest.permission.ACCESS_FINE_LOCATION,
+                    android.Manifest.permission.ACCESS_COARSE_LOCATION
+                ),
+                LocationHelper.REQUEST_CODE
             )
         }
     }
+
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
@@ -137,56 +145,86 @@ class MainActivity : ComponentActivity() {
         deviceId: Int
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults, deviceId)
-        if(requestCode==Location.REQUEST_CODE){
-            if(grantResults.get(0)== PackageManager.PERMISSION_GRANTED || grantResults.get(1) == PackageManager.PERMISSION_GRANTED){
-                if(Location.locationEnabled(this)){
-                    Location.getFreshLocation(this)
-                }else{
-                    Location.enableLocationService(this)
+        if (requestCode == LocationHelper.REQUEST_CODE) {
+            if (grantResults.get(0) == PackageManager.PERMISSION_GRANTED || grantResults.get(1) == PackageManager.PERMISSION_GRANTED) {
+                if (LocationHelper.locationEnabled(this)) {
+                    LocationHelper.getFreshLocation(this)
+                } else {
+                    LocationHelper.enableLocationService(this)
                 }
-            }else{
-                ActivityCompat.requestPermissions(this ,
-                    arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION
-                        ,android.Manifest.permission.ACCESS_COARSE_LOCATION),
-                    Location.REQUEST_CODE
+            } else {
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(
+                        android.Manifest.permission.ACCESS_FINE_LOCATION,
+                        android.Manifest.permission.ACCESS_COARSE_LOCATION
+                    ),
+                    LocationHelper.REQUEST_CODE
                 )
             }
 
         }
     }
-
 }
 
 @Composable
-fun BottomActionBar(navController: NavController){
+fun BottomActionBar(navController: NavController) {
+    val context = LocalContext.current
     val items = listOf(
         BottomNavigationItem(
             title = "Home",
             selectedIcon = Icons.Filled.Home,
             unSelectedIcon = Icons.Outlined.Home,
             hasNews = false,
-            navigationAction = {navController.navigate(NavigationRoute.HomeScreen(31.0,30.0))}
+            navigationAction = {
+                navController.navigate(
+                    NavigationRoute.HomeScreen
+                        (
+                        LocationHelper.getLatitude(context), LocationHelper.getLongitude(context)
+                    )
+                ) {
+                    popUpTo(navController.graph.startDestinationId){
+                        inclusive=true
+                    }
+                    launchSingleTop = true
+                }
+            }
         ),
         BottomNavigationItem(
             title = "Favorite",
             selectedIcon = Icons.Filled.Favorite,
             unSelectedIcon = Icons.Outlined.Favorite,
             hasNews = false,
-            navigationAction = {navController.navigate(NavigationRoute.FavoriteScreen)}
+            navigationAction = {
+                navController.navigate(NavigationRoute.FavoriteScreen) {
+                    popUpTo(navController.graph.startDestinationId)
+                    launchSingleTop = true
+                }
+            }
         ),
         BottomNavigationItem(
             title = "Alarm",
             selectedIcon = Icons.Filled.Notifications,
             unSelectedIcon = Icons.Outlined.Notifications,
             hasNews = false,
-            navigationAction = {navController.navigate(NavigationRoute.AlarmScreen)}
+            navigationAction = {
+                navController.navigate(NavigationRoute.AlarmScreen) {
+                    popUpTo(navController.graph.startDestinationId)
+                    launchSingleTop = true
+                }
+            }
         ),
         BottomNavigationItem(
             title = "Setting",
             selectedIcon = Icons.Filled.Settings,
             unSelectedIcon = Icons.Outlined.Settings,
             hasNews = false,
-            navigationAction = {navController.navigate(NavigationRoute.SettingScreen)}
+            navigationAction = {
+                navController.navigate(NavigationRoute.SettingScreen) {
+                    popUpTo(navController.graph.startDestinationId)
+                    launchSingleTop = true
+                }
+            }
         )
     )
     var selectedItemIndex by remember {
@@ -204,7 +242,6 @@ fun BottomActionBar(navController: NavController){
                 onClick = {
                     selectedItemIndex = index
                     item.navigationAction()
-                    Log.i("TAG", "BottomActionBar: Clicked")
                 },
                 icon = {
                     BadgedBox(
@@ -216,7 +253,8 @@ fun BottomActionBar(navController: NavController){
                             } else {
                                 item.unSelectedIcon
                             },
-                            contentDescription = item.title
+                            contentDescription = item.title,
+                            tint = Color.Gray
                         )
                     }
                 },
@@ -226,7 +264,7 @@ fun BottomActionBar(navController: NavController){
                 colors = NavigationBarItemDefaults.colors(
                     selectedIconColor = Color.Gray,
                     unselectedIconColor = Color.Gray,
-                    indicatorColor = Color(0xB58696E8)
+                    indicatorColor = Color.White,
                 )
             )
         }
