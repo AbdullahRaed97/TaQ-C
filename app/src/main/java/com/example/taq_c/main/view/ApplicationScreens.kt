@@ -1,14 +1,10 @@
-package com.example.taq_c
+package com.example.taq_c.main.view
 
-import android.content.Context
-import android.content.pm.PackageManager
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Notifications
@@ -18,13 +14,17 @@ import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.BadgedBox
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,136 +33,91 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.core.app.ActivityCompat
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import com.example.taq_c.R
 import com.example.taq_c.alarm.AlarmScreen
 import com.example.taq_c.favourite.view.FavoriteCityScreen
 import com.example.taq_c.favourite.view.MapScreen
 import com.example.taq_c.home.view.BottomNavigationItem
 import com.example.taq_c.home.view.HomeScreen
 import com.example.taq_c.settings.view.SettingsScreen
+import com.example.taq_c.utilities.LocationHelper
 import com.example.taq_c.utilities.NavigationRoute
-import java.util.Locale
 
-class MainActivity : ComponentActivity() {
-    override fun attachBaseContext(newBase: Context?) {
-        //get app language
-        val sharedPreferences = newBase?.getSharedPreferences("Settings", Context.MODE_PRIVATE)
-        val appLanguage = sharedPreferences?.getString("Language", "en") ?: "en"
-        //create new Locale and make it default
-        val locale = Locale(appLanguage)
-        Locale.setDefault(locale)
-        //get the configuration of the app
-        val resources = newBase?.resources
-        val config = resources?.configuration
-        //adjust the configuration
-        config?.setLocale(locale)
-        config?.setLayoutDirection(locale)
-        //send the new context with the new configuration
-        if (config != null) {
-            super.attachBaseContext(newBase.createConfigurationContext(config))
-        }
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            val navController = rememberNavController()
-            Scaffold(
-                bottomBar = {
-                    BottomActionBar(navController)
-                },
-                containerColor = Color(0xFF0c1a4d),
-                modifier = Modifier.fillMaxSize()
-            ) { contentPadding ->
-                NavHost(
-                    navController = navController,
-                    startDestination = NavigationRoute.HomeScreen
-                        (
-                        LocationHelper.getLatitude(this),
-                        LocationHelper.getLongitude(this)
-                    ),
-                    modifier = Modifier.padding(contentPadding)
+@Composable
+fun ApplicationScreens() {
+    val context = LocalContext.current
+    val floatingActionButtonAction: MutableState<(() -> Unit)?> =
+        remember { mutableStateOf(null) }
+    val snackBarState = remember { SnackbarHostState() }
+    val navController = rememberNavController()
+    Scaffold(
+        bottomBar = {
+            BottomActionBar(navController)
+        },
+        containerColor = Color(0xFF0c1a4d),
+        modifier = Modifier.fillMaxSize(),
+        snackbarHost = {
+            SnackbarHost(snackBarState)
+        },
+        floatingActionButton = {
+            if (floatingActionButtonAction.value != null) {
+                FloatingActionButton(
+                    onClick = {
+                        floatingActionButtonAction.value?.invoke()
+                    },
+                    contentColor = Color.White,
+                    containerColor = Color.DarkGray,
                 ) {
-                    composable<NavigationRoute.HomeScreen> {
-                        val receivedObject = it.toRoute<NavigationRoute.HomeScreen>()
-                        val lat = receivedObject.lat
-                        val lon = receivedObject.lon
-                        HomeScreen(lat, lon)
-                    }
-                    composable<NavigationRoute.SettingScreen> {
-                        SettingsScreen(navController)
-                    }
-                    composable<NavigationRoute.FavoriteScreen> {
-                        FavoriteCityScreen(navController)
-                    }
-                    composable<NavigationRoute.AlarmScreen> {
-                        AlarmScreen()
-                    }
-                    composable<NavigationRoute.MapScreen> {
-                        val receivedObject = it.toRoute<NavigationRoute.MapScreen>()
-                        val fromSetting = receivedObject.fromSetting
-                        MapScreen(fromSetting, navController)
-                    }
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = "Add"
+                    )
                 }
             }
+
         }
-    }
-
-    override fun onStart() {
-        super.onStart()
-        //check permission
-        if (LocationHelper.checkPermission(this)) {
-            //check if the location is enabled
-            if (LocationHelper.locationEnabled(this)) {
-                LocationHelper.getFreshLocation(this)
-            } else {
-                //enable the Location service
-                LocationHelper.enableLocationService(this)
+    ) { contentPadding ->
+        NavHost(
+            navController = navController,
+            startDestination = NavigationRoute.HomeScreen
+                (
+                LocationHelper.getLatitude(context),
+                LocationHelper.getLongitude(context)
+            ),
+            modifier = Modifier
+                .padding(contentPadding)
+                .fillMaxSize(),
+        ) {
+            composable<NavigationRoute.HomeScreen> {
+                val receivedObject = it.toRoute<NavigationRoute.HomeScreen>()
+                val lat = receivedObject.lat
+                val lon = receivedObject.lon
+                floatingActionButtonAction.value = null
+                HomeScreen(lat, lon)
             }
-        } else {
-            //No permission supported so request permission
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(
-                    android.Manifest.permission.ACCESS_FINE_LOCATION,
-                    android.Manifest.permission.ACCESS_COARSE_LOCATION
-                ),
-                LocationHelper.REQUEST_CODE
-            )
-        }
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray,
-        deviceId: Int
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults, deviceId)
-        if (requestCode == LocationHelper.REQUEST_CODE) {
-            if (grantResults.get(0) == PackageManager.PERMISSION_GRANTED || grantResults.get(1) == PackageManager.PERMISSION_GRANTED) {
-                if (LocationHelper.locationEnabled(this)) {
-                    LocationHelper.getFreshLocation(this)
-                } else {
-                    LocationHelper.enableLocationService(this)
-                }
-            } else {
-                ActivityCompat.requestPermissions(
-                    this,
-                    arrayOf(
-                        android.Manifest.permission.ACCESS_FINE_LOCATION,
-                        android.Manifest.permission.ACCESS_COARSE_LOCATION
-                    ),
-                    LocationHelper.REQUEST_CODE
-                )
+            composable<NavigationRoute.SettingScreen> {
+                floatingActionButtonAction.value = null
+                SettingsScreen(navController)
             }
-
+            composable<NavigationRoute.FavoriteScreen> {
+                FavoriteCityScreen(navController, floatingActionButtonAction)
+            }
+            composable<NavigationRoute.AlarmScreen> {
+                AlarmScreen(floatingActionButtonAction)
+            }
+            composable<NavigationRoute.MapScreen> {
+                val receivedObject = it.toRoute<NavigationRoute.MapScreen>()
+                val fromSetting = receivedObject.fromSetting
+                floatingActionButtonAction.value = null
+                MapScreen(fromSetting, navController)
+            }
         }
     }
 }
@@ -172,7 +127,7 @@ fun BottomActionBar(navController: NavController) {
     val context = LocalContext.current
     val items = listOf(
         BottomNavigationItem(
-            title = "Home",
+            title = stringResource(R.string.home),
             selectedIcon = Icons.Filled.Home,
             unSelectedIcon = Icons.Outlined.Home,
             hasNews = false,
@@ -183,15 +138,15 @@ fun BottomActionBar(navController: NavController) {
                         LocationHelper.getLatitude(context), LocationHelper.getLongitude(context)
                     )
                 ) {
-                    popUpTo(navController.graph.startDestinationId){
-                        inclusive=true
+                    popUpTo(navController.graph.startDestinationId) {
+                        inclusive = true
                     }
                     launchSingleTop = true
                 }
             }
         ),
         BottomNavigationItem(
-            title = "Favorite",
+            title = stringResource(R.string.favorite),
             selectedIcon = Icons.Filled.Favorite,
             unSelectedIcon = Icons.Outlined.Favorite,
             hasNews = false,
@@ -203,7 +158,7 @@ fun BottomActionBar(navController: NavController) {
             }
         ),
         BottomNavigationItem(
-            title = "Alarm",
+            title = stringResource(R.string.alarm),
             selectedIcon = Icons.Filled.Notifications,
             unSelectedIcon = Icons.Outlined.Notifications,
             hasNews = false,
@@ -215,7 +170,7 @@ fun BottomActionBar(navController: NavController) {
             }
         ),
         BottomNavigationItem(
-            title = "Setting",
+            title = stringResource(R.string.setting),
             selectedIcon = Icons.Filled.Settings,
             unSelectedIcon = Icons.Outlined.Settings,
             hasNews = false,
@@ -234,7 +189,8 @@ fun BottomActionBar(navController: NavController) {
         containerColor = Color.White,
         modifier = Modifier
             .clip(RoundedCornerShape(20.dp))
-            .padding(1.dp)
+            .padding(1.dp),
+        contentColor = Color.Gray
     ) {
         items.forEachIndexed { index, item ->
             NavigationBarItem(
