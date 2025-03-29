@@ -1,5 +1,6 @@
 package com.example.taq_c.data.model
 
+import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
@@ -88,3 +89,8 @@ data class WeatherDetails(
     var grnd_level: Int? = 0,
     var temp_kf : Double? =0.0)
 
+@Entity(tableName="Alert")
+data class Alert(
+    @PrimaryKey(autoGenerate = true) val requestCode: Int? = null,
+    @Embedded("alert") val city:City,
+)

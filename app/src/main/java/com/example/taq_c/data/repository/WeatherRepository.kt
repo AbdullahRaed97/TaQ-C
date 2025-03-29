@@ -2,6 +2,7 @@ package com.example.taq_c.data.repository
 
 import android.content.Context
 import com.example.taq_c.data.local.WeatherLocalDataSource
+import com.example.taq_c.data.model.Alert
 import com.example.taq_c.data.model.City
 import com.example.taq_c.data.model.ForecastResponse
 import com.example.taq_c.data.model.WeatherResponse
@@ -12,7 +13,7 @@ class WeatherRepository private constructor(val localDataSource: WeatherLocalDat
             ,val remoteDataSource: WeatherRemoteDataSource
 )
 {
-    suspend fun getAllFavCities(): Flow<List<City>?>{
+    fun getAllFavCities(): Flow<List<City>?>{
         return localDataSource.getAllFavCities()
     }
     suspend fun insertFavCity(city: City):Long{
@@ -26,6 +27,18 @@ class WeatherRepository private constructor(val localDataSource: WeatherLocalDat
     }
     suspend fun get5D_3HForeCastData(lat: Double, lon: Double, units:String , lang: String): Flow<ForecastResponse?> {
         return remoteDataSource.get5D_3HForecastData( lat = lat , lon = lon , units = units , lang = lang)
+    }
+
+    fun getAllAlerts(): Flow<List<Alert>>{
+        return localDataSource.getAllAlerts()
+    }
+
+    suspend fun insertAlert(alert: Alert): Long{
+        return localDataSource.insertAlert(alert)
+    }
+
+    suspend fun deleteAlert(alert: Alert): Int{
+        return localDataSource.deleteAlert(alert)
     }
 
     companion object{
