@@ -11,7 +11,7 @@ sealed class NavigationRoute {
     @Serializable
     object SettingScreen : NavigationRoute()
     @Serializable
-    object AlarmScreen : NavigationRoute()
+    object AlertScreen : NavigationRoute()
     @Serializable
     data class MapScreen(val fromSetting: Boolean) : NavigationRoute()
 }

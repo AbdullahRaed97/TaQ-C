@@ -41,7 +41,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.example.taq_c.R
-import com.example.taq_c.alarm.AlarmScreen
+import com.example.taq_c.alert.AlertScreen
 import com.example.taq_c.favourite.view.FavoriteCityScreen
 import com.example.taq_c.favourite.view.MapScreen
 import com.example.taq_c.home.view.BottomNavigationItem
@@ -109,8 +109,8 @@ fun ApplicationScreens() {
             composable<NavigationRoute.FavoriteScreen> {
                 FavoriteCityScreen(navController, floatingActionButtonAction)
             }
-            composable<NavigationRoute.AlarmScreen> {
-                AlarmScreen(floatingActionButtonAction)
+            composable<NavigationRoute.AlertScreen> {
+                AlertScreen(floatingActionButtonAction)
             }
             composable<NavigationRoute.MapScreen> {
                 val receivedObject = it.toRoute<NavigationRoute.MapScreen>()
@@ -163,7 +163,7 @@ fun BottomActionBar(navController: NavController) {
             unSelectedIcon = Icons.Outlined.Notifications,
             hasNews = false,
             navigationAction = {
-                navController.navigate(NavigationRoute.AlarmScreen) {
+                navController.navigate(NavigationRoute.AlertScreen) {
                     popUpTo(navController.graph.startDestinationId)
                     launchSingleTop = true
                 }

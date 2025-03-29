@@ -12,7 +12,6 @@ import kotlinx.coroutines.flow.Flow
 interface AlertDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAlert(alert: Alert) : Long
-
     @Delete
     suspend fun deleteAlert(alert: Alert) : Int
     @Query("SELECT * FROM Alert")

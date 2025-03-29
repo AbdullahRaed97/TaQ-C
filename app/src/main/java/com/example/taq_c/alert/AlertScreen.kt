@@ -1,4 +1,4 @@
-package com.example.taq_c.alarm
+package com.example.taq_c.alert
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -12,7 +12,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun AlarmScreen(floatingActionButtonAction : MutableState<(()->Unit)?>) {
+fun AlertScreen(floatingActionButtonAction : MutableState<(()->Unit)?>) {
 
     floatingActionButtonAction.value ={
 
