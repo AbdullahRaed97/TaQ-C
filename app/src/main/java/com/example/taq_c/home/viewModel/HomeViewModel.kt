@@ -5,7 +5,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.example.taq_c.LocationHelper
+import com.example.taq_c.utilities.LocationHelper
 import com.example.taq_c.data.model.Forecast
 import com.example.taq_c.data.model.ForecastResponse
 import com.example.taq_c.data.model.Response

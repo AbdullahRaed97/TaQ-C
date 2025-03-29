@@ -72,127 +72,139 @@ fun HomeScreen(lat: Double, lon: Double) {
     val currentLocation = homeViewModel.currentLocation
     val appTempUnit = homeViewModel.getAppUnit(context)
     val appLanguage = homeViewModel.getAppLanguage(context)
-    val appLatitude = homeViewModel.getAppLatitude(lat,context)
-    val appLongitude = homeViewModel.getAppLongitude(lon,context)
-    //Log.i("TAG", "HomeScreen: long is $lon and lat is $lat")
+    val appLatitude = homeViewModel.getAppLatitude(lat, context)
+    val appLongitude = homeViewModel.getAppLongitude(lon, context)
     LaunchedEffect(currentLocation.value) {
-        homeViewModel.getCurrentWeatherData(lat = appLatitude, lon = appLongitude, units = appTempUnit, lang = appLanguage)
-        homeViewModel.get5D_3HForecastData(lat = appLatitude, lon = appLongitude, units = appTempUnit, lang = appLanguage)
-        homeViewModel.setLatitude(context,currentLocation.value.latitude)
-        homeViewModel.setLongitude(context,currentLocation.value.longitude)
+        homeViewModel.getCurrentWeatherData(
+            lat = appLatitude,
+            lon = appLongitude,
+            units = appTempUnit,
+            lang = appLanguage
+        )
+        homeViewModel.get5D_3HForecastData(
+            lat = appLatitude,
+            lon = appLongitude,
+            units = appTempUnit,
+            lang = appLanguage
+        )
+        homeViewModel.setLatitude(context, currentLocation.value.latitude)
+        homeViewModel.setLongitude(context, currentLocation.value.longitude)
     }
     val weatherResponse = homeViewModel.weatherResponse.collectAsStateWithLifecycle().value
     val forecastResponse = homeViewModel.forecastResponse.collectAsStateWithLifecycle().value
     val message = homeViewModel.message
     val snackBarHostState = remember { SnackbarHostState() }
     val scrollState = rememberScrollState()
-    Scaffold(
-        snackbarHost = {
-            SnackbarHost(snackBarHostState)
-        },
-        containerColor = Color(0xFF0c1a4d)
-    ) {contentPadding->
-        Column(
-            modifier = Modifier
-                .background(Color(0xFF182354))
-                .verticalScroll(scrollState)
-                .padding(contentPadding),
+    Column(
+        modifier = Modifier
+            .background(Color(0xFF182354))
+            .verticalScroll(scrollState)
+            .padding(),
 
         ) {
-            when (weatherResponse) {
-                is Response.Success<WeatherResponse> -> {
-                    WeatherResponseData(weatherResponse.data, units = appTempUnit,homeViewModel)
-                }
-
-                is Response.Failure -> {
-                    LaunchedEffect(weatherResponse) {
-                        snackBarHostState.showSnackbar(
-                            message = weatherResponse.exception.message.toString(),
-                            duration = SnackbarDuration.Short
-                        )
-                    }
-                }
-
-                is Response.Loading -> {
-                    CircularIndicator()
-                }
-
-                else -> Log.i("TAG", "HomeScreen: Something went wrong")
+        when (weatherResponse) {
+            is Response.Success<WeatherResponse> -> {
+                WeatherResponseData(weatherResponse.data, units = appTempUnit, homeViewModel)
             }
 
-            Spacer(Modifier.height(30.dp))
-            Text(
-                text = stringResource(R.string.hourly_details),
-                color = Color.White,
-                fontSize = 28.sp,
-                modifier = Modifier.padding(start = 20.dp)
-            )
-            Spacer(Modifier.padding(start = 20.dp))
-            when (forecastResponse) {
-                is Response.Failure -> LaunchedEffect(forecastResponse) {
+            is Response.Failure -> {
+                LaunchedEffect(weatherResponse) {
                     snackBarHostState.showSnackbar(
-                        message = forecastResponse.exception.message.toString(),
+                        message = weatherResponse.exception.message.toString(),
                         duration = SnackbarDuration.Short
                     )
-                    Log.i("TAG", "HomeScreen: forecast failure ${forecastResponse.exception.message}")
                 }
+            }
 
-                is Response.Loading -> {
-                    CircularIndicator()
-                }
+            is Response.Loading -> {
+                CircularIndicator()
+            }
 
-                is Response.Success -> {
-                    Column(
+            else -> Log.i("TAG", "HomeScreen: Something went wrong")
+        }
+
+        Spacer(Modifier.height(30.dp))
+        Text(
+            text = stringResource(R.string.hourly_details),
+            color = Color.White,
+            fontSize = 28.sp,
+            modifier = Modifier.padding(start = 20.dp)
+        )
+        Spacer(Modifier.padding(start = 20.dp))
+        when (forecastResponse) {
+            is Response.Failure -> LaunchedEffect(forecastResponse) {
+                snackBarHostState.showSnackbar(
+                    message = forecastResponse.exception.message.toString(),
+                    duration = SnackbarDuration.Short
+                )
+                Log.i("TAG", "HomeScreen: forecast failure ${forecastResponse.exception.message}")
+            }
+
+            is Response.Loading -> {
+                CircularIndicator()
+            }
+
+            is Response.Success -> {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(15.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    LazyRow(
                         modifier = Modifier
-                            .fillMaxSize()
+                            .fillMaxWidth()
                             .padding(15.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        LazyRow(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(15.dp),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            val list = forecastResponse.data.weatherForecastList
-                            if (list != null) {
-                                itemsIndexed(list) { index, item ->
-                                    HomeLazyRowItem(item, appTempUnit,homeViewModel)
-                                }
+                        val list = forecastResponse.data.weatherForecastList
+                        if (list != null) {
+                            itemsIndexed(list) { index, item ->
+                                HomeLazyRowItem(item, appTempUnit, homeViewModel)
                             }
                         }
-                        Spacer(modifier = Modifier.height(15.dp))
-                        Text(
-                            text = stringResource(R.string._5_days_forecast),
-                            color = Color.White,
-                            fontSize = 28.sp
-                        )
-                        Spacer(modifier = Modifier.height(15.dp))
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth(),
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            if (forecastResponse.data.weatherForecastList != null) {
-                                val forecastList =
-                                    homeViewModel.filterForecastList(forecastResponse.data.weatherForecastList)
-                                forecastList.forEachIndexed {
-                                    index, item -> HomeLazyColumnItem(forecastResponse.data, appTempUnit, index,homeViewModel)
-                                }
+                    }
+                    Spacer(modifier = Modifier.height(15.dp))
+                    Text(
+                        text = stringResource(R.string._5_days_forecast),
+                        color = Color.White,
+                        fontSize = 28.sp
+                    )
+                    Spacer(modifier = Modifier.height(15.dp))
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        if (forecastResponse.data.weatherForecastList != null) {
+                            val forecastList =
+                                homeViewModel.filterForecastList(forecastResponse.data.weatherForecastList)
+                            forecastList.forEachIndexed { index, item ->
+                                HomeLazyColumnItem(
+                                    forecastResponse.data,
+                                    appTempUnit,
+                                    index,
+                                    homeViewModel
+                                )
                             }
                         }
                     }
                 }
-                else -> Log.i("TAG", "HomeScreen: Something went wrong")
             }
+
+            else -> Log.i("TAG", "HomeScreen: Something went wrong")
         }
     }
 }
 
 @Composable
-private fun WeatherResponseData(weatherResponse: WeatherResponse, units: String,homeViewModel: HomeViewModel) {
+private fun WeatherResponseData(
+    weatherResponse: WeatherResponse,
+    units: String,
+    homeViewModel: HomeViewModel
+) {
     Row(
         modifier = Modifier
             .padding(start = 10.dp, end = 5.dp, top = 20.dp)
@@ -333,12 +345,16 @@ private fun WeatherResponseData(weatherResponse: WeatherResponse, units: String,
         }
     }
     Spacer(modifier = Modifier.height(20.dp))
-    WeatherCard(weatherResponse,homeViewModel)
+    WeatherCard(weatherResponse, homeViewModel)
 }
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-private fun HomeLazyRowItem(weatherResponse: Forecast, units: String,homeViewModel: HomeViewModel) {
+private fun HomeLazyRowItem(
+    weatherResponse: Forecast,
+    units: String,
+    homeViewModel: HomeViewModel
+) {
     Card(
         modifier = Modifier
             .width(100.dp)
@@ -405,48 +421,65 @@ fun CircularIndicator() {
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-private fun HomeLazyColumnItem(forecastResponse: ForecastResponse, units: String , index :Int,homeViewModel: HomeViewModel){
-    Card (
+private fun HomeLazyColumnItem(
+    forecastResponse: ForecastResponse,
+    units: String,
+    index: Int,
+    homeViewModel: HomeViewModel
+) {
+    Card(
         modifier = Modifier
             .height(160.dp)
             .padding(vertical = 6.dp),
         elevation = CardDefaults.cardElevation(8.dp),
         colors = CardDefaults.cardColors(Color.Gray),
-    ){
-        Row(modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 10.dp, vertical = 15.dp),
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 10.dp, vertical = 15.dp),
             horizontalArrangement = Arrangement.SpaceAround,
             verticalAlignment = Alignment.CenterVertically
-            ){
-                Column(modifier = Modifier.fillMaxHeight()
-                , verticalArrangement = Arrangement.SpaceEvenly) {
-                    //Day name
-                    Log.i("TAG", "HomeLazyColumnItem: $index")
-                    Text(
-                        text= homeViewModel.getDayName(
-                            (forecastResponse.weatherForecastList?.get(index)?.dt ?:0) + 86400
-                        ),
-                        fontSize = 25.sp,
-                        color = Color.White
-                    )
-                    Text(
-                        text= homeViewModel.convertTimeStampToDate(forecastResponse.weatherForecastList?.get(index)?.dt ?: 0),
-                        fontSize = 20.sp,
-                        color = Color.White
-                    )
-                }
+        ) {
+            Column(
+                modifier = Modifier.fillMaxHeight(), verticalArrangement = Arrangement.SpaceEvenly
+            ) {
+                //Day name
+                Log.i("TAG", "HomeLazyColumnItem: $index")
+                Text(
+                    text = homeViewModel.getDayName(
+                        (forecastResponse.weatherForecastList?.get(index)?.dt ?: 0) + 86400
+                    ),
+                    fontSize = 25.sp,
+                    color = Color.White
+                )
+                Text(
+                    text = homeViewModel.convertTimeStampToDate(
+                        forecastResponse.weatherForecastList?.get(
+                            index
+                        )?.dt ?: 0
+                    ),
+                    fontSize = 20.sp,
+                    color = Color.White
+                )
+            }
             GlideImage(
-                model = "https://openweathermap.org/img/wn/" + "${forecastResponse.weatherForecastList?.get(index)?.weather?.get(0)?.weatherIcon}@3x.png",
+                model = "https://openweathermap.org/img/wn/" + "${
+                    forecastResponse.weatherForecastList?.get(
+                        index
+                    )?.weather?.get(0)?.weatherIcon
+                }@3x.png",
                 contentDescription = null,
                 modifier = Modifier.size(24.dp)
             )
-            Row (modifier = Modifier.fillMaxWidth(),
+            Row(
+                modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically){
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 //Temp
                 Text(
-                    text= forecastResponse.weatherForecastList?.get(index)?.weatherDetails?.temp.toString(),
+                    text = forecastResponse.weatherForecastList?.get(index)?.weatherDetails?.temp.toString(),
                     fontSize = 18.sp,
                     color = Color.White
                 )
@@ -461,20 +494,24 @@ private fun HomeLazyColumnItem(forecastResponse: ForecastResponse, units: String
                     fontSize = 18.sp
                 )
             }
-            Column(modifier = Modifier
-                .fillMaxHeight()
-                .padding(vertical = 5.dp),
+            Column(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .padding(vertical = 5.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center) {
+                verticalArrangement = Arrangement.Center
+            ) {
                 Text(
-                    text= stringResource(R.string.feels_like),
+                    text = stringResource(R.string.feels_like),
                     fontSize = 18.sp,
                     color = Color.White
                 )
-                Row(modifier = Modifier
-                    .fillMaxWidth(),
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
                     horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically) {
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     //Feels_like
                     Text(
                         text = forecastResponse.weatherForecastList?.get(index)?.weatherDetails?.feels_like.toString(),
@@ -494,10 +531,10 @@ private fun HomeLazyColumnItem(forecastResponse: ForecastResponse, units: String
 }
 
 @Composable
-private fun WeatherCard(weatherResponse: WeatherResponse , homeViewModel: HomeViewModel) {
+private fun WeatherCard(weatherResponse: WeatherResponse, homeViewModel: HomeViewModel) {
     val context = LocalContext.current
     val speedUnit = homeViewModel.getAppWindSpeedUnit(context)
-    val windSpeed = homeViewModel.calculateWindSpeed(speedUnit,weatherResponse)
+    val windSpeed = homeViewModel.calculateWindSpeed(speedUnit, weatherResponse)
     Card(
         modifier = Modifier
             .height(160.dp)
@@ -553,7 +590,7 @@ private fun WeatherCard(weatherResponse: WeatherResponse , homeViewModel: HomeVi
                 )
                 Row(
                     modifier = Modifier.padding(start = 5.dp)
-                ){
+                ) {
                     Text(
                         text = windSpeed,
                         fontSize = 20.sp
