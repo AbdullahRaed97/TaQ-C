@@ -2,52 +2,59 @@ package com.example.taq_c.settings.viewModel
 
 import android.content.Context
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 
-class SettingViewModel(context: Context) : ViewModel() {
-    private val sharedPreferences = context.getSharedPreferences("Settings", Context.MODE_PRIVATE)
 
-    fun setLanguage(value: String="en"){
+class SettingViewModel() : ViewModel() {
+
+    fun setLanguage(context: Context,value: String="en"){
+        val sharedPreferences = context.getSharedPreferences("Settings", Context.MODE_PRIVATE)
        sharedPreferences.edit().apply{
            putString("Language",value)
            apply()
        }
     }
 
-    fun setWindSpeedUnit(value: String="km/h"){
+    fun setWindSpeedUnit(context: Context,value: String="km/h"){
+        val sharedPreferences = context.getSharedPreferences("Settings", Context.MODE_PRIVATE)
         sharedPreferences.edit().apply {
             putString("WindSpeedUnit",value)
             apply()
         }
     }
 
-    fun setTemperatureUnit(value: String="metric"){
+    fun setTemperatureUnit(context: Context , value: String="metric"){
+        val sharedPreferences = context.getSharedPreferences("Settings", Context.MODE_PRIVATE)
         sharedPreferences.edit().apply{
             putString("TemperatureUnit",value)
             apply()
         }
     }
 
-    fun setLocationType(value : String="GPS"){
+    fun setLocationType(context: Context,value : String="GPS"){
+        val sharedPreferences = context.getSharedPreferences("Settings", Context.MODE_PRIVATE)
         sharedPreferences.edit().apply {
             putString("Location",value)
             apply()
         }
     }
 
-    fun getLanguage(): String{
+    fun getLanguage(context: Context): String{
+        val sharedPreferences = context.getSharedPreferences("Settings", Context.MODE_PRIVATE)
         return sharedPreferences.getString("Language","en")?:"en"
     }
 
-    fun getTemperatureUnit():String{
+    fun getTemperatureUnit(context: Context):String{
+        val sharedPreferences = context.getSharedPreferences("Settings", Context.MODE_PRIVATE)
         return sharedPreferences.getString("TemperatureUnit","metric")?:"metric"
     }
 
-    fun getLocationType():String{
+    fun getLocationType(context: Context):String{
+        val sharedPreferences = context.getSharedPreferences("Settings", Context.MODE_PRIVATE)
         return sharedPreferences.getString("Location","GPS")?:"GPS"
     }
 
-    fun getWindSpeedUnit():String{
+    fun getWindSpeedUnit(context: Context):String{
+        val sharedPreferences = context.getSharedPreferences("Settings", Context.MODE_PRIVATE)
         return sharedPreferences.getString("WindSpeedUnit","km/h")?:"km/h"
     }
 
@@ -153,11 +160,5 @@ class SettingViewModel(context: Context) : ViewModel() {
     fun getTheSelectedLocationType(context: Context) :Int{
         val sharedPreferences = context.getSharedPreferences("SelectedLocationType", Context.MODE_PRIVATE)
         return sharedPreferences.getInt("Code",0)
-    }
-}
-
-class SettingFactory (val context: Context) : ViewModelProvider.Factory{
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        return SettingViewModel(context) as T
     }
 }
