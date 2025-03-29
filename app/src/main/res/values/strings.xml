@@ -33,4 +33,8 @@
     <string name="map">Map</string>
     <string name="add_to_favourite">Add To Favourite</string>
     <string name="set_your_location">Set your Location</string>
+    <string name="home">Home</string>
+    <string name="favorite">Favorite</string>
+    <string name="alarm">Alarm</string>
+    <string name="setting">Setting</string>
 </resources>
