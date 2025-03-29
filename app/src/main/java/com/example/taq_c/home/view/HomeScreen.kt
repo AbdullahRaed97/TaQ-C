@@ -69,15 +69,17 @@ fun HomeScreen(lat: Double, lon: Double) {
     val homeViewModel = viewModel<HomeViewModel>(
         factory = HomeFactory(weatherRepository)
     )
-
+    val currentLocation = homeViewModel.currentLocation
     val appTempUnit = homeViewModel.getAppUnit(context)
     val appLanguage = homeViewModel.getAppLanguage(context)
     val appLatitude = homeViewModel.getAppLatitude(lat,context)
     val appLongitude = homeViewModel.getAppLongitude(lon,context)
-
-    LaunchedEffect(Unit) {
+    //Log.i("TAG", "HomeScreen: long is $lon and lat is $lat")
+    LaunchedEffect(currentLocation.value) {
         homeViewModel.getCurrentWeatherData(lat = appLatitude, lon = appLongitude, units = appTempUnit, lang = appLanguage)
-        homeViewModel.get5D_3HForecastData(lat = appLatitude, lon = appLongitude, units = appTempUnit , lang = appLanguage)
+        homeViewModel.get5D_3HForecastData(lat = appLatitude, lon = appLongitude, units = appTempUnit, lang = appLanguage)
+        homeViewModel.setLatitude(context,currentLocation.value.latitude)
+        homeViewModel.setLongitude(context,currentLocation.value.longitude)
     }
     val weatherResponse = homeViewModel.weatherResponse.collectAsStateWithLifecycle().value
     val forecastResponse = homeViewModel.forecastResponse.collectAsStateWithLifecycle().value
@@ -87,14 +89,15 @@ fun HomeScreen(lat: Double, lon: Double) {
     Scaffold(
         snackbarHost = {
             SnackbarHost(snackBarHostState)
-        }
+        },
+        containerColor = Color(0xFF0c1a4d)
     ) {contentPadding->
         Column(
             modifier = Modifier
-                .fillMaxSize()
                 .background(Color(0xFF182354))
                 .verticalScroll(scrollState)
-                .padding(contentPadding)
+                .padding(contentPadding),
+
         ) {
             when (weatherResponse) {
                 is Response.Success<WeatherResponse> -> {
@@ -178,7 +181,6 @@ fun HomeScreen(lat: Double, lon: Double) {
                                 forecastList.forEachIndexed {
                                     index, item -> HomeLazyColumnItem(forecastResponse.data, appTempUnit, index,homeViewModel)
                                 }
-                                Log.i("TAG", "HomeScreen: ${forecastList}")
                             }
                         }
                     }
