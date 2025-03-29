@@ -35,7 +35,6 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.taq_c.R
-import com.example.taq_c.settings.viewModel.SettingFactory
 import com.example.taq_c.settings.viewModel.SettingViewModel
 import com.example.taq_c.utilities.NavigationRoute
 
@@ -45,8 +44,7 @@ fun SettingsScreen(navController: NavController) {
 
     val context = LocalContext.current
     val settingViewModel =
-        viewModel<SettingViewModel>(factory = SettingFactory(LocalContext.current))
-
+        viewModel<SettingViewModel>()
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Top,
@@ -185,30 +183,30 @@ private fun LanguageSettings(
                         selectedOption = language
                         when (language) {
                             "Arabic" -> {
-                                settingViewModel.setLanguage("ar")
+                                settingViewModel.setLanguage(context,"ar")
                                 settingViewModel.setTheSelectedLanguage(context, language)
                                 (context as ComponentActivity).recreate()
                             }
 
                             "English" -> {
-                                settingViewModel.setLanguage()
+                                settingViewModel.setLanguage(context)
                                 settingViewModel.setTheSelectedLanguage(context, language)
                                 (context as ComponentActivity).recreate()
                             }
 
                             "Default" -> {
-                                settingViewModel.setLanguage()
+                                settingViewModel.setLanguage(context)
                                 settingViewModel.setTheSelectedLanguage(context, language)
                                 (context as ComponentActivity).recreate()
                             }
 
                             else -> {
-                                settingViewModel.setLanguage()
+                                settingViewModel.setLanguage(context)
                                 settingViewModel.setTheSelectedLanguage(context, language)
                                 (context as ComponentActivity).recreate()
                             }
                         }
-                        Log.i("TAG", "SettingsScreen: ${settingViewModel.getLanguage()}")
+                        Log.i("TAG", "SettingsScreen: ${settingViewModel.getLanguage(context)}")
                     },
                     colors = RadioButtonDefaults.colors(
                         selectedColor = Color.Red,
@@ -255,26 +253,26 @@ private fun TemperatureSettings(
                         selectedOption = temp
                         when (temp) {
                             "Celsius" -> {
-                                settingViewModel.setTemperatureUnit("metric")
+                                settingViewModel.setTemperatureUnit(context,"metric")
                                 settingViewModel.setTheSelectedTemperature(context, temp)
                             }
 
                             "Kelvin" -> {
-                                settingViewModel.setTemperatureUnit("kelvin")
+                                settingViewModel.setTemperatureUnit(context,"kelvin")
                                 settingViewModel.setTheSelectedTemperature(context, temp)
                             }
 
                             "Fahrenheit" -> {
-                                settingViewModel.setTemperatureUnit("imperial")
+                                settingViewModel.setTemperatureUnit(context,"imperial")
                                 settingViewModel.setTheSelectedTemperature(context, temp)
                             }
 
                             else -> {
-                                settingViewModel.setTemperatureUnit()
+                                settingViewModel.setTemperatureUnit(context)
                                 settingViewModel.setTheSelectedTemperature(context, temp)
                             }
                         }
-                        Log.i("TAG", "SettingsScreen: ${settingViewModel.getTemperatureUnit()}")
+                        Log.i("TAG", "SettingsScreen: ${settingViewModel.getTemperatureUnit(context)}")
                     },
                     colors = RadioButtonDefaults.colors(
                         selectedColor = Color.Red,
@@ -321,20 +319,20 @@ private fun SpeedUnitSetting(
                         selectedOption = speed
                         when (speed) {
                             "km/h" -> {
-                                settingViewModel.setWindSpeedUnit(speed)
+                                settingViewModel.setWindSpeedUnit(context,speed)
                                 settingViewModel.setTheSelectedSpeedUnit(context, speed)
                             }
 
                             "mph" -> {
-                                settingViewModel.setWindSpeedUnit(speed)
+                                settingViewModel.setWindSpeedUnit(context,speed)
                                 settingViewModel.setTheSelectedSpeedUnit(context, speed)
                             }
                             else -> {
-                                settingViewModel.setWindSpeedUnit()
+                                settingViewModel.setWindSpeedUnit(context)
                                 settingViewModel.setTheSelectedSpeedUnit(context, speed)
                             }
                         }
-                        Log.i("TAG", "SettingsScreen: ${settingViewModel.getWindSpeedUnit()}")
+                        Log.i("TAG", "SettingsScreen: ${settingViewModel.getWindSpeedUnit(context)}")
                     },
                     colors = RadioButtonDefaults.colors(
                         selectedColor = Color.Red,
@@ -383,21 +381,21 @@ private fun LocationSetting(
                         selectedOption = location
                         when (location) {
                             "GPS" -> {
-                                settingViewModel.setLocationType(location)
+                                settingViewModel.setLocationType(context,location)
                                 settingViewModel.setTheSelectedLocationType(context, location)
                             }
 
                             "Map" -> {
-                                settingViewModel.setLocationType(location)
+                                settingViewModel.setLocationType(context,location)
                                 settingViewModel.setTheSelectedLocationType(context, location)
                                 navController.navigate(NavigationRoute.MapScreen(true))
                             }
                             else -> {
-                                settingViewModel.setLocationType()
+                                settingViewModel.setLocationType(context)
                                 settingViewModel.setTheSelectedLocationType(context, location)
                             }
                         }
-                        Log.i("TAG", "SettingsScreen: ${settingViewModel.getWindSpeedUnit()}")
+                        Log.i("TAG", "SettingsScreen: ${settingViewModel.getWindSpeedUnit(context)}")
                     },
                     colors = RadioButtonDefaults.colors(
                         selectedColor = Color.Red,
