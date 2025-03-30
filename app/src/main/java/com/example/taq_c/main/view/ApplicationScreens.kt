@@ -1,5 +1,7 @@
 package com.example.taq_c.main.view
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -42,6 +44,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.example.taq_c.R
 import com.example.taq_c.alert.AlertScreen
+import com.example.taq_c.alert.SetAlertScreen
 import com.example.taq_c.favourite.view.FavoriteCityScreen
 import com.example.taq_c.favourite.view.MapScreen
 import com.example.taq_c.home.view.BottomNavigationItem
@@ -50,6 +53,7 @@ import com.example.taq_c.settings.view.SettingsScreen
 import com.example.taq_c.utilities.LocationHelper
 import com.example.taq_c.utilities.NavigationRoute
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ApplicationScreens() {
     val context = LocalContext.current
@@ -110,13 +114,20 @@ fun ApplicationScreens() {
                 FavoriteCityScreen(navController, floatingActionButtonAction)
             }
             composable<NavigationRoute.AlertScreen> {
-                AlertScreen(floatingActionButtonAction)
+                AlertScreen(floatingActionButtonAction,navController)
             }
             composable<NavigationRoute.MapScreen> {
                 val receivedObject = it.toRoute<NavigationRoute.MapScreen>()
                 val fromSetting = receivedObject.fromSetting
+                val fromAlert = receivedObject.fromAlert
                 floatingActionButtonAction.value = null
-                MapScreen(fromSetting, navController)
+                MapScreen(fromSetting,fromAlert,navController)
+            }
+           composable <NavigationRoute.SetAlertScreen>{
+               val receivedObject = it.toRoute<NavigationRoute.SetAlertScreen>()
+               val lat = receivedObject.lat
+               val lon = receivedObject.lon
+               SetAlertScreen(navController,lat,lon)
             }
         }
     }
