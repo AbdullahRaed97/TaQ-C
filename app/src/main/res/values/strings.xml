@@ -37,4 +37,10 @@
     <string name="favorite">Favorite</string>
     <string name="alarm">Alarm</string>
     <string name="setting">Setting</string>
+    <string name="cancel">Cancel</string>
+    <string name="confirm">Confirm</string>
+    <string name="pick_up_your_time">Pick up your Time</string>
+    <string name="set_your_destination">Set your Destination</string>
+    <string name="confirm_your_alert">Confirm your Alert</string>
+    <string name="pick_up_your_date">Pick up your Date</string>
 </resources>
