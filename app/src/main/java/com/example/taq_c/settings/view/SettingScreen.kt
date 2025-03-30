@@ -388,7 +388,7 @@ private fun LocationSetting(
                             "Map" -> {
                                 settingViewModel.setLocationType(context,location)
                                 settingViewModel.setTheSelectedLocationType(context, location)
-                                navController.navigate(NavigationRoute.MapScreen(true))
+                                navController.navigate(NavigationRoute.MapScreen(true,false))
                             }
                             else -> {
                                 settingViewModel.setLocationType(context)
