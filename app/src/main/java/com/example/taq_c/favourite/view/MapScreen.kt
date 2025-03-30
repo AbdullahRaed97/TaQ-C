@@ -49,7 +49,7 @@ import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 
 @Composable
-fun MapScreen(fromSetting: Boolean = false , navController: NavController) {
+fun MapScreen(fromSetting: Boolean = false, fromAlert : Boolean, navController: NavController) {
     var defaultLocation by remember { mutableStateOf(LatLng(30.0444,  31.2357))}// Cairo coordinates
     val cameraPositionState = rememberCameraPositionState { position = CameraPosition.fromLatLngZoom(defaultLocation, 10f) }
     var markerTitle by remember {mutableStateOf("Egypt")}
@@ -90,6 +90,8 @@ fun MapScreen(fromSetting: Boolean = false , navController: NavController) {
     }
     if(fromSetting) {
         FromSettingConfiguration(favViewModel,navController,defaultLocation.latitude, defaultLocation.longitude)
+    }else if(fromAlert){
+        FromAlertConfiguration(navController,defaultLocation.latitude,defaultLocation.longitude)
     }else{
         ShowCardDetails(defaultLocation.latitude, defaultLocation.longitude, favViewModel)
     }
@@ -232,4 +234,26 @@ private fun FromSettingConfiguration(favViewModel: FavouriteViewModel,navControl
     }
 }
 
+@Composable
+private fun FromAlertConfiguration(navController: NavController , lat: Double, lon: Double){
+    Column (
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Bottom
+    ){
+        Button(
+            onClick = {
+                navController.navigate(NavigationRoute.SetAlertScreen(lat,lon))
+            },
+            colors = ButtonDefaults.buttonColors(Color.Black)
+
+        ) {
+            Text(
+                text = stringResource(R.string.set_your_destination),
+                color = Color.White,
+                fontSize = 20.sp
+            )
+        }
+    }
+}
 
