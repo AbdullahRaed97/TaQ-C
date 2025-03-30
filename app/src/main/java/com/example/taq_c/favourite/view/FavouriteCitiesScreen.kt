@@ -62,12 +62,13 @@ fun FavoriteCityScreen(
     val snackBarHostState = remember { SnackbarHostState() }
 
     floatingActionButtonAction.value = {
-        navController.navigate(NavigationRoute.MapScreen(false))
+        navController.navigate(NavigationRoute.MapScreen(false,false))
     }
 
-    Column(modifier = Modifier.padding()) {
+    Column(modifier = Modifier.padding(),
+        verticalArrangement = Arrangement.Top,
+        horizontalAlignment = Alignment.CenterHorizontally) {
         when (favCityResponse) {
-
             is Response.Failure -> {
                 LaunchedEffect(favCityResponse) {
                     snackBarHostState.showSnackbar(
@@ -87,7 +88,7 @@ fun FavoriteCityScreen(
                         .fillMaxSize()
                         .padding(10.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
+                    verticalArrangement = Arrangement.Top
                 ) {
                     if (favCityResponse.data != null) {
                         itemsIndexed(favCityResponse.data) { index, item ->
