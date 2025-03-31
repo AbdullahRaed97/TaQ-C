@@ -43,8 +43,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.example.taq_c.R
-import com.example.taq_c.alert.AlertScreen
-import com.example.taq_c.alert.SetAlertScreen
+import com.example.taq_c.alert.view.AlertScreen
+import com.example.taq_c.alert.view.SetAlertScreen
 import com.example.taq_c.favourite.view.FavoriteCityScreen
 import com.example.taq_c.favourite.view.MapScreen
 import com.example.taq_c.home.view.BottomNavigationItem
