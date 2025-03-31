@@ -1,4 +1,4 @@
-package com.example.taq_c
+package com.example.taq_c.alert
 
 import android.app.NotificationManager
 import android.content.BroadcastReceiver

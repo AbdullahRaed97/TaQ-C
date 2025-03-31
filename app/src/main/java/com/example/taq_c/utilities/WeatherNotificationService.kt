@@ -1,4 +1,4 @@
-package com.example.taq_c
+package com.example.taq_c.utilities
 
 class WeatherNotificationService {
 

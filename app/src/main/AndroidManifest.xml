@@ -30,7 +30,7 @@
             </intent-filter>
         </activity>
         <receiver android:name=".alert.SnoozeNotificationReceiver"/>
-        <receiver android:name=".CancelNotificationReceiver"/>
+        <receiver android:name=".alert.CancelNotificationReceiver"/>
             <meta-data
                 android:name="com.google.android.geo.API_KEY"
                 android:value="AIzaSyC9hCKfEcNFR2YQDeZ3Xdn3Dk0A7z2xd_c"/>

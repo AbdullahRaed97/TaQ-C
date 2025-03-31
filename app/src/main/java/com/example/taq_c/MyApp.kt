@@ -9,6 +9,7 @@ import android.media.AudioAttributes
 import android.net.Uri
 import android.os.Build
 import androidx.core.net.toUri
+import com.example.taq_c.utilities.WeatherNotificationService
 
 class MyApp : Application() {
 

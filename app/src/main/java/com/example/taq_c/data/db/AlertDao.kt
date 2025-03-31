@@ -1,4 +1,4 @@
-package com.example.taq_c.data.local
+package com.example.taq_c.data.db
 
 import androidx.room.Dao
 import androidx.room.Delete
@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface AlertDao {
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.Companion.REPLACE)
     suspend fun insertAlert(alert: Alert) : Long
     @Delete
     suspend fun deleteAlert(alert: Alert) : Int

@@ -25,10 +25,10 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
-import com.example.taq_c.CancelNotificationReceiver
+import com.example.taq_c.alert.CancelNotificationReceiver
 import com.example.taq_c.R
-import com.example.taq_c.WeatherNotificationService
-import com.example.taq_c.WeatherNotificationService.Companion.WEATHER_CHANNEL_ID
+import com.example.taq_c.utilities.WeatherNotificationService
+import com.example.taq_c.utilities.WeatherNotificationService.Companion.WEATHER_CHANNEL_ID
 import com.example.taq_c.alert.SnoozeNotificationReceiver
 import com.example.taq_c.data.model.Alert
 import com.example.taq_c.data.model.City
@@ -180,7 +180,7 @@ class AlertViewModel(private val weatherRepository: WeatherRepository) : ViewMod
         val myIntent = Intent().apply {
             action = Settings.ACTION_APP_NOTIFICATION_SETTINGS
             putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
-            putExtra(Settings.EXTRA_CHANNEL_ID, WeatherNotificationService.WEATHER_CHANNEL_ID)
+            putExtra(Settings.EXTRA_CHANNEL_ID, WEATHER_CHANNEL_ID)
         }
         context.startActivity(myIntent)
     }
