@@ -1,6 +1,9 @@
 package com.example.taq_c.data.local
 
 import android.content.Context
+import com.example.taq_c.data.db.AlertDao
+import com.example.taq_c.data.db.WeatherDao
+import com.example.taq_c.data.db.WeatherDatabase
 import com.example.taq_c.data.model.Alert
 import com.example.taq_c.data.model.City
 import kotlinx.coroutines.flow.Flow
@@ -8,29 +11,30 @@ import kotlinx.coroutines.flow.Flow
 class WeatherLocalDataSource private constructor(
     val weatherDao: WeatherDao,
     val alertDao: AlertDao
-) {
+) : IWeatherLocalDataSource
+{
 
-    fun getAllFavCities(): Flow<List<City>> {
+   override fun getAllFavCities(): Flow<List<City>> {
         return weatherDao.getAllFavCities()
     }
 
-    suspend fun insertFavCity(city: City): Long {
+    override suspend fun insertFavCity(city: City): Long {
         return weatherDao.insertFavCity(city)
     }
 
-    suspend fun deleteFavCity(city: City): Int {
+    override suspend fun deleteFavCity(city: City): Int {
         return weatherDao.deleteFavCity(city)
     }
 
-    fun getAllAlerts(): Flow<List<Alert>> {
+    override fun getAllAlerts(): Flow<List<Alert>> {
         return alertDao.getAllAlert()
     }
 
-    suspend fun insertAlert(alert: Alert): Long {
+    override suspend fun insertAlert(alert: Alert): Long {
         return alertDao.insertAlert(alert)
     }
 
-    suspend fun deleteAlert(alert: Alert): Int {
+    override suspend fun deleteAlert(alert: Alert): Int {
         return alertDao.deleteAlert(alert)
     }
 
