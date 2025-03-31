@@ -1,4 +1,4 @@
-package com.example.taq_c.alert
+package com.example.taq_c.alert.view
 
 import android.os.Build
 import android.util.Log
@@ -21,6 +21,7 @@ import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimePicker
@@ -47,15 +48,15 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.taq_c.R
+import com.example.taq_c.alert.viewModel.AlertFactory
+import com.example.taq_c.alert.viewModel.AlertViewModel
 import com.example.taq_c.data.model.Alert
 import com.example.taq_c.data.model.City
 import com.example.taq_c.data.model.Response
 import com.example.taq_c.data.repository.WeatherRepository
 import com.example.taq_c.home.view.CircularIndicator
-import com.example.taq_c.utilities.NavigationRoute
 import com.example.taq_c.utilities.NavigationRoute.*
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.LocalTime
 import java.util.Calendar
 
@@ -173,11 +174,8 @@ fun SetAlertScreen(
                             Log.i("Confirm Button", "SetAlertScreen: ${timePickerState.minute}")
                             Log.i("Confirm Button", "SetAlertScreen: ${lat}")
                             Log.i("Confirm Button", "SetAlertScreen: ${lon}")
-                            val alert = Alert(
-                                requestCode = null,forecastResponse.data.city?: City()
-                            )
-                            alertViewModel.insertAlert(alert)
-                            alertViewModel.requestAlert(context,alert,timePickerState.hour,timePickerState.minute,timeStamp.value)
+
+                            alertViewModel.requestAlert(context,forecastResponse.data.city?:City(),timePickerState.hour,timePickerState.minute,timeStamp.value)
                             navController.navigate(AlertScreen)
                         },
                         colors = ButtonDefaults.buttonColors(Color.Black),
@@ -283,7 +281,14 @@ private fun ShowDatePicker(
     onDateSelected: (Long?) -> Unit,
     onDismiss: () -> Unit
 ) {
-    val datePickerState = rememberDatePickerState()
+    val datePickerState = rememberDatePickerState(
+        initialSelectedDateMillis = System.currentTimeMillis(),
+        selectableDates = object:SelectableDates{
+            override fun isSelectableDate(utcTimeMillis: Long): Boolean {
+                return utcTimeMillis>= System.currentTimeMillis()
+            }
+        }
+    )
     DatePickerDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
