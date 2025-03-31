@@ -1,5 +1,7 @@
-package com.example.taq_c.alert
+package com.example.taq_c.alert.view
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -35,12 +37,15 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.taq_c.alert.viewModel.AlertFactory
+import com.example.taq_c.alert.viewModel.AlertViewModel
 import com.example.taq_c.data.model.Alert
 import com.example.taq_c.data.model.Response
 import com.example.taq_c.data.repository.WeatherRepository
 import com.example.taq_c.home.view.CircularIndicator
 import com.example.taq_c.utilities.NavigationRoute
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun AlertScreen(
     floatingActionButtonAction : MutableState<(()->Unit)?>
@@ -50,14 +55,18 @@ fun AlertScreen(
     val weatherRepository = WeatherRepository.getInstance(context)
     val alertViewModel = viewModel<AlertViewModel>(factory = AlertFactory(weatherRepository))
     val alertResponse = alertViewModel.alertResponse.collectAsStateWithLifecycle().value
-
+    var showDialog by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
         alertViewModel.getAllAlert()
     }
 
     floatingActionButtonAction.value ={
+     if(alertViewModel.checkNotificationOpened(context)){
      navController.navigate(NavigationRoute.SetAlertScreen(0.0,0.0)){
          launchSingleTop=true
+         }
+     }else{
+         showDialog = true
      }
     }
     Column(
@@ -88,6 +97,30 @@ fun AlertScreen(
                 }
             }
         }
+    }
+    if(showDialog){
+        AlertDialog(
+            onDismissRequest = { showDialog = false },
+            title = { Text("Allow Notification") },
+            text = { Text("Please allow notification for this app to send Alerts") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        alertViewModel.allowNotification(context)
+                        showDialog = false
+                    }
+                ) {
+                    Text("Settings")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { showDialog = false }
+                ) {
+                    Text("Cancel")
+                }
+            }
+        )
     }
 }
 
@@ -155,3 +188,4 @@ fun AlertItem(alert: Alert, alertViewModel: AlertViewModel) {
         }
     }
 }
+
