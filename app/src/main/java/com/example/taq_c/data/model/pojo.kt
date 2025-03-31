@@ -91,6 +91,6 @@ data class WeatherDetails(
 
 @Entity(tableName="Alert")
 data class Alert(
-    @PrimaryKey(autoGenerate = true) val requestCode: Int? = null,
+    @PrimaryKey val requestCode: String ="",
     @Embedded("alert") val city:City,
 )
