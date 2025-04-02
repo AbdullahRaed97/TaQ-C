@@ -1,5 +1,6 @@
 package com.example.taq_c.home.view
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -57,6 +58,7 @@ data class BottomNavigationItem(
     val navigationAction: () -> Unit
 )
 
+@SuppressLint("SuspiciousIndentation")
 @Composable
 fun HomeScreen(lat: Double, lon: Double) {
     val context = LocalContext.current
