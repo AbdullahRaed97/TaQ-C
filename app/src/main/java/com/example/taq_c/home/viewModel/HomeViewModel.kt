@@ -1,16 +1,16 @@
 package com.example.taq_c.home.viewModel
 
 import android.content.Context
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.example.taq_c.utilities.LocationHelper
+import com.example.taq_c.R
 import com.example.taq_c.data.model.Forecast
 import com.example.taq_c.data.model.ForecastResponse
 import com.example.taq_c.data.model.Response
 import com.example.taq_c.data.model.WeatherResponse
 import com.example.taq_c.data.repository.WeatherRepository
+import com.example.taq_c.utilities.LocationHelper
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -148,21 +148,9 @@ class HomeViewModel(private val weatherRepository: WeatherRepository) : ViewMode
     }
 
     fun filterForecastList(forecastList:List<Forecast>):List<Forecast>{
-        val finalList = mutableListOf<Forecast>()
-        val datesFound = mutableSetOf<String>()
-        for (forecast in forecastList) {
-            val date = forecast.dt_txt?.substringBefore(" ") ?: continue
-            val time = forecast.dt_txt?.substringAfter(" ") ?: continue
-            if (time.startsWith("12:00") && !datesFound.contains(date)) {
-                finalList.add(forecast)
-                datesFound.add(date)
-                if (finalList.size >= 5) {
-                    break
-                }
-            }
+        return forecastList.filter {
+            it.dt_txt?.endsWith("12:00:00")?: false
         }
-        Log.i("TAG", "filterForecastList: $finalList")
-        return finalList
     }
 
     fun convertTimeStampToTime(timeStamp: Long): String {
@@ -182,7 +170,6 @@ class HomeViewModel(private val weatherRepository: WeatherRepository) : ViewMode
             try {
                 Locale("", countryCode).displayCountry ?: "Unspecified"
             } catch (e: Exception) {
-                Log.i("TAG", "getCountryName: error is ${e.message} ")
                 "Unspecified"
             }
         } else {
@@ -213,8 +200,25 @@ class HomeViewModel(private val weatherRepository: WeatherRepository) : ViewMode
     fun getDayName(dt: Long): String {
         val date = Date(dt * 1000L) // Convert seconds to milliseconds
         val sdf = SimpleDateFormat("EEEE", Locale.getDefault())
-        Log.i("TAG", "getDayName: ${sdf.format(date)} , dt : $dt , date : $date")
         return sdf.format(date)
+    }
+
+    fun getWeatherIcon(iconCode : String):Int{
+        return when(iconCode){
+            "01d" -> R.drawable.dclearsky
+            "01n" -> R.drawable.nclearsky
+            "02d" -> R.drawable.dfewcloud
+            "02n" -> R.drawable.nfewcloud
+            "03d", "03n" -> R.drawable.scatterdclouds
+            "04d", "04n" -> R.drawable.brokenclouds
+            "09d", "09n" -> R.drawable.showerrain
+            "10d" -> R.drawable.rainday
+            "10n" -> R.drawable.rainnight
+            "11d", "11n" -> R.drawable.thunderstorm
+            "13d", "13n" -> R.drawable.snow
+            "50d", "50n" -> R.drawable.mist
+            else -> R.drawable.sunrise
+        }
     }
 
 }

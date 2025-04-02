@@ -1,13 +1,12 @@
 package com.example.taq_c.home.view
 
-import android.util.Log
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -22,10 +21,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
-import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -38,15 +34,15 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
-import com.bumptech.glide.integration.compose.GlideImage
 import com.example.taq_c.R
 import com.example.taq_c.data.model.Forecast
-import com.example.taq_c.data.model.ForecastResponse
 import com.example.taq_c.data.model.Response
 import com.example.taq_c.data.model.WeatherResponse
 import com.example.taq_c.data.repository.WeatherRepository
@@ -63,7 +59,6 @@ data class BottomNavigationItem(
 
 @Composable
 fun HomeScreen(lat: Double, lon: Double) {
-
     val context = LocalContext.current
     val weatherRepository = WeatherRepository.getInstance(context)
     val homeViewModel = viewModel<HomeViewModel>(
@@ -74,7 +69,9 @@ fun HomeScreen(lat: Double, lon: Double) {
     val appLanguage = homeViewModel.getAppLanguage(context)
     val appLatitude = homeViewModel.getAppLatitude(lat, context)
     val appLongitude = homeViewModel.getAppLongitude(lon, context)
-    LaunchedEffect(currentLocation.value) {
+
+    LaunchedEffect(appLatitude , currentLocation.value) {
+
         homeViewModel.getCurrentWeatherData(
             lat = appLatitude,
             lon = appLongitude,
@@ -87,116 +84,108 @@ fun HomeScreen(lat: Double, lon: Double) {
             units = appTempUnit,
             lang = appLanguage
         )
-        homeViewModel.setLatitude(context, currentLocation.value.latitude)
-        homeViewModel.setLongitude(context, currentLocation.value.longitude)
     }
+
     val weatherResponse = homeViewModel.weatherResponse.collectAsStateWithLifecycle().value
     val forecastResponse = homeViewModel.forecastResponse.collectAsStateWithLifecycle().value
     val message = homeViewModel.message
     val snackBarHostState = remember { SnackbarHostState() }
     val scrollState = rememberScrollState()
-    Column(
-        modifier = Modifier
-            .background(Color(0xFF182354))
-            .verticalScroll(scrollState)
-            .padding(),
 
+        Column(
+            modifier = Modifier
+                .background(Color(0xFF182354))
+                .verticalScroll(scrollState)
         ) {
-        when (weatherResponse) {
-            is Response.Success<WeatherResponse> -> {
-                WeatherResponseData(weatherResponse.data, units = appTempUnit, homeViewModel)
+            when (weatherResponse) {
+                is Response.Success<WeatherResponse> -> {
+                    WeatherResponseData(
+                        weatherResponse.data,
+                        units = appTempUnit,
+                        homeViewModel
+                    )
+                }
+                is Response.Failure -> {
+                    LaunchedEffect(weatherResponse) {
+                        snackBarHostState.showSnackbar(
+                            message = weatherResponse.exception.message.toString(),
+                            duration = SnackbarDuration.Short
+                        )
+                    }
+                }
+                is Response.Loading -> {
+                   CircularIndicator()
+                }
             }
-
-            is Response.Failure -> {
-                LaunchedEffect(weatherResponse) {
+            Spacer(Modifier.height(24.dp))
+            Text(
+                text = stringResource(R.string.hourly_details),
+                color = Color.White,
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp)
+            )
+            when (forecastResponse) {
+                is Response.Failure -> LaunchedEffect(forecastResponse) {
                     snackBarHostState.showSnackbar(
-                        message = weatherResponse.exception.message.toString(),
+                        message = forecastResponse.exception.message.toString(),
                         duration = SnackbarDuration.Short
                     )
                 }
-            }
-
-            is Response.Loading -> {
-                CircularIndicator()
-            }
-
-            else -> Log.i("TAG", "HomeScreen: Something went wrong")
-        }
-
-        Spacer(Modifier.height(30.dp))
-        Text(
-            text = stringResource(R.string.hourly_details),
-            color = Color.White,
-            fontSize = 28.sp,
-            modifier = Modifier.padding(start = 20.dp)
-        )
-        Spacer(Modifier.padding(start = 20.dp))
-        when (forecastResponse) {
-            is Response.Failure -> LaunchedEffect(forecastResponse) {
-                snackBarHostState.showSnackbar(
-                    message = forecastResponse.exception.message.toString(),
-                    duration = SnackbarDuration.Short
-                )
-                Log.i("TAG", "HomeScreen: forecast failure ${forecastResponse.exception.message}")
-            }
-
-            is Response.Loading -> {
-                CircularIndicator()
-            }
-
-            is Response.Success -> {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(15.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    LazyRow(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(15.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        val list = forecastResponse.data.weatherForecastList
-                        if (list != null) {
-                            itemsIndexed(list) { index, item ->
-                                HomeLazyRowItem(item, appTempUnit, homeViewModel)
-                            }
-                        }
-                    }
-                    Spacer(modifier = Modifier.height(15.dp))
-                    Text(
-                        text = stringResource(R.string._5_days_forecast),
-                        color = Color.White,
-                        fontSize = 28.sp
-                    )
-                    Spacer(modifier = Modifier.height(15.dp))
+                is Response.Loading -> {
+                   CircularIndicator()
+                }
+                is Response.Success -> {
                     Column(
                         modifier = Modifier
-                            .fillMaxWidth(),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp)
                     ) {
-                        if (forecastResponse.data.weatherForecastList != null) {
-                            val forecastList =
-                                homeViewModel.filterForecastList(forecastResponse.data.weatherForecastList)
-                            forecastList.forEachIndexed { index, item ->
-                                HomeLazyColumnItem(
-                                    forecastResponse.data,
-                                    appTempUnit,
-                                    index,
-                                    homeViewModel
-                                )
+                        LazyRow(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 8.dp),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            val list = forecastResponse.data.weatherForecastList
+                            if (list != null) {
+                                itemsIndexed(list) { index, item ->
+                                    HomeLazyRowItem(item, appTempUnit, homeViewModel)
+                                }
+                            }
+                        }
+                        Spacer(Modifier.height(24.dp))
+                        Text(
+                            text = stringResource(R.string._5_days_forecast),
+                            color = Color.White,
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                        )
+                        Spacer(Modifier.height(8.dp))
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 8.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            if (forecastResponse.data.weatherForecastList != null) {
+                                val forecastList =
+                                    homeViewModel.filterForecastList(forecastResponse.data.weatherForecastList)
+                                forecastList.forEachIndexed { index, item ->
+                                    HomeLazyColumnItem(
+                                        item,
+                                        appTempUnit,
+                                        homeViewModel
+                                    )
+                                }
                             }
                         }
                     }
                 }
             }
-
-            else -> Log.i("TAG", "HomeScreen: Something went wrong")
         }
-    }
 }
 
 @Composable
@@ -205,141 +194,157 @@ private fun WeatherResponseData(
     units: String,
     homeViewModel: HomeViewModel
 ) {
-    Row(
+    Column(
         modifier = Modifier
-            .padding(start = 10.dp, end = 5.dp, top = 20.dp)
-            .fillMaxWidth(),
-        horizontalArrangement = Arrangement.Center
+            .padding(horizontal = 16.dp, vertical = 24.dp)
+            .fillMaxWidth()
     ) {
-        Column(modifier = Modifier.padding(5.dp)) {
-            Text(
-                text = weatherResponse.weather?.get(0)?.fullWeatherDesc.toString(),
-                color = Color.White,
-                fontSize = 18.sp
-            )
-            Text(
-                text = weatherResponse.weatherDetails?.feels_like.toString(),
-                color = Color.White,
-                fontSize = 18.sp
-            )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(
+                    text = weatherResponse.weather?.get(0)?.fullWeatherDesc?.replaceFirstChar {
+                        it.titlecase()
+                    } ?: "",
+                    color = Color.White,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Medium
+                )
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    text = "Feels like ${weatherResponse.weatherDetails?.feels_like}°",
+                    color = Color.White.copy(alpha = 0.8f),
+                    fontSize = 16.sp
+                )
+            }
+
+            Column(
+                horizontalAlignment = Alignment.End,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = stringResource(R.string.today),
+                    color = Color.White,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Medium
+                )
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    text = homeViewModel.convertTimeStampToDate(weatherResponse.dt),
+                    color = Color.White.copy(alpha = 0.8f),
+                    fontSize = 16.sp
+                )
+            }
         }
-        Spacer(Modifier.width(150.dp))
+        Spacer(Modifier.height(32.dp))
         Column(
             modifier = Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        )
-        {
-            Text(
-                text = stringResource(R.string.today),
-                color = Color.White,
-                fontSize = 18.sp,
-            )
-            Text(
-                text = homeViewModel.convertTimeStampToDate(weatherResponse.dt),
-                color = Color.White,
-                fontSize = 18.sp
-            )
-        }
-    }
-    Spacer(Modifier.height(30.dp))
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Column(
-            Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Row {
-                //Temp
+            Row(
+                verticalAlignment = Alignment.Top
+            ) {
                 Text(
-                    text = weatherResponse.weatherDetails?.temp.toString(),
+                    text = weatherResponse.weatherDetails?.temp?.toString() ?: "--",
                     color = Color.White,
-                    fontSize = 48.sp
+                    fontSize = 64.sp,
+                    fontWeight = FontWeight.Light
                 )
-                //Unit
+                Spacer(Modifier.width(4.dp))
                 Text(
                     text = homeViewModel.getUnit(units),
                     color = Color.White,
-                    fontSize = 32.sp
+                    fontSize = 32.sp,
+                    fontWeight = FontWeight.Light
                 )
             }
-            Spacer(Modifier.height(20.dp))
+            Spacer(Modifier.height(16.dp))
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                //Country
                 Text(
                     text = homeViewModel.getCountryName(weatherResponse.sys?.country),
                     color = Color.White,
-                    fontSize = 18.sp
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Medium
                 )
                 Text(
                     text = ",",
                     color = Color.White,
-                    fontSize = 18.sp
+                    fontSize = 20.sp
                 )
-                //City
+                Spacer(Modifier.width(4.dp))
                 Text(
-                    text = weatherResponse.cityName.toString(),
+                    text = weatherResponse.cityName ?: "",
                     color = Color.White,
-                    fontSize = 18.sp
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Medium
                 )
             }
         }
-        Spacer(Modifier.height(20.dp))
+        Spacer(Modifier.height(32.dp))
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 10.dp, end = 5.dp),
-            horizontalArrangement = Arrangement.SpaceAround,
-            verticalAlignment = Alignment.CenterVertically
+                .padding(horizontal = 8.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            //SunsetIcon
-            Row {
-                Icon(
-                    painter = painterResource(R.drawable.sunset),
-                    tint = Color.White,
-                    contentDescription = null,
-                    modifier = Modifier.size(24.dp)
-                )
-                //Sunset
-                Text(
-                    text = stringResource(R.string.sunset),
-                    color = Color.White,
-                    fontSize = 18.sp
-                )
-                //Sunset Time
-                Text(
-                    text = homeViewModel.convertTimeStampToDate(weatherResponse.sys?.sunset ?: 0),
-                    color = Color.White,
-                    fontSize = 18.sp
-                )
-            }
-            //SunriseIcon
-            Row {
-                Icon(
-                    painter = painterResource(R.drawable.sunrise),
-                    tint = Color.White,
-                    contentDescription = null,
-                    modifier = Modifier.size(24.dp)
-                )
-                //Sunrise
-                Text(
-                    text = stringResource(R.string.sunrise),
-                    color = Color.White,
-                    fontSize = 18.sp
-                )
-                //Sunrise Time
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Image(
+                        painter = painterResource(R.drawable.sunrise),
+                        contentDescription = null,
+                        modifier = Modifier.size(28.dp)
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        text = stringResource(R.string.sunrise),
+                        color = Color.White,
+                        fontSize = 16.sp
+                    )
+                }
+                Spacer(Modifier.height(8.dp))
                 Text(
                     text = homeViewModel.convertTimeStampToTime(weatherResponse.sys?.sunrise ?: 0),
                     color = Color.White,
                     fontSize = 18.sp,
+                    fontWeight = FontWeight.Medium
+                )
+            }
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Image(
+                        painter = painterResource(R.drawable.sunset),
+                        contentDescription = null,
+                        modifier = Modifier.size(28.dp)
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        text = stringResource(R.string.sunset),
+                        color = Color.White,
+                        fontSize = 16.sp
+                    )
+                }
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    text = homeViewModel.convertTimeStampToTime(weatherResponse.sys?.sunset ?: 0),
+                    color = Color.White,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Medium
                 )
             }
         }
@@ -347,6 +352,7 @@ private fun WeatherResponseData(
     Spacer(modifier = Modifier.height(20.dp))
     WeatherCard(weatherResponse, homeViewModel)
 }
+
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
@@ -357,47 +363,65 @@ private fun HomeLazyRowItem(
 ) {
     Card(
         modifier = Modifier
-            .width(100.dp)
-            .height(180.dp)
-            .border(
-                color = Color.Black,
-                shape = RoundedCornerShape(8.dp),
-                width = 2.dp
-            ), elevation = CardDefaults.cardElevation(8.dp),
-        colors = CardDefaults.cardColors(Color.Gray)
+            .width(120.dp)
+            .height(200.dp)
+            .padding(horizontal = 4.dp, vertical = 8.dp),
+        elevation = CardDefaults.cardElevation(4.dp),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color(0xFF424242)
+        )
     ) {
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(12.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.SpaceEvenly
         ) {
             Text(
                 text = homeViewModel.convertTimeStampToTime(weatherResponse.dt),
-                color = Color.Black,
-                fontSize = 18.sp
+                color = Color.White,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier.padding(bottom = 8.dp)
             )
-            Spacer(Modifier.height(20.dp))
-            GlideImage(
-                model = "https://openweathermap.org/img/wn/" + "${weatherResponse.weather?.get(0)?.weatherIcon}@3x.png",
+            Image(
+                painter = painterResource(
+                    homeViewModel.getWeatherIcon(
+                        weatherResponse.weather?.get(0)?.weatherIcon ?: ""
+                    )
+                ),
                 contentDescription = null,
-                modifier = Modifier.size(40.dp)
+                modifier = Modifier.size(48.dp),
             )
-            Spacer(Modifier.height(20.dp))
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.Top,
+                horizontalArrangement = Arrangement.Center
             ) {
                 Text(
-                    text = weatherResponse.weatherDetails?.temp.toString(),
-                    color = Color.Black,
-                    fontSize = 18.sp
+                    text = weatherResponse.weatherDetails?.temp?.toString() ?: "--",
+                    color = Color.White,
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Bold
                 )
-                Spacer(modifier = Modifier.width(8.dp))
+                Spacer(modifier = Modifier.width(4.dp))
                 Text(
                     text = homeViewModel.getUnit(units),
-                    color = Color.Black,
-                    fontSize = 12.sp
+                    color = Color.White.copy(alpha = 0.8f),
+                    fontSize = 14.sp,
+                    modifier = Modifier.padding(bottom = 2.dp)
+                )
+            }
+            weatherResponse.weather?.get(0)?.fullWeatherDesc
+                .let { description ->
+                Text(
+                    text = description?.toString()?:"",
+                    color = Color.White.copy(alpha = 0.8f),
+                    fontSize = 12.sp,
+                    textAlign = TextAlign.Center,
+                    maxLines = 1,
+                    modifier = Modifier.padding(top = 8.dp)
                 )
             }
         }
@@ -406,15 +430,15 @@ private fun HomeLazyRowItem(
 
 @Composable
 fun CircularIndicator() {
-    Row(
-        modifier = Modifier.fillMaxSize(),
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(400.dp),
+        contentAlignment = Alignment.Center
     ) {
         CircularProgressIndicator(
-            modifier = Modifier
-                .height(100.dp)
-                .width(100.dp)
+            color = Color.White,
+            strokeWidth = 4.dp
         )
     }
 }
@@ -422,107 +446,141 @@ fun CircularIndicator() {
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 private fun HomeLazyColumnItem(
-    forecastResponse: ForecastResponse,
+    forecast: Forecast,
     units: String,
-    index: Int,
     homeViewModel: HomeViewModel
 ) {
     Card(
         modifier = Modifier
-            .height(160.dp)
-            .padding(vertical = 6.dp),
-        elevation = CardDefaults.cardElevation(8.dp),
-        colors = CardDefaults.cardColors(Color.Gray),
+            .fillMaxWidth()
+            .height(180.dp)
+            .padding(vertical = 8.dp),
+        elevation = CardDefaults.cardElevation(4.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color(0xFF424242)
+        ),
+        shape = RoundedCornerShape(12.dp)
     ) {
         Row(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 10.dp, vertical = 15.dp),
-            horizontalArrangement = Arrangement.SpaceAround,
+                .fillMaxSize()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(
-                modifier = Modifier.fillMaxHeight(), verticalArrangement = Arrangement.SpaceEvenly
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.Start
             ) {
-                //Day name
-                Log.i("TAG", "HomeLazyColumnItem: $index")
                 Text(
-                    text = homeViewModel.getDayName(
-                        (forecastResponse.weatherForecastList?.get(index)?.dt ?: 0) + 86400
-                    ),
-                    fontSize = 25.sp,
-                    color = Color.White
-                )
-                Text(
-                    text = homeViewModel.convertTimeStampToDate(
-                        forecastResponse.weatherForecastList?.get(
-                            index
-                        )?.dt ?: 0
-                    ),
-                    fontSize = 20.sp,
-                    color = Color.White
-                )
-            }
-            GlideImage(
-                model = "https://openweathermap.org/img/wn/" + "${
-                    forecastResponse.weatherForecastList?.get(
-                        index
-                    )?.weather?.get(0)?.weatherIcon
-                }@3x.png",
-                contentDescription = null,
-                modifier = Modifier.size(24.dp)
-            )
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                //Temp
-                Text(
-                    text = forecastResponse.weatherForecastList?.get(index)?.weatherDetails?.temp.toString(),
-                    fontSize = 18.sp,
-                    color = Color.White
-                )
-                //Unit
-                Text(
-                    text = homeViewModel.getUnit(units),
+                    text = homeViewModel.getDayName(forecast.dt + 86400),
                     color = Color.White,
-                    fontSize = 10.sp
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Medium
                 )
+                Spacer(Modifier.height(4.dp))
                 Text(
-                    text = "/",
-                    fontSize = 18.sp
+                    text = homeViewModel.convertTimeStampToDate(forecast.dt),
+                    color = Color.White.copy(alpha = 0.8f),
+                    fontSize = 16.sp
                 )
             }
             Column(
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .padding(vertical = 5.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(
-                    text = stringResource(R.string.feels_like),
-                    fontSize = 18.sp,
-                    color = Color.White
+                Image(
+                    painter = painterResource(
+                        homeViewModel.getWeatherIcon(
+                            forecast.weather?.get(0)?.weatherIcon ?: ""
+                        )
+                    ),
+                    contentDescription = null,
+                    modifier = Modifier.size(48.dp),
                 )
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.Top
                 ) {
-                    //Feels_like
                     Text(
-                        text = forecastResponse.weatherForecastList?.get(index)?.weatherDetails?.feels_like.toString(),
-                        fontSize = 12.sp,
-                        color = Color.White
+                        text = forecast.weatherDetails?.temp?.toString() ?: "--",
+                        color = Color.White,
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold
                     )
-                    //Unit
+                    Spacer(Modifier.width(4.dp))
                     Text(
                         text = homeViewModel.getUnit(units),
-                        color = Color.White,
-                        fontSize = 8.sp
+                        color = Color.White.copy(alpha = 0.8f),
+                        fontSize = 14.sp,
+                        modifier = Modifier.padding(bottom = 2.dp)
+                    )
+                }
+            }
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = stringResource(R.string.today_temperature),
+                    color = Color.White.copy(alpha = 0.8f),
+                    fontSize = 14.sp
+                )
+                Spacer(Modifier.height(4.dp))
+                Row(
+                    verticalAlignment = Alignment.Top
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.Bottom
+                    ) {
+                        Text(
+                            text = stringResource(R.string.max),
+                            color = Color.White,
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+                        Spacer(Modifier.width(4.dp))
+                        Text(
+                            text = forecast.weatherDetails?.temp_max.toString(),
+                            color = Color.White.copy(alpha = 0.8f),
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Medium,
+                            modifier = Modifier.padding(bottom = 2.dp)
+                        )
+                    }
+                    Spacer(Modifier.width(4.dp))
+                    Text(
+                        text = homeViewModel.getUnit(units),
+                        color = Color.White.copy(alpha = 0.8f),
+                        fontSize = 12.sp,
+                        modifier = Modifier.padding(bottom = 1.dp)
+                    )
+                }
+                Spacer(Modifier.height(4.dp))
+                Row(
+                    verticalAlignment = Alignment.Top
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.Bottom
+                    ) {
+                        Text(
+                            text = stringResource(R.string.min),
+                            color = Color.White,
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+                        Spacer(Modifier.width(4.dp))
+                        Text(
+                            text = forecast.weatherDetails?.temp_min.toString(),
+                            color = Color.White.copy(alpha = 0.8f),
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Medium,
+                            modifier = Modifier.padding(bottom = 1.dp)
+                        )
+                    }
+                    Spacer(Modifier.width(4.dp))
+                    Text(
+                        text = homeViewModel.getUnit(units),
+                        color = Color.White.copy(alpha = 0.8f),
+                        fontSize = 12.sp,
+                        modifier = Modifier.padding(bottom = 1.dp)
                     )
                 }
             }
@@ -531,86 +589,196 @@ private fun HomeLazyColumnItem(
 }
 
 @Composable
-private fun WeatherCard(weatherResponse: WeatherResponse, homeViewModel: HomeViewModel) {
+private fun WeatherCard(
+    weatherResponse: WeatherResponse,
+    homeViewModel: HomeViewModel
+) {
     val context = LocalContext.current
     val speedUnit = homeViewModel.getAppWindSpeedUnit(context)
     val windSpeed = homeViewModel.calculateWindSpeed(speedUnit, weatherResponse)
+
     Card(
         modifier = Modifier
-            .height(160.dp)
-            .padding(start = 15.dp, end = 15.dp), elevation = CardDefaults.cardElevation(8.dp),
-        colors = CardDefaults.cardColors(Color.Gray)
+            .height(200.dp)
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        elevation = CardDefaults.cardElevation(8.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color(0xAA666666)
+        )
     ) {
         Row(
-            horizontalArrangement = Arrangement.Start,
-            verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 10.dp, end = 10.dp)
+                .fillMaxSize()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(10.dp),
-                modifier = Modifier.padding(top = 10.dp, start = 20.dp)
+                verticalArrangement = Arrangement.SpaceEvenly,
+                horizontalAlignment = Alignment.Start,
+                modifier = Modifier.weight(1f)
             ) {
-                Text(
-                    text = stringResource(R.string.pressure),
-                    fontSize = 24.sp
-                )
-                Row(
-                    modifier = Modifier.padding(start = 5.dp)
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text(
-                        text = weatherResponse.weatherDetails?.pressure.toString(),
-                        fontSize = 20.sp
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = stringResource(R.string.hpa),
-                        fontSize = 16.sp
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Image(
+                            painter = painterResource(R.drawable.pressure),
+                            contentDescription = stringResource(R.string.pressure),
+                            modifier = Modifier.size(32.dp)
+                        )
+                        Spacer(Modifier.width(8.dp))
+                        Text(
+                            text = stringResource(R.string.pressure),
+                            fontSize = 18.sp,
+                            color = Color.White,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+
+                    Spacer(Modifier.height(4.dp))
+
+                    Row(
+                        verticalAlignment = Alignment.Bottom
+                    ) {
+                        Text(
+                            text = weatherResponse.weatherDetails?.pressure?.toString() ?: "--",
+                            fontSize = 20.sp,
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(Modifier.width(4.dp))
+                        Text(
+                            text = stringResource(R.string.hpa),
+                            fontSize = 16.sp,
+                            color = Color.White.copy(alpha = 0.8f)
+                        )
+                    }
                 }
-                Text(
-                    text = stringResource(R.string.humidity),
-                    fontSize = 24.sp
-                )
-                Text(
-                    text = weatherResponse.weatherDetails?.humidity.toString() + "%",
-                    fontSize = 20.sp
-                )
+                Spacer(Modifier.height(16.dp))
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Image(
+                            painter = painterResource(R.drawable.humidity),
+                            contentDescription = stringResource(R.string.humidity),
+                            modifier = Modifier.size(32.dp)
+                        )
+                        Spacer(Modifier.width(8.dp))
+                        Text(
+                            text = stringResource(R.string.humidity),
+                            fontSize = 18.sp,
+                            color = Color.White,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+                    Spacer(Modifier.height(4.dp))
+                    Row(
+                        verticalAlignment = Alignment.Bottom
+                    ) {
+                        Text(
+                            text = weatherResponse.weatherDetails?.humidity?.toString() ?: "--",
+                            fontSize = 20.sp,
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(Modifier.width(4.dp))
+                        Text(
+                            text = "%",
+                            fontSize = 16.sp,
+                            color = Color.White.copy(alpha = 0.8f)
+                        )
+                    }
+                }
             }
             Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(10.dp),
-                modifier = Modifier.padding(top = 10.dp, start = 80.dp, end = 20.dp)
+                verticalArrangement = Arrangement.SpaceEvenly,
+                horizontalAlignment = Alignment.Start,
+                modifier = Modifier.weight(1f)
             ) {
-                Text(
-                    text = stringResource(R.string.wind_speed),
-                    fontSize = 24.sp
-                )
-                Row(
-                    modifier = Modifier.padding(start = 5.dp)
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text(
-                        text = windSpeed,
-                        fontSize = 20.sp
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = speedUnit,
-                        fontSize = 16.sp
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Image(
+                            painter = painterResource(R.drawable.windsp),
+                            contentDescription = stringResource(R.string.wind_speed),
+                            modifier = Modifier.size(32.dp)
+                        )
+                        Spacer(Modifier.width(8.dp))
+                        Text(
+                            text = stringResource(R.string.wind_speed),
+                            fontSize = 18.sp,
+                            color = Color.White,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+
+                    Spacer(Modifier.height(4.dp))
+
+                    Row(
+                        verticalAlignment = Alignment.Bottom
+                    ) {
+                        Text(
+                            text = windSpeed,
+                            fontSize = 20.sp,
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold,
+                        )
+                        Spacer(Modifier.width(4.dp))
+                        Text(
+                            text = speedUnit,
+                            fontSize = 16.sp,
+                            color = Color.White.copy(alpha = 0.8f)
+                        )
+                    }
                 }
-                Text(
-                    text = stringResource(R.string.clouds),
-                    fontSize = 24.sp
-                )
-                Text(
-                    text = weatherResponse.clouds?.cloudPercentage.toString() + "%",
-                    fontSize = 20.sp
-                )
+                Spacer(Modifier.height(16.dp))
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Image(
+                            painter = painterResource(R.drawable.cloudper),
+                            contentDescription = stringResource(R.string.clouds),
+                            modifier = Modifier.size(32.dp)
+                        )
+                        Spacer(Modifier.width(8.dp))
+                        Text(
+                            text = stringResource(R.string.clouds),
+                            fontSize = 18.sp,
+                            color = Color.White,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+                    Spacer(Modifier.height(4.dp))
+                    Row(
+                        verticalAlignment = Alignment.Bottom
+                    ) {
+                        Text(
+                            text = weatherResponse.clouds?.cloudPercentage?.toString() ?: "--",
+                            fontSize = 20.sp,
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold,
+                        )
+                        Spacer(Modifier.width(4.dp))
+                        Text(
+                            text = "%",
+                            fontSize = 16.sp,
+                            color = Color.White.copy(alpha = 0.8f)
+                        )
+                    }
+                }
             }
         }
     }
 }
-
