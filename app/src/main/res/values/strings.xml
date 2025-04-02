@@ -43,4 +43,7 @@
     <string name="set_your_destination">Set your Destination</string>
     <string name="confirm_your_alert">Confirm your Alert</string>
     <string name="pick_up_your_date">Pick up your Date</string>
+    <string name="today_temperature">Today\'s Temperature 🌡</string>
+    <string name="max">Max :</string>
+    <string name="min">Min :</string>
 </resources>
