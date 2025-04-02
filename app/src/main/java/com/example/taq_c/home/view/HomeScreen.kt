@@ -91,7 +91,6 @@ fun HomeScreen(lat: Double, lon: Double) {
     val message = homeViewModel.message
     val snackBarHostState = remember { SnackbarHostState() }
     val scrollState = rememberScrollState()
-
         Column(
             modifier = Modifier
                 .background(Color(0xFF182354))
@@ -209,19 +208,27 @@ private fun WeatherResponseData(
                 modifier = Modifier.weight(1f)
             ) {
                 Text(
-                    text = weatherResponse.weather?.get(0)?.fullWeatherDesc?.replaceFirstChar {
-                        it.titlecase()
-                    } ?: "",
+                    text = weatherResponse.weather?.get(0)?.fullWeatherDesc?.toString()?:"",
                     color = Color.White,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Medium
                 )
                 Spacer(Modifier.height(4.dp))
-                Text(
-                    text = "Feels like ${weatherResponse.weatherDetails?.feels_like}°",
-                    color = Color.White.copy(alpha = 0.8f),
-                    fontSize = 16.sp
-                )
+                Row (
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ){
+                    Text(
+                        text = stringResource(R.string.feels_like),
+                        color = Color.White.copy(alpha = 0.8f),
+                        fontSize = 16.sp,
+                        modifier = Modifier.padding(end=4.dp)
+                    )
+                    Text(
+                        text = "${weatherResponse.weatherDetails?.feels_like} "+ homeViewModel.getUnit(units),
+                        color = Color.White.copy(alpha = 0.8f),
+                        fontSize = 16.sp
+                    )
+                }
             }
 
             Column(
@@ -247,6 +254,14 @@ private fun WeatherResponseData(
             modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Image(
+                painter = painterResource(
+                    homeViewModel.getWeatherIcon(weatherResponse.weather?.get(0)?.weatherIcon?:"")
+                ),
+                contentDescription = null,
+                modifier = Modifier.size(64.dp)
+            )
+            Spacer(modifier = Modifier.height(5.dp))
             Row(
                 verticalAlignment = Alignment.Top
             ) {
