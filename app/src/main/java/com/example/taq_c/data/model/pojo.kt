@@ -93,4 +93,5 @@ data class WeatherDetails(
 data class Alert(
     @PrimaryKey val requestCode: String ="",
     @Embedded("alert") val city:City,
+    val timeStamp: Long? = 0
 )
