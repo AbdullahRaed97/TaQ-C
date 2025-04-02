@@ -1,8 +1,8 @@
 package com.example.taq_c.settings.view
 
 import android.content.Context
-import android.util.Log
 import androidx.activity.ComponentActivity
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
@@ -53,18 +52,21 @@ fun SettingsScreen(navController: NavController) {
         Card(
             modifier = Modifier
                 .height(120.dp)
-                .padding(vertical = 15.dp),
+                .padding(horizontal = 10.dp)
+                .padding(top = 12.dp, bottom = 2.dp),
             elevation = CardDefaults.cardElevation(8.dp),
-            colors = CardDefaults.cardColors(Color.Gray)
+            colors = CardDefaults.cardColors(Color(0xFF424242))
         ) {
-            Row(horizontalArrangement = Arrangement.Start) {
-                Icon(
+            Row(
+                horizontalArrangement = Arrangement.Start,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Image(
                     painter = painterResource(R.drawable.language),
                     contentDescription = null,
                     modifier = Modifier
                         .size(50.dp)
-                        .padding(end = 6.dp, start = 6.dp),
-                    tint = Color.White
+                        .padding(end = 6.dp, start = 12.dp)
                 )
                 Text(
                     text = stringResource(R.string.language),
@@ -78,18 +80,20 @@ fun SettingsScreen(navController: NavController) {
         Card(
             modifier = Modifier
                 .height(120.dp)
-                .padding(vertical = 15.dp),
+                .padding(vertical = 2.dp, horizontal = 10.dp),
             elevation = CardDefaults.cardElevation(8.dp),
-            colors = CardDefaults.cardColors(Color.Gray)
+            colors = CardDefaults.cardColors(Color(0xFF424242))
         ) {
-            Row(horizontalArrangement = Arrangement.Start) {
-                Icon(
+            Row(
+                horizontalArrangement = Arrangement.Start
+            , verticalAlignment = Alignment.CenterVertically
+            ) {
+                Image(
                     painter = painterResource(R.drawable.temperature),
                     contentDescription = null,
                     modifier = Modifier
                         .size(50.dp)
-                        .padding(end = 6.dp, start = 6.dp),
-                    tint = Color.White
+                        .padding(end = 6.dp, start = 12.dp)
                 )
                 Text(
                     text = stringResource(R.string.temperature),
@@ -103,18 +107,20 @@ fun SettingsScreen(navController: NavController) {
         Card(
             modifier = Modifier
                 .height(120.dp)
-                .padding(vertical = 15.dp),
+                .padding(vertical = 2.dp, horizontal = 10.dp),
             elevation = CardDefaults.cardElevation(8.dp),
-            colors = CardDefaults.cardColors(Color.Gray)
+            colors = CardDefaults.cardColors(Color(0xFF424242))
         ) {
-            Row(horizontalArrangement = Arrangement.Start) {
-                Icon(
+            Row(
+                horizontalArrangement = Arrangement.Start
+                , verticalAlignment = Alignment.CenterVertically
+            ) {
+                Image(
                     painter = painterResource(R.drawable.windspeed),
                     contentDescription = null,
                     modifier = Modifier
                         .size(50.dp)
-                        .padding(end = 6.dp, start = 6.dp),
-                    tint = Color.White
+                        .padding(end = 6.dp, start = 12.dp)
                 )
                 Text(
                     text = stringResource(R.string.speed_unit),
@@ -128,18 +134,19 @@ fun SettingsScreen(navController: NavController) {
         Card(
             modifier = Modifier
                 .height(120.dp)
-                .padding(vertical = 15.dp),
+                .padding(vertical = 2.dp, horizontal = 10.dp),
             elevation = CardDefaults.cardElevation(8.dp),
-            colors = CardDefaults.cardColors(Color.Gray)
+            colors = CardDefaults.cardColors(Color(0xFF424242))
         ) {
-            Row(horizontalArrangement = Arrangement.Start) {
-                Icon(
+            Row(
+                horizontalArrangement = Arrangement.Start
+                , verticalAlignment = Alignment.CenterVertically) {
+                Image(
                     painter = painterResource(R.drawable.location),
                     contentDescription = null,
                     modifier = Modifier
                         .size(50.dp)
-                        .padding(end = 6.dp, start = 6.dp),
-                    tint = Color.White
+                        .padding(end = 6.dp, start = 12.dp)
                 )
                 Text(
                     text = stringResource(R.string.location),
@@ -175,7 +182,7 @@ private fun LanguageSettings(
         langOptions.forEach { language ->
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(horizontal = 8.dp)
+                modifier = Modifier.padding(horizontal = 6.dp)
             ) {
                 RadioButton(
                     selected = (language == selectedOption),
@@ -206,17 +213,16 @@ private fun LanguageSettings(
                                 (context as ComponentActivity).recreate()
                             }
                         }
-                        Log.i("TAG", "SettingsScreen: ${settingViewModel.getLanguage(context)}")
                     },
                     colors = RadioButtonDefaults.colors(
                         selectedColor = Color.Red,
-                        unselectedColor = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                        unselectedColor = Color.Black                    )
                 )
                 Text(
                     text = language,
                     style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.padding(start = 4.dp)
+                    fontSize = 18.sp,
+                    color = Color.White
                 )
             }
         }
@@ -245,7 +251,7 @@ private fun TemperatureSettings(
         tempOptions.forEach { temp ->
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(horizontal = 8.dp)
+                modifier = Modifier.padding(horizontal = 6.dp)
             ) {
                 RadioButton(
                     selected = (temp == selectedOption),
@@ -272,17 +278,17 @@ private fun TemperatureSettings(
                                 settingViewModel.setTheSelectedTemperature(context, temp)
                             }
                         }
-                        Log.i("TAG", "SettingsScreen: ${settingViewModel.getTemperatureUnit(context)}")
                     },
                     colors = RadioButtonDefaults.colors(
                         selectedColor = Color.Red,
-                        unselectedColor = MaterialTheme.colorScheme.onSurfaceVariant
+                        unselectedColor = Color.Black
                     )
                 )
                 Text(
                     text = temp,
                     style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.padding(start = 4.dp)
+                    fontSize = 18.sp,
+                    color = Color.White
                 )
             }
         }
@@ -299,7 +305,6 @@ private fun SpeedUnitSetting(
         stringResource(R.string.mph)
     )
     val selectedSpeed = settingViewModel.getTheSelectedSpeedUnit(context)
-    Log.i("TAG", "SpeedUnitSetting: $selectedSpeed")
     var selectedOption by remember { mutableStateOf(speedOptions[selectedSpeed]) }
     Row(
         modifier = Modifier
@@ -311,7 +316,7 @@ private fun SpeedUnitSetting(
         speedOptions.forEach { speed ->
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(horizontal = 8.dp)
+                modifier = Modifier.padding(horizontal = 6.dp)
             ) {
                 RadioButton(
                     selected = (speed == selectedOption),
@@ -332,17 +337,17 @@ private fun SpeedUnitSetting(
                                 settingViewModel.setTheSelectedSpeedUnit(context, speed)
                             }
                         }
-                        Log.i("TAG", "SettingsScreen: ${settingViewModel.getWindSpeedUnit(context)}")
                     },
                     colors = RadioButtonDefaults.colors(
                         selectedColor = Color.Red,
-                        unselectedColor = MaterialTheme.colorScheme.onSurfaceVariant
+                        unselectedColor = Color.Black
                     )
                 )
                 Text(
                     text = speed,
                     style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.padding(start = 4.dp)
+                    fontSize = 18.sp,
+                    color = Color.White
                 )
             }
         }
@@ -360,7 +365,6 @@ private fun LocationSetting(
         stringResource(R.string.map)
     )
     val selectedLocation = settingViewModel.getTheSelectedLocationType(context)
-    Log.i("TAG", "SpeedUnitSetting: $selectedLocation")
     var selectedOption by remember { mutableStateOf(speedOptions[selectedLocation]) }
     var showMap by remember { mutableStateOf(false) }
     Row(
@@ -373,7 +377,7 @@ private fun LocationSetting(
         speedOptions.forEach { location ->
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(horizontal = 8.dp)
+                modifier = Modifier.padding(horizontal = 6.dp)
             ) {
                 RadioButton(
                     selected = (location == selectedOption),
@@ -395,17 +399,17 @@ private fun LocationSetting(
                                 settingViewModel.setTheSelectedLocationType(context, location)
                             }
                         }
-                        Log.i("TAG", "SettingsScreen: ${settingViewModel.getWindSpeedUnit(context)}")
                     },
                     colors = RadioButtonDefaults.colors(
                         selectedColor = Color.Red,
-                        unselectedColor = MaterialTheme.colorScheme.onSurfaceVariant
+                        unselectedColor = Color.Black
                     )
                 )
                 Text(
                     text = location,
                     style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.padding(start = 4.dp)
+                    fontSize = 18.sp,
+                    color = Color.White
                 )
             }
         }
