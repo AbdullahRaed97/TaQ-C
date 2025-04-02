@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -98,109 +99,124 @@ fun MapScreen(fromSetting: Boolean = false, fromAlert : Boolean, navController: 
 }
 
 @Composable
-fun ShowCardDetails(lat : Double, lon : Double ,favViewModel: FavouriteViewModel){
+fun ShowCardDetails(lat: Double, lon: Double, favViewModel: FavouriteViewModel) {
     val context = LocalContext.current
-
     val appUnit = favViewModel.getAppUnit(context)
     val appLanguage = favViewModel.getAppLanguage(context)
+    val forecastResponse = favViewModel.forecastResponse.collectAsStateWithLifecycle().value
 
-    val forecastResponse  =  favViewModel.forecastResponse.collectAsStateWithLifecycle().value
-    favViewModel.get5D_3HForeCastData(lat = lat, lon = lon, units = appUnit , lang = appLanguage )
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .padding(15.dp),
+    favViewModel.get5D_3HForeCastData(lat = lat, lon = lon, units = appUnit, lang = appLanguage)
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Bottom) {
-        when(forecastResponse){
+        verticalArrangement = Arrangement.Bottom
+    ) {
+        when(forecastResponse) {
             is Response.Loading -> {
                 CircularIndicator()
             }
             is Response.Failure -> {
-                Text(text = "${forecastResponse.exception.message}",
-                    fontSize = 50.sp,
-                    color = Color.Black
+                Text(
+                    text = "${forecastResponse.exception.message}",
+                    fontSize = 18.sp,
+                    color = Color.White,
+                    modifier = Modifier.padding(16.dp)
                 )
             }
-            is Response.Success ->{
+            is Response.Success -> {
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 10.dp, horizontal = 15.dp),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
-                    colors = CardDefaults.cardColors(Color.Gray),
-                    shape = RoundedCornerShape(15)
+                        .padding(vertical = 8.dp, horizontal = 20.dp),
+                    elevation = CardDefaults.cardElevation(4.dp),
+                    colors = CardDefaults.cardColors(Color(0xFF424242)),
+                    shape = RoundedCornerShape(16.dp)
                 ) {
-                    //Lat
-                        Row(
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(vertical = 10.dp , horizontal = 15.dp)
-                    ){
-                        Text(
-                            text = stringResource(R.string.latitude),
-                            fontSize = 25.sp,
-                            color = Color.White,
-                            modifier = Modifier
-                                .padding(vertical = 10.dp)
-                                .padding(end = 5.dp)
-                        )
-                        Text(
-                            text = forecastResponse.data.city?.coord?.lat.toString(),
-                            fontSize = 20.sp,
-                            color = Color.White
-                        )
-                    }
-                    Row(
-                        horizontalArrangement = Arrangement.SpaceEvenly,
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(vertical = 10.dp , horizontal = 15.dp)
-                    ){
-                        Text(
-                            text = stringResource(R.string.longitude),
-                            fontSize = 25.sp,
-                            color = Color.White,
-                            modifier = Modifier.padding(end=10.dp)
-                        )
-                        Text(
-                            text = forecastResponse.data.city?.coord?.lon.toString(),
-                            fontSize = 20.sp,
-                            color = Color.White
-                        )
-                    }
-                    Row(
-                        horizontalArrangement = Arrangement.SpaceEvenly,
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(vertical = 10.dp , horizontal = 15.dp)
-                    ){
-                        Text(
-                            text = stringResource(R.string.country_name),
-                            fontSize = 25.sp,
-                            color = Color.White,
-                            modifier = Modifier.padding(end=10.dp)
-                        )
-                        Text(
-                            text = favViewModel.getCountryName(forecastResponse.data.city?.country),
-                            fontSize = 25.sp,
-                            color = Color.White
-                        )
-                    }
-                    Button(
-                        onClick = {
-                          forecastResponse.data.city?.let {
-                              favViewModel.insertFavCity(it)
-                              Log.i("TAG", "ShowDialog: $it")
-                          }
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 20.dp, vertical = 10.dp),
-                        colors = ButtonDefaults.buttonColors(Color.Black)
+                    Column(
+                        modifier = Modifier.padding(16.dp)
                     ) {
-                        Text(
-                            text = stringResource(R.string.add_to_favourite),
-                            color = Color.White,
-                            fontSize = 20.sp
-                        )
+                        Row(
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 8.dp)
+                        ) {
+                            Text(
+                                text = stringResource(R.string.latitude),
+                                fontSize = 20.sp,
+                                color = Color.White,
+                                fontWeight = FontWeight.Medium
+                            )
+                            Text(
+                                text = forecastResponse.data.city?.coord?.lat.toString(),
+                                fontSize = 18.sp,
+                                color = Color.White.copy(alpha = 0.9f)
+                            )
+                        }
+                        Row(
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 8.dp)
+                        ) {
+                            Text(
+                                text = stringResource(R.string.longitude),
+                                fontSize = 20.sp,
+                                color = Color.White,
+                                fontWeight = FontWeight.Medium
+                            )
+                            Text(
+                                text = forecastResponse.data.city?.coord?.lon.toString(),
+                                fontSize = 18.sp,
+                                color = Color.White.copy(alpha = 0.9f)
+                            )
+                        }
+                        Row(
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 8.dp)
+                        ) {
+                            Text(
+                                text = stringResource(R.string.country_name),
+                                fontSize = 20.sp,
+                                color = Color.White,
+                                fontWeight = FontWeight.Medium
+                            )
+                            Text(
+                                text = favViewModel.getCountryName(forecastResponse.data.city?.country),
+                                fontSize = 18.sp,
+                                color = Color.White.copy(alpha = 0.9f)
+                            )
+                        }
+                        Button(
+                            onClick = {
+                                forecastResponse.data.city?.let {
+                                    favViewModel.insertFavCity(it)
+                                    Log.i("TAG", "ShowDialog: $it")
+                                }
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 16.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color(0xFF1E88E5),
+                                contentColor = Color.White
+                            ),
+                            shape = RoundedCornerShape(8.dp)
+                        ) {
+                            Text(
+                                text = stringResource(R.string.add_to_favourite),
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
                     }
                 }
             }
