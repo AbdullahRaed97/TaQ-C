@@ -41,10 +41,12 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
 import java.time.Duration
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
+import java.util.Date
 import java.util.Locale
 import java.util.UUID
 import java.util.concurrent.TimeUnit
@@ -106,7 +108,7 @@ class AlertViewModel(private val weatherRepository: WeatherRepository) : ViewMod
         val year = localDateTime.year
 
         val duration = calculateTheDelay( hour = hour, minute = minute, day = day , month = month , year = year )
-        Log.i("TAG", "requestAlert: $duration")
+
         val alertRequest = OneTimeWorkRequestBuilder<AlertWorker>()
             .setInitialDelay(duration, TimeUnit.MILLISECONDS)
             .setInputData(data)
@@ -115,9 +117,9 @@ class AlertViewModel(private val weatherRepository: WeatherRepository) : ViewMod
             )
             .setConstraints(constraints)
             .build()
-        Log.i("TAG", "requestAlert: code : ${alertRequest.id}")
+
         val requestCode = alertRequest.id.toString()
-        insertAlert(Alert(requestCode,city))
+        insertAlert(Alert(requestCode,city,timeStamp))
         WorkManager.getInstance(context).enqueue(alertRequest)
         val result = WorkManager.getInstance(context).getWorkInfoByIdLiveData(alertRequest.id).observe(context as LifecycleOwner){
             when(it.state){
@@ -168,6 +170,12 @@ class AlertViewModel(private val weatherRepository: WeatherRepository) : ViewMod
 
     fun getCountryName(countryCode: String?): String {
         return Locale("", countryCode).displayCountry ?: "UnSpecified"
+    }
+
+    fun convertTimeStampToDate(timeStamp: Long): String {
+        val date = Date(timeStamp)
+        val sdf = SimpleDateFormat("MMMM d,yyyy", Locale.getDefault())
+        return sdf.format(date)
     }
 
     fun checkNotificationOpened(context: Context): Boolean{

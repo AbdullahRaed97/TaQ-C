@@ -4,6 +4,7 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -103,6 +105,12 @@ fun SetAlertScreen(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
+                    Image(
+                       painter =  painterResource(R.drawable.alarm),
+                        contentDescription = null,
+                        modifier = Modifier.size(64.dp)
+
+                    )
                     Button(
                         onClick = {
                             navController.navigate(MapScreen(false, true))
@@ -169,12 +177,6 @@ fun SetAlertScreen(
 
                     Button(
                         onClick = {
-                            Log.i("Confirm Button", "SetAlertScreen: ${timeStamp.value}")
-                            Log.i("Confirm Button", "SetAlertScreen: ${timePickerState.hour}")
-                            Log.i("Confirm Button", "SetAlertScreen: ${timePickerState.minute}")
-                            Log.i("Confirm Button", "SetAlertScreen: ${lat}")
-                            Log.i("Confirm Button", "SetAlertScreen: ${lon}")
-
                             alertViewModel.requestAlert(context,forecastResponse.data.city?:City(),timePickerState.hour,timePickerState.minute,timeStamp.value)
                             navController.navigate(AlertScreen)
                         },
@@ -214,7 +216,7 @@ fun SetAlertScreen(
         ShowDatePicker({
             timeStamp.value = it ?: 0
             showDatePicker = false
-            Log.i("TAG", "When a date selected : ${timeStamp.value}")
+            Log.i("TAG", "SetAlertScreen: ${alertViewModel.convertTimeStampToDate(timeStamp.value)}")
         }) {
             showDatePicker = false
         }
@@ -229,7 +231,6 @@ fun ShowTimePicker(
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
 ) {
-    Log.i("TAG", "ShowTimePicker: i have invoked")
 
     Column(
         modifier = Modifier.fillMaxSize(),

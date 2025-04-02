@@ -1,6 +1,7 @@
 package com.example.taq_c.alert.view
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -10,14 +11,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -32,6 +36,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -128,53 +133,87 @@ fun AlertScreen(
 fun AlertItem(alert: Alert, alertViewModel: AlertViewModel) {
     var showDialog by remember { mutableStateOf(false) }
     val context = LocalContext.current
+    Log.i("TAG", "AlertItem: ${alert.timeStamp}")
     Card(
         modifier = Modifier
             .height(120.dp)
             .fillMaxWidth()
-            .padding(15.dp),
-        elevation = CardDefaults.cardElevation(8.dp),
-        colors = CardDefaults.cardColors(Color.Gray)
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        elevation = CardDefaults.cardElevation(4.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color(0xFF424242)
+        ),
+        shape = RoundedCornerShape(12.dp)
     ) {
         Row(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(10.dp),
-            horizontalArrangement = Arrangement.SpaceAround,
+                .fillMaxSize()
+                .padding(horizontal = 24.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
+            Column (
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = alertViewModel.getCountryName(alert.city.country),
+                    fontSize = 22.sp,
+                    color = Color.White,
+                    fontWeight = FontWeight.Medium
+                )
+                Text(
+                    text = alertViewModel.convertTimeStampToDate(alert.timeStamp?:0),
+                    fontSize = 14.sp,
+                    color = Color.White.copy(alpha = 0.8f),
+                    fontWeight = FontWeight.Medium
+                )
+            }
+
             Text(
-                text = alertViewModel.getCountryName(alert.city.country),
-                fontSize = 25.sp,
-                color = Color.White
+                text = alert.city.name.toString(),
+                fontSize = 18.sp,
+                color = Color.White.copy(alpha = 0.8f),
+                fontWeight = FontWeight.Medium
             )
-            Text(
-                text = alert.city.name.toString()
-            )
+
             Icon(
                 imageVector = Icons.Default.Delete,
-                contentDescription = null,
-                tint = Color.White,
+                contentDescription = "Delete alert",
+                tint = Color.White.copy(alpha = 0.8f),
                 modifier = Modifier
+                    .size(40.dp)
                     .clickable {
                         showDialog = true
                     }
-                    .scale(1.2f, 1f)
+                    .padding(8.dp)
             )
         }
         if (showDialog) {
             AlertDialog(
                 onDismissRequest = { showDialog = false },
-                title = { Text("Delete Alert") },
-                text = { Text("Are you sure you want to delete this Alert") },
+                title = {
+                    Text(
+                        "Delete Alert",
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                },
+                text = {
+                    Text(
+                        "Are you sure you want to delete this Alert",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                },
                 confirmButton = {
                     TextButton(
                         onClick = {
                             showDialog = false
-                            alertViewModel.deleteAlert(context,alert)
+                            alertViewModel.deleteAlert(context, alert)
                         }
                     ) {
-                        Text("Delete")
+                        Text(
+                            "Delete",
+                            color = Color.Red
+                        )
                     }
                 },
                 dismissButton = {
@@ -183,7 +222,10 @@ fun AlertItem(alert: Alert, alertViewModel: AlertViewModel) {
                     ) {
                         Text("Cancel")
                     }
-                }
+                },
+                containerColor = Color(0xFF424242),
+                titleContentColor = Color.White,
+                textContentColor = Color.White.copy(alpha = 0.8f)
             )
         }
     }
