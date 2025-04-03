@@ -2,10 +2,12 @@ package com.example.taq_c.settings.viewModel
 
 import android.content.Context
 import androidx.lifecycle.ViewModel
+import com.example.taq_c.utilities.LocationHelper
 
 
 class SettingViewModel() : ViewModel() {
 
+    private val currentLocation = LocationHelper.locationState
     fun setLanguage(context: Context,value: String="en"){
         val sharedPreferences = context.getSharedPreferences("Settings", Context.MODE_PRIVATE)
        sharedPreferences.edit().apply{
@@ -34,6 +36,12 @@ class SettingViewModel() : ViewModel() {
         val sharedPreferences = context.getSharedPreferences("Settings", Context.MODE_PRIVATE)
         sharedPreferences.edit().apply {
             putString("Location",value)
+            apply()
+        }
+        val sharedPref = context.getSharedPreferences("Coordinates", Context.MODE_PRIVATE)
+        sharedPref.edit().apply {
+            putLong("Latitude",currentLocation.value.latitude.toLong())
+            putLong("Longitude",currentLocation.value.longitude.toLong())
             apply()
         }
     }

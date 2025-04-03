@@ -32,7 +32,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.taq_c.R
+import com.example.taq_c.data.db.WeatherDatabase
+import com.example.taq_c.data.local.WeatherLocalDataSource
 import com.example.taq_c.data.model.Response
+import com.example.taq_c.data.remote.RetrofitHelper
+import com.example.taq_c.data.remote.WeatherRemoteDataSource
 import com.example.taq_c.data.repository.WeatherRepository
 import com.example.taq_c.favourite.viewModel.FavouriteFactory
 import com.example.taq_c.favourite.viewModel.FavouriteViewModel
@@ -55,7 +59,15 @@ fun MapScreen(fromSetting: Boolean = false, fromAlert : Boolean, navController: 
     val cameraPositionState = rememberCameraPositionState { position = CameraPosition.fromLatLngZoom(defaultLocation, 10f) }
     var markerTitle by remember {mutableStateOf("Egypt")}
     val context = LocalContext.current
-    var favViewModel = viewModel<FavouriteViewModel>(factory = FavouriteFactory(WeatherRepository.getInstance(context)))
+    val weatherRepository = WeatherRepository.
+    getInstance(WeatherLocalDataSource
+        .getInstance(WeatherDatabase
+            .getInstance(context).getWeatherDao(),WeatherDatabase
+            .getInstance(context).getAlertDao()),
+        WeatherRemoteDataSource
+            .getInstance(RetrofitHelper.weatherService)
+    )
+    var favViewModel = viewModel<FavouriteViewModel>(factory = FavouriteFactory(weatherRepository))
 
     LaunchedEffect(defaultLocation) {
         cameraPositionState.animate(update = CameraUpdateFactory.newLatLngZoom(defaultLocation,10f))

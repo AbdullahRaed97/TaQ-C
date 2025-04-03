@@ -30,10 +30,14 @@ import com.example.taq_c.R
 import com.example.taq_c.utilities.WeatherNotificationService
 import com.example.taq_c.utilities.WeatherNotificationService.Companion.WEATHER_CHANNEL_ID
 import com.example.taq_c.alert.SnoozeNotificationReceiver
+import com.example.taq_c.data.db.WeatherDatabase
+import com.example.taq_c.data.local.WeatherLocalDataSource
 import com.example.taq_c.data.model.Alert
 import com.example.taq_c.data.model.City
 import com.example.taq_c.data.model.ForecastResponse
 import com.example.taq_c.data.model.Response
+import com.example.taq_c.data.remote.RetrofitHelper
+import com.example.taq_c.data.remote.WeatherRemoteDataSource
 import com.example.taq_c.data.repository.WeatherRepository
 import com.example.taq_c.main.MainActivity
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -202,7 +206,14 @@ class AlertFactory(val weatherRepository: WeatherRepository) : ViewModelProvider
 
 class AlertWorker(context: Context, workerParameters: WorkerParameters) :
     CoroutineWorker(context, workerParameters) {
-    val weatherRepository = WeatherRepository.getInstance(context)
+    val weatherRepository = WeatherRepository.
+    getInstance(WeatherLocalDataSource
+        .getInstance(WeatherDatabase
+            .getInstance(context).getWeatherDao(),WeatherDatabase
+                .getInstance(context).getAlertDao()),
+        WeatherRemoteDataSource
+            .getInstance(RetrofitHelper.weatherService)
+    )
     val myContext = context
     @SuppressLint("RestrictedApi")
     override suspend fun doWork(): Result {

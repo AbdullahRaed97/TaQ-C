@@ -1,6 +1,5 @@
 package com.example.taq_c.data.repository
 
-import android.content.Context
 import com.example.taq_c.data.local.IWeatherLocalDataSource
 import com.example.taq_c.data.local.WeatherLocalDataSource
 import com.example.taq_c.data.model.Alert
@@ -46,11 +45,14 @@ class WeatherRepository private constructor(val localDataSource: IWeatherLocalDa
     companion object{
         @Volatile
         var instance : WeatherRepository?=null
-        fun getInstance(context: Context): WeatherRepository{
+        fun getInstance(localDataSource: IWeatherLocalDataSource ,
+                        remoteDataSource: IWeatherRemoteDataSource):
+                WeatherRepository{
             return instance?:synchronized(this) {
                 val temp = WeatherRepository(
-                    WeatherLocalDataSource.getInstance(context)
-                , WeatherRemoteDataSource.getInstance())
+                localDataSource,
+                remoteDataSource
+                )
                 instance = temp
                 temp
             }

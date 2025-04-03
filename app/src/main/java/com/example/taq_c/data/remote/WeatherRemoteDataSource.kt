@@ -19,9 +19,9 @@ class WeatherRemoteDataSource private constructor(val weatherApi: WeatherApi) : 
 companion object {
     @Volatile
     var remoteInstance: WeatherRemoteDataSource? = null
-    fun getInstance(): WeatherRemoteDataSource {
+    fun getInstance(weatherApi: WeatherApi): WeatherRemoteDataSource {
             return remoteInstance ?: synchronized(this){
-                val temp = WeatherRemoteDataSource(RetrofitHelper.weatherService)
+                val temp = WeatherRemoteDataSource(weatherApi)
                 remoteInstance=temp
                 temp
             }

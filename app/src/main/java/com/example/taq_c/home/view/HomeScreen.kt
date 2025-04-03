@@ -43,9 +43,13 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.example.taq_c.R
+import com.example.taq_c.data.db.WeatherDatabase
+import com.example.taq_c.data.local.WeatherLocalDataSource
 import com.example.taq_c.data.model.Forecast
 import com.example.taq_c.data.model.Response
 import com.example.taq_c.data.model.WeatherResponse
+import com.example.taq_c.data.remote.RetrofitHelper
+import com.example.taq_c.data.remote.WeatherRemoteDataSource
 import com.example.taq_c.data.repository.WeatherRepository
 import com.example.taq_c.home.viewModel.HomeFactory
 import com.example.taq_c.home.viewModel.HomeViewModel
@@ -62,7 +66,14 @@ data class BottomNavigationItem(
 @Composable
 fun HomeScreen(lat: Double, lon: Double) {
     val context = LocalContext.current
-    val weatherRepository = WeatherRepository.getInstance(context)
+    val weatherRepository = WeatherRepository.
+    getInstance(WeatherLocalDataSource
+        .getInstance(WeatherDatabase
+            .getInstance(context).getWeatherDao(),WeatherDatabase
+            .getInstance(context).getAlertDao()),
+        WeatherRemoteDataSource
+            .getInstance(RetrofitHelper.weatherService)
+    )
     val homeViewModel = viewModel<HomeViewModel>(
         factory = HomeFactory(weatherRepository)
     )

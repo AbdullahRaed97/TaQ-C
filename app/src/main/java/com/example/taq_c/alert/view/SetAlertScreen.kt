@@ -52,9 +52,13 @@ import androidx.navigation.NavController
 import com.example.taq_c.R
 import com.example.taq_c.alert.viewModel.AlertFactory
 import com.example.taq_c.alert.viewModel.AlertViewModel
+import com.example.taq_c.data.db.WeatherDatabase
+import com.example.taq_c.data.local.WeatherLocalDataSource
 import com.example.taq_c.data.model.Alert
 import com.example.taq_c.data.model.City
 import com.example.taq_c.data.model.Response
+import com.example.taq_c.data.remote.RetrofitHelper
+import com.example.taq_c.data.remote.WeatherRemoteDataSource
 import com.example.taq_c.data.repository.WeatherRepository
 import com.example.taq_c.home.view.CircularIndicator
 import com.example.taq_c.utilities.NavigationRoute.*
@@ -71,7 +75,14 @@ fun SetAlertScreen(
     lon: Double
 ) {
     val context = LocalContext.current
-    val weatherRepository = WeatherRepository.getInstance(context)
+    val weatherRepository = WeatherRepository.
+    getInstance(WeatherLocalDataSource
+        .getInstance(WeatherDatabase
+            .getInstance(context).getWeatherDao(),WeatherDatabase
+            .getInstance(context).getAlertDao()),
+        WeatherRemoteDataSource
+            .getInstance(RetrofitHelper.weatherService)
+    )
     val alertViewModel = viewModel<AlertViewModel>(factory = AlertFactory(weatherRepository))
     val forecastResponse = alertViewModel.forecastResponse.collectAsStateWithLifecycle().value
     var showTimePicker by remember { mutableStateOf(false) }

@@ -40,8 +40,12 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.taq_c.data.db.WeatherDatabase
+import com.example.taq_c.data.local.WeatherLocalDataSource
 import com.example.taq_c.data.model.City
 import com.example.taq_c.data.model.Response
+import com.example.taq_c.data.remote.RetrofitHelper
+import com.example.taq_c.data.remote.WeatherRemoteDataSource
 import com.example.taq_c.data.repository.WeatherRepository
 import com.example.taq_c.favourite.viewModel.FavouriteFactory
 import com.example.taq_c.favourite.viewModel.FavouriteViewModel
@@ -55,7 +59,15 @@ fun FavoriteCityScreen(
     floatingActionButtonAction: MutableState<(() -> Unit)?>
 ) {
     var isClicked by remember { mutableStateOf(false) }
-    val weatherRepository = WeatherRepository.getInstance(LocalContext.current)
+    val context = LocalContext.current
+    val weatherRepository = WeatherRepository.
+    getInstance(WeatherLocalDataSource
+        .getInstance(WeatherDatabase
+            .getInstance(context).getWeatherDao(),WeatherDatabase
+            .getInstance(context).getAlertDao()),
+        WeatherRemoteDataSource
+            .getInstance(RetrofitHelper.weatherService)
+    )
     val favViewModel = viewModel<FavouriteViewModel>(factory = FavouriteFactory(weatherRepository))
     LaunchedEffect(Unit) {
         favViewModel.getAllFavCities()

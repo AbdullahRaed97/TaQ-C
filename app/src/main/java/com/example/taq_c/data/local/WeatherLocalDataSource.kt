@@ -1,9 +1,7 @@
 package com.example.taq_c.data.local
 
-import android.content.Context
 import com.example.taq_c.data.db.AlertDao
 import com.example.taq_c.data.db.WeatherDao
-import com.example.taq_c.data.db.WeatherDatabase
 import com.example.taq_c.data.model.Alert
 import com.example.taq_c.data.model.City
 import kotlinx.coroutines.flow.Flow
@@ -41,11 +39,12 @@ class WeatherLocalDataSource private constructor(
     companion object {
         @Volatile
         private var instance: WeatherLocalDataSource? = null
-        fun getInstance(context: Context): WeatherLocalDataSource {
+        fun getInstance(weatherDao: WeatherDao,
+                        alertDao: AlertDao ): WeatherLocalDataSource {
             return instance ?: synchronized(this) {
                 val temp = WeatherLocalDataSource(
-                    WeatherDatabase.getInstance(context).getWeatherDao(),
-                    WeatherDatabase.getInstance(context).getAlertDao()
+                    weatherDao,
+                    alertDao
                 )
                 instance = temp
                 temp
