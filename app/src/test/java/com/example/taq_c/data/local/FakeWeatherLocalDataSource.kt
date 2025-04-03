@@ -3,11 +3,12 @@ package com.example.taq_c.data.local
 import com.example.taq_c.data.model.Alert
 import com.example.taq_c.data.model.City
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 
-class FakeWeatherLocalDataSource( val cityList : MutableList<City> = mutableListOf()) : IWeatherLocalDataSource {
+class FakeWeatherLocalDataSource(private val cityList : MutableList<City> = mutableListOf()) : IWeatherLocalDataSource {
 
     override fun getAllFavCities(): Flow<List<City>> {
-        TODO("Not yet implemented")
+        return flowOf( cityList)
     }
 
     override suspend fun insertFavCity(city: City): Long {

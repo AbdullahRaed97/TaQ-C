@@ -3,8 +3,9 @@ package com.example.taq_c.data.remote
 import com.example.taq_c.data.model.ForecastResponse
 import com.example.taq_c.data.model.WeatherResponse
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 
-class FakeWeatherRemoteDataSource : IWeatherRemoteDataSource{
+class StubWeatherRemoteDataSource(private val weatherResponse: WeatherResponse) : IWeatherRemoteDataSource{
 
     override suspend fun getCurrentWeather(
         lat: Double,
@@ -12,7 +13,7 @@ class FakeWeatherRemoteDataSource : IWeatherRemoteDataSource{
         units: String,
         lang: String
     ): Flow<WeatherResponse> {
-        TODO("Not yet implemented")
+       return flowOf(weatherResponse)
     }
 
     override suspend fun get5D_3HForecastData(
