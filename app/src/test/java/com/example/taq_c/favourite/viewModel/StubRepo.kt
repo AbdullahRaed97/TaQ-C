@@ -7,7 +7,7 @@ import com.example.taq_c.data.model.WeatherResponse
 import com.example.taq_c.data.repository.IWeatherRepository
 import kotlinx.coroutines.flow.Flow
 
-class DummyRepo : IWeatherRepository {
+class StubRepo : IWeatherRepository {
     override fun getAllFavCities(): Flow<List<City>?> {
         TODO("Not yet implemented")
     }

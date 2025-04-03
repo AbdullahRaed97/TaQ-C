@@ -19,7 +19,7 @@ class FavouriteViewModelTest {
     lateinit var repo: IWeatherRepository
     @Before
     fun setup(){
-        repo= DummyRepo()
+        repo= StubRepo()
         viewModel= FavouriteViewModel(repo)
     }
     @OptIn(ExperimentalCoroutinesApi::class)
