@@ -8,7 +8,9 @@ import androidx.lifecycle.viewModelScope
 import com.example.taq_c.data.model.City
 import com.example.taq_c.data.model.ForecastResponse
 import com.example.taq_c.data.model.Response
+import com.example.taq_c.data.repository.IWeatherRepository
 import com.example.taq_c.data.repository.WeatherRepository
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -18,7 +20,7 @@ import kotlinx.coroutines.launch
 import java.io.IOException
 import java.util.Locale
 
-class FavouriteViewModel(private val weatherRepository: WeatherRepository): ViewModel() {
+class FavouriteViewModel(private val weatherRepository: IWeatherRepository): ViewModel() {
     private val favCitiesResponse_: MutableStateFlow<Response<List<City>?>> =
         MutableStateFlow(Response.Loading)
     val favCitiesResponse = favCitiesResponse_.asStateFlow()
@@ -26,7 +28,7 @@ class FavouriteViewModel(private val weatherRepository: WeatherRepository): View
         MutableStateFlow(Response.Loading)
     val forecastResponse =
         forecastResponse_.asStateFlow()
-    private val message_: MutableSharedFlow<String?> = MutableSharedFlow()
+    private val message_: MutableSharedFlow<String?> = MutableSharedFlow(extraBufferCapacity = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
     val message = message_.asSharedFlow()
 
     fun getAllFavCities() {
