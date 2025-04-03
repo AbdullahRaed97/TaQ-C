@@ -126,7 +126,6 @@ dependencies {
     androidTestImplementation ("org.hamcrest:hamcrest:2.2")
     androidTestImplementation ("org.hamcrest:hamcrest-library:2.2")
 
-
     // AndroidX and Robolectric
     testImplementation ("androidx.test.ext:junit-ktx:$androidXTestExtKotlinRunnerVersion")
     testImplementation ("androidx.test:core-ktx:$androidXTestCoreVersion")
