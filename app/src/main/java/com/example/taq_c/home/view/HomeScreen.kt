@@ -64,7 +64,7 @@ data class BottomNavigationItem(
 
 @SuppressLint("SuspiciousIndentation")
 @Composable
-fun HomeScreen(lat: Double, lon: Double) {
+fun HomeScreen(lat: Double, lon: Double,isNetworkAvailable : Boolean? , snackBarHostState: SnackbarHostState) {
     val context = LocalContext.current
     val weatherRepository = WeatherRepository.
     getInstance(WeatherLocalDataSource
@@ -82,7 +82,16 @@ fun HomeScreen(lat: Double, lon: Double) {
     val appLanguage = homeViewModel.getAppLanguage(context)
     val appLatitude = homeViewModel.getAppLatitude(lat, context)
     val appLongitude = homeViewModel.getAppLongitude(lon, context)
+    val message = homeViewModel.message.collectAsStateWithLifecycle(initialValue = null).value
 
+    LaunchedEffect(message) {
+        if(message !=null) {
+            snackBarHostState.showSnackbar(
+                message =message,
+                duration = SnackbarDuration.Short
+            )
+        }
+    }
     LaunchedEffect(appLatitude , currentLocation.value) {
 
         homeViewModel.getCurrentWeatherData(
@@ -101,7 +110,6 @@ fun HomeScreen(lat: Double, lon: Double) {
 
     val weatherResponse = homeViewModel.weatherResponse.collectAsStateWithLifecycle().value
     val forecastResponse = homeViewModel.forecastResponse.collectAsStateWithLifecycle().value
-    val message = homeViewModel.message
     val snackBarHostState = remember { SnackbarHostState() }
     val scrollState = rememberScrollState()
         Column(
@@ -117,14 +125,7 @@ fun HomeScreen(lat: Double, lon: Double) {
                         homeViewModel
                     )
                 }
-                is Response.Failure -> {
-                    LaunchedEffect(weatherResponse) {
-                        snackBarHostState.showSnackbar(
-                            message = weatherResponse.exception.message.toString(),
-                            duration = SnackbarDuration.Short
-                        )
-                    }
-                }
+                is Response.Failure -> {}
                 is Response.Loading -> {
                    CircularIndicator()
                 }
@@ -138,15 +139,8 @@ fun HomeScreen(lat: Double, lon: Double) {
                 modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp)
             )
             when (forecastResponse) {
-                is Response.Failure -> LaunchedEffect(forecastResponse) {
-                    snackBarHostState.showSnackbar(
-                        message = forecastResponse.exception.message.toString(),
-                        duration = SnackbarDuration.Short
-                    )
-                }
-                is Response.Loading -> {
-                   CircularIndicator()
-                }
+                is Response.Failure -> {}
+                is Response.Loading -> { CircularIndicator() }
                 is Response.Success -> {
                     Column(
                         modifier = Modifier

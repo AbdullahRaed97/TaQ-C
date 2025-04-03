@@ -56,7 +56,8 @@ import com.example.taq_c.utilities.NavigationRoute
 @Composable
 fun FavoriteCityScreen(
     navController: NavController,
-    floatingActionButtonAction: MutableState<(() -> Unit)?>
+    floatingActionButtonAction: MutableState<(() -> Unit)?>,
+    snackBarHostState: SnackbarHostState
 ) {
     var isClicked by remember { mutableStateOf(false) }
     val context = LocalContext.current

@@ -22,10 +22,12 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -55,12 +57,31 @@ import com.example.taq_c.utilities.NavigationRoute
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun ApplicationScreens() {
+fun ApplicationScreens(isNetworkAvailable : Boolean?) {
     val context = LocalContext.current
     val floatingActionButtonAction: MutableState<(() -> Unit)?> =
         remember { mutableStateOf(null) }
     val snackBarState = remember { SnackbarHostState() }
     val navController = rememberNavController()
+    LaunchedEffect(isNetworkAvailable) {
+        when(isNetworkAvailable) {
+            true -> {
+                snackBarState.showSnackbar(
+                    message = "Network Available",
+                    duration = SnackbarDuration.Short
+                )
+            }
+
+            false -> {
+                snackBarState.showSnackbar(
+                    message = "No Internet Connection",
+                    duration = SnackbarDuration.Short
+                )
+            }
+
+            null -> {}
+        }
+    }
     Scaffold(
         bottomBar = {
             BottomActionBar(navController)
@@ -104,14 +125,14 @@ fun ApplicationScreens() {
                 val lat = receivedObject.lat
                 val lon = receivedObject.lon
                 floatingActionButtonAction.value = null
-                HomeScreen(lat, lon)
+                HomeScreen(lat, lon,isNetworkAvailable,snackBarState)
             }
             composable<NavigationRoute.SettingScreen> {
                 floatingActionButtonAction.value = null
                 SettingsScreen(navController)
             }
             composable<NavigationRoute.FavoriteScreen> {
-                FavoriteCityScreen(navController, floatingActionButtonAction)
+                FavoriteCityScreen(navController, floatingActionButtonAction,snackBarState)
             }
             composable<NavigationRoute.AlertScreen> {
                 AlertScreen(floatingActionButtonAction,navController)
@@ -121,13 +142,13 @@ fun ApplicationScreens() {
                 val fromSetting = receivedObject.fromSetting
                 val fromAlert = receivedObject.fromAlert
                 floatingActionButtonAction.value = null
-                MapScreen(fromSetting,fromAlert,navController)
+                MapScreen(fromSetting,fromAlert,navController,snackBarState)
             }
            composable <NavigationRoute.SetAlertScreen>{
                val receivedObject = it.toRoute<NavigationRoute.SetAlertScreen>()
                val lat = receivedObject.lat
                val lon = receivedObject.lon
-               SetAlertScreen(navController,lat,lon)
+               SetAlertScreen(navController,lat,lon,snackBarState)
             }
         }
     }

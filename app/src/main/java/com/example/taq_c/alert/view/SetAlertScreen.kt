@@ -24,6 +24,7 @@ import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.SelectableDates
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimePicker
@@ -72,7 +73,8 @@ import java.util.Calendar
 fun SetAlertScreen(
     navController: NavController,
     lat: Double,
-    lon: Double
+    lon: Double,
+    snackBarHostState: SnackbarHostState
 ) {
     val context = LocalContext.current
     val weatherRepository = WeatherRepository.

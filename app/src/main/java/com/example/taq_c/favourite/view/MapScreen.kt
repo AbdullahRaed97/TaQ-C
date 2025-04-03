@@ -13,6 +13,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -54,7 +55,12 @@ import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 
 @Composable
-fun MapScreen(fromSetting: Boolean = false, fromAlert : Boolean, navController: NavController) {
+fun MapScreen(
+    fromSetting: Boolean = false,
+    fromAlert : Boolean,
+    navController: NavController,
+    snackBarHostState: SnackbarHostState
+) {
     var defaultLocation by remember { mutableStateOf(LatLng(30.0444,  31.2357))}// Cairo coordinates
     val cameraPositionState = rememberCameraPositionState { position = CameraPosition.fromLatLngZoom(defaultLocation, 10f) }
     var markerTitle by remember {mutableStateOf("Egypt")}
