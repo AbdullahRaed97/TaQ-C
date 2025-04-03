@@ -3,17 +3,26 @@ package com.example.taq_c.main
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
+import android.net.ConnectivityManager
+import android.net.Network
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.core.app.ActivityCompat
 import com.example.taq_c.main.view.ApplicationScreens
 import com.example.taq_c.utilities.LocationHelper
+import com.example.taq_c.utilities.NetworkManagement
 import java.util.Locale
 
 class MainActivity : ComponentActivity() {
+
+
+    lateinit var networkCallback : ConnectivityManager.NetworkCallback
 
     override fun attachBaseContext(newBase: Context?) {
         //get app language
@@ -37,8 +46,24 @@ class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+         var isNetworkAvailable : MutableState<Boolean?> = mutableStateOf(null)
+        val networkManagement = NetworkManagement(this)
+        if(networkManagement.isNetworkAvailable()){
+            isNetworkAvailable.value = true
+        }else{
+            isNetworkAvailable.value = false
+        }
+        networkCallback = object : ConnectivityManager.NetworkCallback(){
+            override fun onAvailable(network: Network) {
+                isNetworkAvailable.value = true
+            }
+
+            override fun onLost(network: Network) {
+                isNetworkAvailable.value = false
+            }
+        }
         setContent {
-            ApplicationScreens()
+            ApplicationScreens(isNetworkAvailable.value)
         }
     }
 
@@ -64,6 +89,8 @@ class MainActivity : ComponentActivity() {
                 LocationHelper.REQUEST_CODE
             )
         }
+        val networkManagement = NetworkManagement(this)
+        networkManagement.registerNetworkCallback(networkCallback)
     }
 
     override fun onRequestPermissionsResult(
@@ -91,6 +118,12 @@ class MainActivity : ComponentActivity() {
                 )
             }
         }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        val networkManagement = NetworkManagement(this)
+        networkManagement.unregisterNetworkCallback(networkCallback)
     }
 }
 
