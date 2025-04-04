@@ -7,7 +7,6 @@ import android.net.ConnectivityManager
 import android.net.Network
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi

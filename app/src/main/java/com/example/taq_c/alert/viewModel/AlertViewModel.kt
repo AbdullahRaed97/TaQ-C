@@ -27,7 +27,6 @@ import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.example.taq_c.alert.CancelNotificationReceiver
 import com.example.taq_c.R
-import com.example.taq_c.utilities.WeatherNotificationService
 import com.example.taq_c.utilities.WeatherNotificationService.Companion.WEATHER_CHANNEL_ID
 import com.example.taq_c.alert.SnoozeNotificationReceiver
 import com.example.taq_c.data.db.WeatherDatabase
@@ -36,11 +35,14 @@ import com.example.taq_c.data.model.Alert
 import com.example.taq_c.data.model.City
 import com.example.taq_c.data.model.ForecastResponse
 import com.example.taq_c.data.model.Response
+import com.example.taq_c.data.model.WeatherResponse
 import com.example.taq_c.data.remote.RetrofitHelper
 import com.example.taq_c.data.remote.WeatherRemoteDataSource
 import com.example.taq_c.data.repository.WeatherRepository
 import com.example.taq_c.main.MainActivity
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.first
@@ -63,18 +65,21 @@ class AlertViewModel(private val weatherRepository: WeatherRepository) : ViewMod
     private val forecastResponse_ : MutableStateFlow<Response<ForecastResponse>> =
         MutableStateFlow(Response.Loading)
     val forecastResponse = forecastResponse_.asStateFlow()
-
+   private val message_ : MutableSharedFlow<String> = MutableSharedFlow()
+    val message = message_.asSharedFlow()
     fun getAllAlert() {
         viewModelScope.launch {
             try {
                 weatherRepository.getAllAlerts()
                     .catch {
                         alertResponse_.emit(Response.Failure(it))
+                        message_.emit(it.message.toString())
                     }.collect {
                         alertResponse_.emit(Response.Success(it))
                     }
             } catch (e: Exception) {
                 alertResponse_.emit(Response.Failure(e))
+                message_.emit(e.message.toString())
             }
         }
     }
@@ -85,11 +90,13 @@ class AlertViewModel(private val weatherRepository: WeatherRepository) : ViewMod
                 weatherRepository.get5D_3HForeCastData(lat,lon,"metric","en")
                     .catch {
                     forecastResponse_.emit(Response.Failure(it))
+                        message_.emit(it.message.toString())
                 }.collect {
                     forecastResponse_.emit(Response.Success(it as ForecastResponse))
                     }
             }catch (e: Exception){
                 forecastResponse_.emit(Response.Failure(e))
+                message_.emit(e.message.toString())
             }
         }
     }
@@ -124,7 +131,9 @@ class AlertViewModel(private val weatherRepository: WeatherRepository) : ViewMod
 
         val requestCode = alertRequest.id.toString()
         insertAlert(Alert(requestCode,city,timeStamp))
+
         WorkManager.getInstance(context).enqueue(alertRequest)
+
         val result = WorkManager.getInstance(context).getWorkInfoByIdLiveData(alertRequest.id).observe(context as LifecycleOwner){
             when(it.state){
                 WorkInfo.State.ENQUEUED -> Log.i("TAG", "requestAlert: enqueued")
@@ -145,7 +154,6 @@ class AlertViewModel(private val weatherRepository: WeatherRepository) : ViewMod
     private fun calculateTheDelay(hour:Int, minute:Int, day:Int, month:Int, year :Int):Long{
         val chosenTime = LocalDateTime.of(year,month,day,hour,minute)
         val currentDate = LocalDateTime.now()
-        Log.i("TAG", "calculateTheDelay: $chosenTime now : $currentDate")
         val duration = Duration.between(currentDate,chosenTime)
         return duration.toMillis().coerceAtLeast(0)
     }
@@ -156,8 +164,10 @@ class AlertViewModel(private val weatherRepository: WeatherRepository) : ViewMod
                 weatherRepository.deleteAlert(alert)
                 val workID = UUID.fromString(alert.requestCode)
                 WorkManager.getInstance(context).cancelWorkById(workID)
+                message_.emit("Deletion Success")
             }catch (e : Exception){
                 alertResponse_.emit(Response.Failure(e))
+                message_.emit(e.message.toString())
             }
         }
     }
@@ -166,8 +176,10 @@ class AlertViewModel(private val weatherRepository: WeatherRepository) : ViewMod
         viewModelScope.launch {
             try {
                 weatherRepository.insertAlert(alert)
+                message_.emit("Insertion Success")
             }catch (e : Exception){
                 alertResponse_.emit(Response.Failure(e))
+                message_.emit(e.message.toString())
             }
         }
     }
@@ -220,25 +232,28 @@ class AlertWorker(context: Context, workerParameters: WorkerParameters) :
         try {
             val lat = inputData.getDouble("lat", 0.0)
             val lon = inputData.getDouble("lon", 0.0)
-            Log.i("TAG", "doWork: $lat , $lon")
             val weatherResponse =
                 try {
                     weatherRepository.getCurrentWeatherData(lat, lon, "metric", "en").first()
                 } catch (e: Exception) {
-                    Log.i("TAG", "doWork: api call fail : ${e.message}")
                     return Result.retry()
                 }
-            Log.i("TAG", "doWork: ${weatherResponse?.weather?.get(0)?.fullWeatherDesc}")
-            showNotification(myContext,weatherResponse?.weather?.get(0)?.fullWeatherDesc?:"",lat,lon)
+            val content = getNotificationContent(weatherResponse)
+            showNotification(myContext,content,lat,lon)
             return Result.success()
         }catch (e: Exception){
-            Log.e("TAG", "doWork: ",e)
             return Result.Failure()
         }
 
     }
-    private fun showNotification(context: Context,content: String,lat: Double,lon: Double){
-        Log.i("TAG", "showNotification: iam here now trying to build the notification")
+
+    private fun getNotificationContent(weatherResponse: WeatherResponse?) :String{
+        return "Weather Status in ${weatherResponse?.cityName?.uppercase()} is :\n" +
+                "Temperature is : ${weatherResponse?.weatherDetails?.feels_like} °C\n" +
+                "Weather Description is : ${weatherResponse?.weather?.get(0)?.fullWeatherDesc}"
+    }
+
+    private fun showNotification(context: Context, content: String ,lat: Double,lon: Double){
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
         val soundUri =

@@ -40,30 +40,10 @@ class SettingViewModel() : ViewModel() {
         }
         val sharedPref = context.getSharedPreferences("Coordinates", Context.MODE_PRIVATE)
         sharedPref.edit().apply {
-            putLong("Latitude",currentLocation.value.latitude.toLong())
-            putLong("Longitude",currentLocation.value.longitude.toLong())
+            putFloat("Latitude",currentLocation.value.latitude.toFloat())
+            putFloat("Longitude",currentLocation.value.longitude.toFloat())
             apply()
         }
-    }
-
-    fun getLanguage(context: Context): String{
-        val sharedPreferences = context.getSharedPreferences("Settings", Context.MODE_PRIVATE)
-        return sharedPreferences.getString("Language","en")?:"en"
-    }
-
-    fun getTemperatureUnit(context: Context):String{
-        val sharedPreferences = context.getSharedPreferences("Settings", Context.MODE_PRIVATE)
-        return sharedPreferences.getString("TemperatureUnit","metric")?:"metric"
-    }
-
-    fun getLocationType(context: Context):String{
-        val sharedPreferences = context.getSharedPreferences("Settings", Context.MODE_PRIVATE)
-        return sharedPreferences.getString("Location","GPS")?:"GPS"
-    }
-
-    fun getWindSpeedUnit(context: Context):String{
-        val sharedPreferences = context.getSharedPreferences("Settings", Context.MODE_PRIVATE)
-        return sharedPreferences.getString("WindSpeedUnit","km/h")?:"km/h"
     }
 
     fun setTheSelectedLanguage(context: Context,lang: String){

@@ -108,7 +108,7 @@ class FavouriteViewModel(private val weatherRepository: IWeatherRepository): Vie
     fun setAppLatitude(context: Context,lat: Double){
         val sharedPreferences = context.getSharedPreferences("Coordinates", Context.MODE_PRIVATE)
         sharedPreferences.edit().apply {
-            putLong("Latitude",lat.toLong())
+            putFloat("Latitude",lat.toFloat())
             apply()
         }
     }
@@ -116,7 +116,7 @@ class FavouriteViewModel(private val weatherRepository: IWeatherRepository): Vie
     fun setAppLongitude(context: Context,lon: Double){
         val sharedPreferences = context.getSharedPreferences("Coordinates", Context.MODE_PRIVATE)
         sharedPreferences.edit().apply {
-            putLong("Longitude",lon.toLong())
+            putFloat("Longitude",lon.toFloat())
             apply()
         }
     }

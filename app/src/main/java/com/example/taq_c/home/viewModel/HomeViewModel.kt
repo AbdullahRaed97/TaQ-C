@@ -110,7 +110,7 @@ class HomeViewModel(private val weatherRepository: WeatherRepository) : ViewMode
         when(locationType){
             "Map" -> {
                 val sharedPreferences = context.getSharedPreferences("Coordinates", Context.MODE_PRIVATE)
-                latitude = sharedPreferences.getLong("Latitude",0).toDouble()
+                latitude = sharedPreferences.getFloat("Latitude",0f).toDouble()
             }
             "GPS" -> latitude = lat
         }
@@ -124,27 +124,11 @@ class HomeViewModel(private val weatherRepository: WeatherRepository) : ViewMode
         when(locationType){
             "Map" -> {
                 val sharedPreferences = context.getSharedPreferences("Coordinates", Context.MODE_PRIVATE)
-                longitude = sharedPreferences.getLong("Longitude",0).toDouble()
+                longitude = sharedPreferences.getFloat("Longitude",0f).toDouble()
             }
             "GPS" -> longitude = lon
         }
         return longitude
-    }
-
-    fun setLatitude(context: Context , lat : Double){
-        val sharedPreferences =context.getSharedPreferences("Coordinates", Context.MODE_PRIVATE)
-        sharedPreferences.edit().apply {
-            putLong("Latitude",lat.toLong())
-            apply()
-        }
-    }
-
-    fun setLongitude(context: Context, lon: Double){
-        val sharedPreferences =context.getSharedPreferences("Coordinates", Context.MODE_PRIVATE)
-        sharedPreferences.edit().apply {
-            putLong("Longitude",lon.toLong())
-            apply()
-        }
     }
 
     fun filterForecastList(forecastList:List<Forecast>):List<Forecast>{

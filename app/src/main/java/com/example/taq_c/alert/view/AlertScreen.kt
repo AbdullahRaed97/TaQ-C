@@ -22,6 +22,8 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -36,12 +38,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.taq_c.R
 import com.example.taq_c.alert.viewModel.AlertFactory
 import com.example.taq_c.alert.viewModel.AlertViewModel
 import com.example.taq_c.data.db.WeatherDatabase
@@ -58,7 +62,8 @@ import com.example.taq_c.utilities.NavigationRoute
 @Composable
 fun AlertScreen(
     floatingActionButtonAction : MutableState<(()->Unit)?>
-    ,navController: NavController
+    ,navController: NavController,
+    snackBarHostState: SnackbarHostState
 ) {
     val context = LocalContext.current
     val weatherRepository = WeatherRepository.
@@ -72,8 +77,17 @@ fun AlertScreen(
     val alertViewModel = viewModel<AlertViewModel>(factory = AlertFactory(weatherRepository))
     val alertResponse = alertViewModel.alertResponse.collectAsStateWithLifecycle().value
     var showDialog by remember { mutableStateOf(false) }
+    val message = alertViewModel.message.collectAsStateWithLifecycle(initialValue = null).value
     LaunchedEffect(Unit) {
         alertViewModel.getAllAlert()
+    }
+    LaunchedEffect(message) {
+        if(message != null) {
+            snackBarHostState.showSnackbar(
+                message = message,
+                duration = SnackbarDuration.Short
+            )
+        }
     }
 
     floatingActionButtonAction.value ={
@@ -91,12 +105,8 @@ fun AlertScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         when(alertResponse){
-            is Response.Failure ->{
-
-            }
-            Response.Loading -> {
-                CircularIndicator()
-            }
+            is Response.Failure ->{}
+            Response.Loading -> { CircularIndicator() }
             is Response.Success ->{
                 LazyColumn(
                     modifier = Modifier
@@ -117,8 +127,8 @@ fun AlertScreen(
     if(showDialog){
         AlertDialog(
             onDismissRequest = { showDialog = false },
-            title = { Text("Allow Notification") },
-            text = { Text("Please allow notification for this app to send Alerts") },
+            title = { Text(stringResource(R.string.allow_notification)) },
+            text = { Text(stringResource(R.string.please_allow_notification_for_this_app_to_send_alerts)) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -126,14 +136,14 @@ fun AlertScreen(
                         showDialog = false
                     }
                 ) {
-                    Text("Settings")
+                    Text(stringResource(R.string.settings))
                 }
             },
             dismissButton = {
                 TextButton(
                     onClick = { showDialog = false }
                 ) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         )
@@ -144,7 +154,6 @@ fun AlertScreen(
 fun AlertItem(alert: Alert, alertViewModel: AlertViewModel) {
     var showDialog by remember { mutableStateOf(false) }
     val context = LocalContext.current
-    Log.i("TAG", "AlertItem: ${alert.timeStamp}")
     Card(
         modifier = Modifier
             .height(120.dp)
@@ -204,13 +213,13 @@ fun AlertItem(alert: Alert, alertViewModel: AlertViewModel) {
                 onDismissRequest = { showDialog = false },
                 title = {
                     Text(
-                        "Delete Alert",
+                        stringResource(R.string.delete_alert),
                         style = MaterialTheme.typography.titleMedium
                     )
                 },
                 text = {
                     Text(
-                        "Are you sure you want to delete this Alert",
+                        stringResource(R.string.are_you_sure_you_want_to_delete_this_alert),
                         style = MaterialTheme.typography.bodyMedium
                     )
                 },
@@ -222,7 +231,7 @@ fun AlertItem(alert: Alert, alertViewModel: AlertViewModel) {
                         }
                     ) {
                         Text(
-                            "Delete",
+                            stringResource(R.string.delete),
                             color = Color.Red
                         )
                     }
@@ -231,7 +240,7 @@ fun AlertItem(alert: Alert, alertViewModel: AlertViewModel) {
                     TextButton(
                         onClick = { showDialog = false }
                     ) {
-                        Text("Cancel")
+                        Text(stringResource(R.string.cancel))
                     }
                 },
                 containerColor = Color(0xFF424242),

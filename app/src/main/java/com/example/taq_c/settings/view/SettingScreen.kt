@@ -37,7 +37,6 @@ import com.example.taq_c.R
 import com.example.taq_c.settings.viewModel.SettingViewModel
 import com.example.taq_c.utilities.NavigationRoute
 
-
 @Composable
 fun SettingsScreen(navController: NavController) {
 

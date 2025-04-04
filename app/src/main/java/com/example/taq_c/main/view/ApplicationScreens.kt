@@ -2,6 +2,9 @@ package com.example.taq_c.main.view
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -36,7 +39,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.ImageShader
+import androidx.compose.ui.graphics.ShaderBrush
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.imageResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -52,6 +61,7 @@ import com.example.taq_c.favourite.view.MapScreen
 import com.example.taq_c.home.view.BottomNavigationItem
 import com.example.taq_c.home.view.HomeScreen
 import com.example.taq_c.settings.view.SettingsScreen
+import com.example.taq_c.splash.SplashScreen
 import com.example.taq_c.utilities.LocationHelper
 import com.example.taq_c.utilities.NavigationRoute
 
@@ -61,20 +71,22 @@ fun ApplicationScreens(isNetworkAvailable : Boolean?) {
     val context = LocalContext.current
     val floatingActionButtonAction: MutableState<(() -> Unit)?> =
         remember { mutableStateOf(null) }
+    val dayState = remember { mutableStateOf("01d") }
+    val showNavigationBar : MutableState<Boolean> = remember { mutableStateOf(false) }
     val snackBarState = remember { SnackbarHostState() }
     val navController = rememberNavController()
     LaunchedEffect(isNetworkAvailable) {
         when(isNetworkAvailable) {
             true -> {
                 snackBarState.showSnackbar(
-                    message = "Network Available",
+                    message = context.getString(R.string.network_available),
                     duration = SnackbarDuration.Short
                 )
             }
 
             false -> {
                 snackBarState.showSnackbar(
-                    message = "No Internet Connection",
+                    message = context.getString(R.string.no_internet_connection),
                     duration = SnackbarDuration.Short
                 )
             }
@@ -82,73 +94,108 @@ fun ApplicationScreens(isNetworkAvailable : Boolean?) {
             null -> {}
         }
     }
-    Scaffold(
-        bottomBar = {
-            BottomActionBar(navController)
-        },
-        containerColor = Color(0xFF0c1a4d),
-        modifier = Modifier.fillMaxSize(),
-        snackbarHost = {
-            SnackbarHost(snackBarState)
-        },
-        floatingActionButton = {
-            if (floatingActionButtonAction.value != null) {
-                FloatingActionButton(
-                    onClick = {
-                        floatingActionButtonAction.value?.invoke()
-                    },
-                    contentColor = Color.White,
-                    containerColor = Color.DarkGray,
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = "Add"
+    Box(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        Image(
+            painter = painterResource(when(dayState.value){
+                "01d" -> R.drawable.clear_skybg
+                "01n" -> R.drawable.nclear_skybg
+                "02d","03d","04d" -> R.drawable.dfew_cloud
+                "02n","03n","04n" -> R.drawable.nfew_cloudbg
+                 "09n","10n"  -> R.drawable.nrainbg
+                "09d" ,"10d"-> R.drawable.drainbg
+                "11d", "11n" -> R.drawable.thunderbg
+                "13d"-> R.drawable.dsnowbg
+                "13n" -> R.drawable.nsnowbg
+                "50d", "50n" -> R.drawable.mistbg
+                else -> R.drawable.clear_skybg
+            }
+            ),
+            contentDescription = null,
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop
+        )
+        Scaffold(
+            bottomBar = {
+                if (showNavigationBar.value) {
+                    BottomActionBar(navController)
+                }
+            },
+            containerColor = Color.Transparent,
+            modifier = Modifier.fillMaxSize(),
+            snackbarHost = {
+                SnackbarHost(snackBarState)
+            },
+            floatingActionButton = {
+                if (floatingActionButtonAction.value != null) {
+                    FloatingActionButton(
+                        onClick = {
+                            floatingActionButtonAction.value?.invoke()
+                        },
+                        contentColor = Color.White,
+                        containerColor = Color.DarkGray,
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = "Add"
+                        )
+                    }
+                }
+
+            }
+        ) { contentPadding ->
+            NavHost(
+                navController = navController,
+                startDestination = NavigationRoute.SplashScreen,
+                modifier = Modifier
+                    .padding(contentPadding)
+                    .fillMaxSize(),
+            ) {
+                composable<NavigationRoute.SplashScreen> {
+                    SplashScreen(
+                        navController,
+                        LocationHelper.getLatitude(context),
+                        LocationHelper.getLongitude(context),
+                        showNavigationBar
                     )
                 }
-            }
-
-        }
-    ) { contentPadding ->
-        NavHost(
-            navController = navController,
-            startDestination = NavigationRoute.HomeScreen
-                (
-                LocationHelper.getLatitude(context),
-                LocationHelper.getLongitude(context)
-            ),
-            modifier = Modifier
-                .padding(contentPadding)
-                .fillMaxSize(),
-        ) {
-            composable<NavigationRoute.HomeScreen> {
-                val receivedObject = it.toRoute<NavigationRoute.HomeScreen>()
-                val lat = receivedObject.lat
-                val lon = receivedObject.lon
-                floatingActionButtonAction.value = null
-                HomeScreen(lat, lon,isNetworkAvailable,snackBarState)
-            }
-            composable<NavigationRoute.SettingScreen> {
-                floatingActionButtonAction.value = null
-                SettingsScreen(navController)
-            }
-            composable<NavigationRoute.FavoriteScreen> {
-                FavoriteCityScreen(navController, floatingActionButtonAction,snackBarState)
-            }
-            composable<NavigationRoute.AlertScreen> {
-                AlertScreen(floatingActionButtonAction,navController)
-            }
-            composable<NavigationRoute.MapScreen> {
-                val receivedObject = it.toRoute<NavigationRoute.MapScreen>()
-                val fromSetting = receivedObject.fromSetting
-                val fromAlert = receivedObject.fromAlert
-                floatingActionButtonAction.value = null
-                MapScreen(fromSetting,fromAlert,navController,snackBarState)
-            }
-           composable <NavigationRoute.SetAlertScreen>{
-               val receivedObject = it.toRoute<NavigationRoute.SetAlertScreen>()
-               val lat = receivedObject.lat
-               val lon = receivedObject.lon
-               SetAlertScreen(navController,lat,lon,snackBarState)
+                composable<NavigationRoute.HomeScreen> {
+                    val receivedObject = it.toRoute<NavigationRoute.HomeScreen>()
+                    val lat = receivedObject.lat
+                    val lon = receivedObject.lon
+                    floatingActionButtonAction.value = null
+                    showNavigationBar.value = true
+                    HomeScreen(lat, lon, isNetworkAvailable, snackBarState, dayState = dayState)
+                }
+                composable<NavigationRoute.SettingScreen> {
+                    floatingActionButtonAction.value = null
+                    showNavigationBar.value = true
+                    SettingsScreen(navController)
+                }
+                composable<NavigationRoute.FavoriteScreen> {
+                    showNavigationBar.value = true
+                    FavoriteCityScreen(navController, floatingActionButtonAction, snackBarState)
+                }
+                composable<NavigationRoute.AlertScreen> {
+                    showNavigationBar.value = true
+                    AlertScreen(floatingActionButtonAction, navController, snackBarState)
+                }
+                composable<NavigationRoute.MapScreen> {
+                    val receivedObject = it.toRoute<NavigationRoute.MapScreen>()
+                    val fromSetting = receivedObject.fromSetting
+                    val fromAlert = receivedObject.fromAlert
+                    floatingActionButtonAction.value = null
+                    showNavigationBar.value = true
+                    MapScreen(fromSetting, fromAlert, navController, snackBarState)
+                }
+                composable<NavigationRoute.SetAlertScreen> {
+                    val receivedObject = it.toRoute<NavigationRoute.SetAlertScreen>()
+                    val lat = receivedObject.lat
+                    val lon = receivedObject.lon
+                    showNavigationBar.value = true
+                    SetAlertScreen(navController, lat, lon, snackBarState)
+                }
             }
         }
     }

@@ -24,6 +24,7 @@ import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.SelectableDates
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -89,7 +90,7 @@ fun SetAlertScreen(
     val forecastResponse = alertViewModel.forecastResponse.collectAsStateWithLifecycle().value
     var showTimePicker by remember { mutableStateOf(false) }
     var showDatePicker by remember { mutableStateOf(false) }
-
+    val message = alertViewModel.message.collectAsStateWithLifecycle(initialValue = null).value
     var timeStamp: MutableState<Long> = remember { mutableStateOf(0) }
     val currentTime = Calendar.getInstance()
     val timePickerState = rememberTimePickerState(
@@ -97,7 +98,14 @@ fun SetAlertScreen(
         initialMinute = currentTime.get(Calendar.MINUTE),
         is24Hour = false,
     )
-
+    LaunchedEffect(message) {
+        if(message != null){
+            snackBarHostState.showSnackbar(
+                message = message,
+                duration = SnackbarDuration.Short
+            )
+        }
+    }
     LaunchedEffect(lat) {
         alertViewModel.getForeCastResponse(lat, lon)
     }
@@ -214,7 +222,7 @@ fun SetAlertScreen(
             }
         }
 
-        is Response.Failure -> Log.i("TAG", "SetAlertScreen: error")
+        is Response.Failure -> {}
         Response.Loading -> CircularIndicator()
     }
     if (showTimePicker)
@@ -229,7 +237,6 @@ fun SetAlertScreen(
         ShowDatePicker({
             timeStamp.value = it ?: 0
             showDatePicker = false
-            Log.i("TAG", "SetAlertScreen: ${alertViewModel.convertTimeStampToDate(timeStamp.value)}")
         }) {
             showDatePicker = false
         }
@@ -310,12 +317,12 @@ private fun ShowDatePicker(
                 onDateSelected(datePickerState.selectedDateMillis)
                 onDismiss()
             }) {
-                Text("OK")
+                Text(stringResource(R.string.ok))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(R.string.cancel))
             }
         }
     ) {

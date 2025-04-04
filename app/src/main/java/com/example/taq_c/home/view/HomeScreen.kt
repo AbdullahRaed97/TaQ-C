@@ -2,7 +2,6 @@ package com.example.taq_c.home.view
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,6 +26,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -64,7 +64,13 @@ data class BottomNavigationItem(
 
 @SuppressLint("SuspiciousIndentation")
 @Composable
-fun HomeScreen(lat: Double, lon: Double,isNetworkAvailable : Boolean? , snackBarHostState: SnackbarHostState) {
+fun HomeScreen(
+    lat: Double
+   , lon: Double
+   ,isNetworkAvailable : Boolean?
+   , snackBarHostState: SnackbarHostState
+    ,dayState:MutableState<String>
+) {
     val context = LocalContext.current
     val weatherRepository = WeatherRepository.
     getInstance(WeatherLocalDataSource
@@ -114,7 +120,6 @@ fun HomeScreen(lat: Double, lon: Double,isNetworkAvailable : Boolean? , snackBar
     val scrollState = rememberScrollState()
         Column(
             modifier = Modifier
-                .background(Color(0xFF182354))
                 .verticalScroll(scrollState)
         ) {
             when (weatherResponse) {
@@ -124,6 +129,7 @@ fun HomeScreen(lat: Double, lon: Double,isNetworkAvailable : Boolean? , snackBar
                         units = appTempUnit,
                         homeViewModel
                     )
+                    dayState.value = weatherResponse.data.weather?.get(0)?.weatherIcon ?:"01d"
                 }
                 is Response.Failure -> {}
                 is Response.Loading -> {

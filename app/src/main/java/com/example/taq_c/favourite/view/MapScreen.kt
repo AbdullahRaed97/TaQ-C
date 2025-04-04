@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -13,6 +12,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -74,7 +74,16 @@ fun MapScreen(
             .getInstance(RetrofitHelper.weatherService)
     )
     var favViewModel = viewModel<FavouriteViewModel>(factory = FavouriteFactory(weatherRepository))
+    val message = favViewModel.message.collectAsStateWithLifecycle(initialValue = null).value
 
+    LaunchedEffect(message) {
+        if(message != null){
+            snackBarHostState.showSnackbar(
+                message = message,
+                duration = SnackbarDuration.Short
+            )
+        }
+    }
     LaunchedEffect(defaultLocation) {
         cameraPositionState.animate(update = CameraUpdateFactory.newLatLngZoom(defaultLocation,10f))
         markerTitle = favViewModel.getCountryName(context, defaultLocation.latitude, defaultLocation.longitude) ?: ""
@@ -112,19 +121,26 @@ fun MapScreen(
     }else if(fromAlert){
         FromAlertConfiguration(navController,defaultLocation.latitude,defaultLocation.longitude)
     }else{
-        ShowCardDetails(defaultLocation.latitude, defaultLocation.longitude, favViewModel)
+        ShowCardDetails(defaultLocation.latitude, defaultLocation.longitude, favViewModel , snackBarHostState)
     }
 }
 
 @Composable
-fun ShowCardDetails(lat: Double, lon: Double, favViewModel: FavouriteViewModel) {
+fun ShowCardDetails(lat: Double, lon: Double, favViewModel: FavouriteViewModel,snackBarHostState: SnackbarHostState) {
     val context = LocalContext.current
     val appUnit = favViewModel.getAppUnit(context)
     val appLanguage = favViewModel.getAppLanguage(context)
     val forecastResponse = favViewModel.forecastResponse.collectAsStateWithLifecycle().value
-
+    val message = favViewModel.message.collectAsStateWithLifecycle(initialValue = null).value
     favViewModel.get5D_3HForeCastData(lat = lat, lon = lon, units = appUnit, lang = appLanguage)
-
+    LaunchedEffect(message) {
+        if(message !=null){
+            snackBarHostState.showSnackbar(
+                message = message,
+                duration = SnackbarDuration.Short
+            )
+        }
+    }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -217,7 +233,6 @@ fun ShowCardDetails(lat: Double, lon: Double, favViewModel: FavouriteViewModel) 
                             onClick = {
                                 forecastResponse.data.city?.let {
                                     favViewModel.insertFavCity(it)
-                                    Log.i("TAG", "ShowDialog: $it")
                                 }
                             },
                             modifier = Modifier

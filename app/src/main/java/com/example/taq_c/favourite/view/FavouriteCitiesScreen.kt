@@ -34,12 +34,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.taq_c.R
 import com.example.taq_c.data.db.WeatherDatabase
 import com.example.taq_c.data.local.WeatherLocalDataSource
 import com.example.taq_c.data.model.City
@@ -70,6 +72,16 @@ fun FavoriteCityScreen(
             .getInstance(RetrofitHelper.weatherService)
     )
     val favViewModel = viewModel<FavouriteViewModel>(factory = FavouriteFactory(weatherRepository))
+    val message = favViewModel.message.collectAsStateWithLifecycle(initialValue = null).value
+
+    LaunchedEffect(message) {
+        if(message != null){
+            snackBarHostState.showSnackbar(
+                message=message,
+                duration = SnackbarDuration.Short
+            )
+        }
+    }
     LaunchedEffect(Unit) {
         favViewModel.getAllFavCities()
     }
@@ -85,15 +97,7 @@ fun FavoriteCityScreen(
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally) {
         when (favCityResponse) {
-            is Response.Failure -> {
-                LaunchedEffect(favCityResponse) {
-                    snackBarHostState.showSnackbar(
-                        message = favCityResponse.exception.message.toString(),
-                        duration = SnackbarDuration.Short
-                    )
-                }
-            }
-
+            is Response.Failure -> {}
             is Response.Loading -> {
                 CircularIndicator()
             }
@@ -182,13 +186,13 @@ fun FavCityItem(navController: NavController, city: City, favViewModel: Favourit
                 onDismissRequest = { showDialog = false },
                 title = {
                     Text(
-                        "Delete City",
+                        stringResource(R.string.delete_city),
                         style = MaterialTheme.typography.titleMedium
                     )
                 },
                 text = {
                     Text(
-                        "Are you sure you want to delete this city",
+                        stringResource(R.string.are_you_sure_you_want_to_delete_this_city),
                         style = MaterialTheme.typography.bodyMedium
                     )
                 },
@@ -200,7 +204,7 @@ fun FavCityItem(navController: NavController, city: City, favViewModel: Favourit
                         }
                     ) {
                         Text(
-                            "Delete",
+                            stringResource(R.string.delete),
                             color = Color.Red
                         )
                     }
@@ -209,7 +213,7 @@ fun FavCityItem(navController: NavController, city: City, favViewModel: Favourit
                     TextButton(
                         onClick = { showDialog = false }
                     ) {
-                        Text("Cancel")
+                        Text(stringResource(R.string.cancel))
                     }
                 },
                 containerColor = Color(0xFF424242),

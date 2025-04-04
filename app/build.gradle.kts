@@ -92,7 +92,8 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:$nav_version")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.0")
 
-
+    //Lottie animation
+    implementation ("com.airbnb.android:lottie-compose:6.6.3")
 
     // google maps utils
     implementation ("com.google.maps.android:android-maps-utils:3.4.0")

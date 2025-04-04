@@ -68,11 +68,11 @@ object LocationHelper {
 
     fun getLatitude(context: Context): Double{
         val sharedPreferences = context.getSharedPreferences("Coordinates", Context.MODE_PRIVATE)
-        return sharedPreferences.getLong("Latitude",0).toDouble()
+        return sharedPreferences.getFloat("Latitude",0f).toDouble()
     }
 
     fun getLongitude(context: Context): Double{
         val sharedPreferences = context.getSharedPreferences("Coordinates", Context.MODE_PRIVATE)
-        return sharedPreferences.getLong("Longitude",0).toDouble()
+        return sharedPreferences.getFloat("Longitude",0f).toDouble()
     }
 }
