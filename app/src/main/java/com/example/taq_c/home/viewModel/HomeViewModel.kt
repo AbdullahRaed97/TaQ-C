@@ -91,12 +91,12 @@ class HomeViewModel(private val weatherRepository: WeatherRepository) : ViewMode
         when(speedUnit){
             "km/h" ->{
                 weatherResponse.wind?.let {
-                    speed = (it.windSpeed*1.609).toString()
+                    speed = (it.windSpeed*1.609).format(3)
                 }
             }
             "mph" ->{
                 weatherResponse.wind?.let {
-                    speed = (it.windSpeed*0.621).toString()
+                    speed = (it.windSpeed*0.621).format(3)
                 }
             }
         }
@@ -203,6 +203,7 @@ class HomeViewModel(private val weatherRepository: WeatherRepository) : ViewMode
             "50d", "50n" -> R.drawable.mist
             else -> R.drawable.sunrise
         }
+
     }
 
 }
@@ -212,3 +213,5 @@ class HomeFactory(private val repository: WeatherRepository): ViewModelProvider.
         return HomeViewModel(repository) as T
     }
 }
+
+fun Double.format(digits: Int) = "%.${digits}f".format(this)

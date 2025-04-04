@@ -1,7 +1,6 @@
 package com.example.taq_c.settings.view
 
 import android.content.Context
-import androidx.activity.ComponentActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -163,12 +162,13 @@ private fun LanguageSettings(
     settingViewModel: SettingViewModel,
     context: Context
 ) {
+    settingViewModel
     val langOptions = listOf(
-        stringResource(R.string.arabic),
-        stringResource(R.string.english),
-        stringResource(R.string.defaultLang)
+        R.string.arabic,
+        R.string.english,
+        R.string.defaultLang
     )
-    val selectedLanguage = settingViewModel.getTheSelectedLanguage(context)
+    val selectedLanguage = settingViewModel.getSelectedLanguagePreference(context)
     var selectedOption by remember { mutableStateOf(langOptions[selectedLanguage]) }
 
     Row(
@@ -188,37 +188,34 @@ private fun LanguageSettings(
                     onClick = {
                         selectedOption = language
                         when (language) {
-                            "Arabic" -> {
+                            R.string.arabic -> {
                                 settingViewModel.setLanguage(context,"ar")
-                                settingViewModel.setTheSelectedLanguage(context, language)
-                                (context as ComponentActivity).recreate()
+                                settingViewModel.setAppLanguage(context,"ar")
                             }
 
-                            "English" -> {
+                            R.string.english -> {
                                 settingViewModel.setLanguage(context)
-                                settingViewModel.setTheSelectedLanguage(context, language)
-                                (context as ComponentActivity).recreate()
+                                settingViewModel.setAppLanguage(context,"en")
                             }
 
-                            "Default" -> {
+                            R.string.defaultLang -> {
                                 settingViewModel.setLanguage(context)
-                                settingViewModel.setTheSelectedLanguage(context, language)
-                                (context as ComponentActivity).recreate()
+                                settingViewModel.setAppLanguage(context,"en")
                             }
 
                             else -> {
                                 settingViewModel.setLanguage(context)
-                                settingViewModel.setTheSelectedLanguage(context, language)
-                                (context as ComponentActivity).recreate()
+                                settingViewModel.setAppLanguage(context,"en")
                             }
                         }
                     },
                     colors = RadioButtonDefaults.colors(
                         selectedColor = Color.Red,
-                        unselectedColor = Color.Black                    )
+                        unselectedColor = Color.Black
+                    )
                 )
                 Text(
-                    text = language,
+                    text = stringResource(language),
                     style = MaterialTheme.typography.bodyLarge,
                     fontSize = 18.sp,
                     color = Color.White
@@ -234,11 +231,11 @@ private fun TemperatureSettings(
     settingViewModel: SettingViewModel
 ){
     val tempOptions = listOf(
-        stringResource(R.string.celsius),
-        stringResource(R.string.kelvin),
-        stringResource(R.string.fahrenheit)
+        R.string.celsius,
+        R.string.kelvin,
+        R.string.fahrenheit,
     )
-    val selectedTemp = settingViewModel.getTheSelectedTemperature(context)
+    val selectedTemp = settingViewModel.getSelectedTempPreference(context)
     var selectedOption by remember { mutableStateOf(tempOptions[selectedTemp]) }
     Row(
         modifier = Modifier
@@ -257,24 +254,20 @@ private fun TemperatureSettings(
                     onClick = {
                         selectedOption = temp
                         when (temp) {
-                            "Celsius" -> {
+                            R.string.celsius -> {
                                 settingViewModel.setTemperatureUnit(context,"metric")
-                                settingViewModel.setTheSelectedTemperature(context, temp)
                             }
 
-                            "Kelvin" -> {
+                            R.string.kelvin -> {
                                 settingViewModel.setTemperatureUnit(context,"kelvin")
-                                settingViewModel.setTheSelectedTemperature(context, temp)
                             }
 
-                            "Fahrenheit" -> {
+                            R.string.fahrenheit -> {
                                 settingViewModel.setTemperatureUnit(context,"imperial")
-                                settingViewModel.setTheSelectedTemperature(context, temp)
                             }
 
                             else -> {
                                 settingViewModel.setTemperatureUnit(context)
-                                settingViewModel.setTheSelectedTemperature(context, temp)
                             }
                         }
                     },
@@ -284,7 +277,7 @@ private fun TemperatureSettings(
                     )
                 )
                 Text(
-                    text = temp,
+                    text = stringResource(temp),
                     style = MaterialTheme.typography.bodyLarge,
                     fontSize = 18.sp,
                     color = Color.White
@@ -300,10 +293,10 @@ private fun SpeedUnitSetting(
     settingViewModel: SettingViewModel
 ){
     val speedOptions = listOf(
-        stringResource(R.string.km_h),
-        stringResource(R.string.mph)
+        R.string.km_h,
+       R.string.mph
     )
-    val selectedSpeed = settingViewModel.getTheSelectedSpeedUnit(context)
+    val selectedSpeed = settingViewModel.getSelectedWindSpeedUnitPreference(context)
     var selectedOption by remember { mutableStateOf(speedOptions[selectedSpeed]) }
     Row(
         modifier = Modifier
@@ -322,18 +315,15 @@ private fun SpeedUnitSetting(
                     onClick = {
                         selectedOption = speed
                         when (speed) {
-                            "km/h" -> {
-                                settingViewModel.setWindSpeedUnit(context,speed)
-                                settingViewModel.setTheSelectedSpeedUnit(context, speed)
+                            R.string.km_h -> {
+                                settingViewModel.setWindSpeedUnit(context,"km/h")
                             }
 
-                            "mph" -> {
-                                settingViewModel.setWindSpeedUnit(context,speed)
-                                settingViewModel.setTheSelectedSpeedUnit(context, speed)
+                            R.string.mph -> {
+                                settingViewModel.setWindSpeedUnit(context,"mph")
                             }
                             else -> {
                                 settingViewModel.setWindSpeedUnit(context)
-                                settingViewModel.setTheSelectedSpeedUnit(context, speed)
                             }
                         }
                     },
@@ -343,7 +333,7 @@ private fun SpeedUnitSetting(
                     )
                 )
                 Text(
-                    text = speed,
+                    text = stringResource(speed),
                     style = MaterialTheme.typography.bodyLarge,
                     fontSize = 18.sp,
                     color = Color.White
@@ -360,10 +350,10 @@ private fun LocationSetting(
     navController: NavController
 ){
     val speedOptions = listOf(
-        stringResource(R.string.gps),
-        stringResource(R.string.map)
+        R.string.gps,
+        R.string.map
     )
-    val selectedLocation = settingViewModel.getTheSelectedLocationType(context)
+    val selectedLocation = settingViewModel.getSelectedLocationPreference(context)
     var selectedOption by remember { mutableStateOf(speedOptions[selectedLocation]) }
     var showMap by remember { mutableStateOf(false) }
     Row(
@@ -383,19 +373,16 @@ private fun LocationSetting(
                     onClick = {
                         selectedOption = location
                         when (location) {
-                            "GPS" -> {
-                                settingViewModel.setLocationType(context,location)
-                                settingViewModel.setTheSelectedLocationType(context, location)
+                            R.string.gps -> {
+                                settingViewModel.setLocationType(context,"GPS")
                             }
 
-                            "Map" -> {
-                                settingViewModel.setLocationType(context,location)
-                                settingViewModel.setTheSelectedLocationType(context, location)
+                            R.string.map-> {
+                                settingViewModel.setLocationType(context,"Map")
                                 navController.navigate(NavigationRoute.MapScreen(true,false))
                             }
                             else -> {
                                 settingViewModel.setLocationType(context)
-                                settingViewModel.setTheSelectedLocationType(context, location)
                             }
                         }
                     },
@@ -405,7 +392,7 @@ private fun LocationSetting(
                     )
                 )
                 Text(
-                    text = location,
+                    text = stringResource(location),
                     style = MaterialTheme.typography.bodyLarge,
                     fontSize = 18.sp,
                     color = Color.White

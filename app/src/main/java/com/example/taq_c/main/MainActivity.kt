@@ -1,7 +1,6 @@
 package com.example.taq_c.main
 
 import android.Manifest
-import android.content.Context
 import android.content.pm.PackageManager
 import android.net.ConnectivityManager
 import android.net.Network
@@ -16,32 +15,10 @@ import androidx.core.app.ActivityCompat
 import com.example.taq_c.main.view.ApplicationScreens
 import com.example.taq_c.utilities.LocationHelper
 import com.example.taq_c.utilities.NetworkManagement
-import java.util.Locale
 
 class MainActivity : ComponentActivity() {
 
-
     lateinit var networkCallback : ConnectivityManager.NetworkCallback
-
-    override fun attachBaseContext(newBase: Context?) {
-        //get app language
-        val sharedPreferences = newBase?.getSharedPreferences("Settings", MODE_PRIVATE)
-        val appLanguage = sharedPreferences?.getString("Language", "en") ?: "en"
-        //create new Locale and make it default
-        val locale = Locale(appLanguage)
-        Locale.setDefault(locale)
-        //get the configuration of the app
-        val resources = newBase?.resources
-        val config = resources?.configuration
-        //adjust the configuration
-        config?.setLocale(locale)
-        config?.setLayoutDirection(locale)
-        //send the new context with the new configuration
-        if (config != null) {
-            super.attachBaseContext(newBase.createConfigurationContext(config))
-        }
-    }
-
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
