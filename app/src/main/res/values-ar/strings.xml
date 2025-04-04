@@ -2,4 +2,60 @@
 <resources>
     <string name="app_name">TaQ-C</string>
     <string name="home_screen">القائمـة الرئيسية</string>
+    <string name="insertion_success">تم بنجاح</string>
+    <string name="today">اليوم</string>
+    <string name="sunset">الغروب</string>
+    <string name="sunrise">الشروق</string>
+    <string name="pressure">الضغط</string>
+    <string name="humidity">الرطوبة</string>
+    <string name="wind_speed">سرعة الرياح</string>
+    <string name="clouds">الغيوم</string>
+    <string name="_5days_forecast">توقعات الطقس  ٥ ايام قادمة :</string>
+    <string name="hourly_details">الساعات التفصيلية :</string>
+    <string name="_5_days_forecast">توقعات الطقس  ٥ ايام قادمة :</string>
+    <string name="feels_like">يبدو</string>
+    <string name="latitude">"خط العرض : "</string>
+    <string name="longitude">خط الطول :</string>
+    <string name="country_name">اسم البلد :</string>
+    <string name="language">اللغة</string>
+    <string name="temperature">درجة الحرارة</string>
+    <string name="speed_unit">وحدة السرعة</string>
+    <string name="hpa">ه.بسكال</string>
+    <string name="km_h">كم/س</string>
+    <string name="mph">ميل/س</string>
+    <string name="celsius">درجة مئوية</string>
+    <string name="kelvin">كيلڤن</string>
+    <string name="fahrenheit">"فهرنهايت "</string>
+    <string name="arabic">العربية</string>
+    <string name="english">اللغة الإنجليزية</string>
+    <string name="defaultLang">لغة الجهاز</string>
+    <string name="location">الموقع</string>
+    <string name="gps">نظام تحديد المواقع</string>
+    <string name="map">الخريطة</string>
+    <string name="add_to_favourite">اضافة الي التفضيلات</string>
+    <string name="set_your_location">اختر موقعك</string>
+    <string name="home">الرئيسية</string>
+    <string name="favorite">التفضيلات</string>
+    <string name="alarm">المنبه</string>
+    <string name="setting">الإعدادات</string>
+    <string name="cancel">إلغاء</string>
+    <string name="confirm">تأكيد</string>
+    <string name="pick_up_your_time">اختر الوقت</string>
+    <string name="set_your_destination">اختر وجهتك</string>
+    <string name="confirm_your_alert">اكد علي منبهك</string>
+    <string name="pick_up_your_date">اختر التاريخ</string>
+    <string name="today_temperature">درجة حرارة اليوم🌡</string>
+    <string name="max">العظمي :</string>
+    <string name="min">الصغري :</string>
+    <string name="network_available">الإنترنت متاح</string>
+    <string name="no_internet_connection">لا يوجد اتصال بالإنترنت</string>
+    <string name="allow_notification">اسمح بالإشعارات</string>
+    <string name="please_allow_notification_for_this_app_to_send_alerts">"يرجى السماح لهذا التطبيق بإرسال التنبيهات "</string>
+    <string name="settings">الإعدادات</string>
+    <string name="delete_alert">إلغاء المنبه</string>
+    <string name="are_you_sure_you_want_to_delete_this_alert">هل أنت متأكد أنك تريد حذف هذا التنبيه؟</string>
+    <string name="delete">حذف</string>
+    <string name="ok">تم</string>
+    <string name="delete_city">حذف المدينة</string>
+    <string name="are_you_sure_you_want_to_delete_this_city">هل أنت متأكد أنك تريد حذف هذه المدينة؟</string>
 </resources>
