@@ -74,6 +74,7 @@ fun AlertScreen(
         WeatherRemoteDataSource
             .getInstance(RetrofitHelper.weatherService)
     )
+
     val alertViewModel = viewModel<AlertViewModel>(factory = AlertFactory(weatherRepository))
     val alertResponse = alertViewModel.alertResponse.collectAsStateWithLifecycle().value
     var showDialog by remember { mutableStateOf(false) }
