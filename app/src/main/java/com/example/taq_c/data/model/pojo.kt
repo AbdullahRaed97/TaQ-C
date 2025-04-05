@@ -96,9 +96,3 @@ data class Alert(
     @Embedded("alert") val city:City,
     val timeStamp: Long? = 0
 )
-
-data class Places(
-    val name: String,
-    val latLng: LatLng,
-    val address: String
-)
