@@ -122,22 +122,57 @@ class HomeViewModel(private val weatherRepository: WeatherRepository) : ViewMode
         }
     }
 
-    fun calculateWindSpeed(speedUnit: String, weatherResponse: WeatherResponse): String {
-        var speed = ""
-        when (speedUnit) {
-            "km/h" -> {
-                weatherResponse.wind?.let {
-                    speed = (it.windSpeed * 1.609).format(3)
-                }
-            }
+    fun calculateWindSpeed(speedUnit: String, weatherResponse: WeatherResponse,context: Context): String? {
+        val sharedPreferences = context.getSharedPreferences("Settings", Context.MODE_PRIVATE)
+        val langCode = sharedPreferences.getString("Language", "en") ?: "en"
+       return when(langCode) {
+           "en" -> {
+               when (speedUnit) {
+                   "km/h" -> {
+                       weatherResponse.wind?.let {
+                           (it.windSpeed * 1.609).format(3)
+                       }
+                   }
+                   "mph" -> {
+                       weatherResponse.wind?.let {
+                           (it.windSpeed * 0.621).format(3)
+                       }
+                   }
+                   else -> {
+                       weatherResponse.wind?.let {
+                           (it.windSpeed * 1.609).format(3)
+                       }
+                   }
+               }
+           }
 
-            "mph" -> {
-                weatherResponse.wind?.let {
-                    speed = (it.windSpeed * 0.621).format(3)
-                }
-            }
-        }
-        return speed
+           "ar" -> {
+               when (speedUnit) {
+                   "كم/س" -> {
+                       weatherResponse.wind?.let {
+                           (it.windSpeed * 1.609).format(3)
+                       }
+                   }
+
+                   "ميل/س" -> {
+                       weatherResponse.wind?.let {
+                           (it.windSpeed * 0.621).format(3)
+                       }
+                   }
+
+                   else -> {
+                       weatherResponse.wind?.let {
+                           (it.windSpeed * 1.609).format(3)
+                       }
+                   }
+               }
+           }
+           else -> {
+               weatherResponse.wind?.let {
+                   (it.windSpeed * 1.609).format(3)
+               }
+           }
+       }
     }
 
     fun getAppLatitude(lat: Double, context: Context): Double {

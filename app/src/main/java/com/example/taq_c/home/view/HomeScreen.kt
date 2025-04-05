@@ -1,6 +1,7 @@
 package com.example.taq_c.home.view
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -635,7 +636,7 @@ private fun WeatherCard(
 ) {
     val context = LocalContext.current
     val speedUnit = homeViewModel.getAppWindSpeedUnit(context)
-    val windSpeed = homeViewModel.calculateWindSpeed(speedUnit, weatherResponse)
+    val windSpeed = homeViewModel.calculateWindSpeed(speedUnit, weatherResponse,context)
 
     Card(
         modifier = Modifier
@@ -767,11 +768,12 @@ private fun WeatherCard(
                         verticalAlignment = Alignment.Bottom
                     ) {
                         Text(
-                            text = windSpeed,
+                            text = windSpeed.toString(),
                             fontSize = 20.sp,
                             color = Color.White,
                             fontWeight = FontWeight.Bold,
                         )
+                        Log.i("TAG", "WeatherCard: $windSpeed")
                         Spacer(Modifier.width(4.dp))
                         Text(
                             text = speedUnit,

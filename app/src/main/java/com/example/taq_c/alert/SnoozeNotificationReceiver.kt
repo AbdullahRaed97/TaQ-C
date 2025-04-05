@@ -1,5 +1,6 @@
 package com.example.taq_c.alert
 
+import android.app.NotificationManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -11,15 +12,18 @@ import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import com.example.taq_c.alert.viewModel.AlertWorker
+import com.example.taq_c.utilities.WeatherNotificationService
 import java.util.concurrent.TimeUnit
 
 class SnoozeNotificationReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent?) {
-
         Log.i("TAG", "onReceive: i am here now trying to snooze")
         val lat = intent?.getDoubleExtra("lat", 0.0)
         val lon = intent?.getDoubleExtra("lon", 0.0)
 
+        val notificationManager =
+            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.cancel(WeatherNotificationService.NOTIFICATION_ID)
         val data = Data.Builder()
             .putDouble("lat", lat ?: 0.0)
             .putDouble("lon", lon ?: 0.0)

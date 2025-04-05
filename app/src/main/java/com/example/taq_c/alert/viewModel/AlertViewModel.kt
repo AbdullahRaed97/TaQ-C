@@ -40,6 +40,7 @@ import com.example.taq_c.data.remote.RetrofitHelper
 import com.example.taq_c.data.remote.WeatherRemoteDataSource
 import com.example.taq_c.data.repository.WeatherRepository
 import com.example.taq_c.main.MainActivity
+import com.example.taq_c.utilities.WeatherNotificationService
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -162,10 +163,13 @@ class AlertViewModel(private val weatherRepository: WeatherRepository) : ViewMod
     }
 
     fun deleteAlert(context: Context, alert: Alert) {
+        val notificationManager =
+            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         viewModelScope.launch {
             try {
                 weatherRepository.deleteAlert(alert)
                 val workID = UUID.fromString(alert.requestCode)
+                notificationManager.cancel(WeatherNotificationService.NOTIFICATION_ID)
                 WorkManager.getInstance(context).cancelWorkById(workID)
                 message_.emit("Deletion Success")
             } catch (e: Exception) {
@@ -288,7 +292,7 @@ class AlertWorker(context: Context, workerParameters: WorkerParameters) :
             context,
             3,
             Intent(context, CancelNotificationReceiver::class.java).apply {
-                putExtra("notificationID", 1)
+                putExtra("notificationID", WeatherNotificationService.NOTIFICATION_ID)
             },
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) PendingIntent.FLAG_IMMUTABLE else 0
         )
@@ -310,6 +314,7 @@ class AlertWorker(context: Context, workerParameters: WorkerParameters) :
                 "Cancel",
                 cancelIntent
             )
+            .setOngoing(true)
             .setSound(soundUri)
             .build()
         notificationManager.notify(1, notification)
