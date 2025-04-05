@@ -6,11 +6,12 @@ import com.example.taq_c.data.model.Coordinates
 class TypeConverter {
 
     @TypeConverter
-    fun fromCoordinates(coordinates: Coordinates?):String?{
+    fun fromCoordinates(coordinates: Coordinates?): String? {
         return "${coordinates?.lat},${coordinates?.lon}"
     }
+
     @TypeConverter
-    fun toCoordinates(str:String?): Coordinates? {
+    fun toCoordinates(str: String?): Coordinates? {
         if (str == null)
             return null
         val coordinates = str.split(",")

@@ -11,16 +11,18 @@ import com.example.taq_c.utilities.TypeConverter
 
 @Database(entities = [City::class, Alert::class], version = 1)
 @TypeConverters(TypeConverter::class)
-abstract class WeatherDatabase: RoomDatabase() {
+abstract class WeatherDatabase : RoomDatabase() {
     abstract fun getWeatherDao(): WeatherDao
     abstract fun getAlertDao(): AlertDao
-    companion object{
+
+    companion object {
         @Volatile
-        private var instance : WeatherDatabase? = null
-        fun getInstance(context: Context):WeatherDatabase{
-            return instance ?: synchronized(this){
-                val temp : WeatherDatabase = Room.databaseBuilder(context,WeatherDatabase::class.java
-                    ,"WeatherDatabase").build()
+        private var instance: WeatherDatabase? = null
+        fun getInstance(context: Context): WeatherDatabase {
+            return instance ?: synchronized(this) {
+                val temp: WeatherDatabase = Room.databaseBuilder(
+                    context, WeatherDatabase::class.java, "WeatherDatabase"
+                ).build()
                 instance = temp
                 temp
             }

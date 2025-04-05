@@ -23,56 +23,67 @@ import com.google.android.gms.location.Priority
 object LocationHelper {
     //class that will return the location
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
+
     //Because location will always changed
     var locationState: MutableState<Location> =
         mutableStateOf(Location(LocationManager.GPS_PROVIDER))
+
     //REQUEST_CODE
     val REQUEST_CODE = 0
 
-     fun checkPermission(context: Context): Boolean {
-        return ContextCompat.checkSelfPermission(context,
-            Manifest.permission.ACCESS_FINE_LOCATION)== PackageManager.PERMISSION_GRANTED ||
-                ContextCompat.checkSelfPermission(context,
-                    Manifest.permission.ACCESS_COARSE_LOCATION)== PackageManager.PERMISSION_GRANTED
+    fun checkPermission(context: Context): Boolean {
+        return ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED
     }
-    fun locationEnabled(context: Context):Boolean{
-        val locationManager: LocationManager
-                = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+
+    fun locationEnabled(context: Context): Boolean {
+        val locationManager: LocationManager =
+            context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
         return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
                 locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
     }
+
     @SuppressLint("MissingPermission")
-    fun getFreshLocation(context: Context){
+    fun getFreshLocation(context: Context) {
         //entry point
-        fusedLocationProviderClient= LocationServices.getFusedLocationProviderClient(context)
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context)
         //get the new location
         fusedLocationProviderClient.requestLocationUpdates(
             LocationRequest.Builder(0).apply {
                 setPriority(Priority.PRIORITY_HIGH_ACCURACY)
                     .setMinUpdateDistanceMeters(1000f)
             }.build(),
-            object: LocationCallback(){
+            object : LocationCallback() {
                 override fun onLocationResult(p0: LocationResult) {
                     super.onLocationResult(p0)
-                    locationState.value=p0.lastLocation?: Location(LocationManager.GPS_PROVIDER)
+                    locationState.value = p0.lastLocation ?: Location(LocationManager.GPS_PROVIDER)
                     Log.i("TAG", "onLocationResult: ${p0.lastLocation.toString()}")
                 }
             },
             Looper.myLooper()
         )
     }
-    fun enableLocationService(context: Context){
+
+    fun enableLocationService(context: Context) {
         val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
         context.startActivity(intent)
     }
 
-    fun getLatitude(context: Context): Double{
+    fun getLatitude(context: Context): Double {
         val sharedPreferences = context.getSharedPreferences("Coordinates", Context.MODE_PRIVATE)
-        return sharedPreferences.getFloat("Latitude",locationState.value.latitude.toFloat()).toDouble()
+        return sharedPreferences.getFloat("Latitude", locationState.value.latitude.toFloat())
+            .toDouble()
     }
 
-    fun getLongitude(context: Context): Double{
+    fun getLongitude(context: Context): Double {
         val sharedPreferences = context.getSharedPreferences("Coordinates", Context.MODE_PRIVATE)
-        return sharedPreferences.getFloat("Longitude",locationState.value.longitude.toFloat()).toDouble()
+        return sharedPreferences.getFloat("Longitude", locationState.value.longitude.toFloat())
+            .toDouble()
     }
 }

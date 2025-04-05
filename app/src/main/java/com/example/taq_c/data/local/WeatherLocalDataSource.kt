@@ -9,10 +9,9 @@ import kotlinx.coroutines.flow.Flow
 class WeatherLocalDataSource private constructor(
     val weatherDao: WeatherDao,
     val alertDao: AlertDao
-) : IWeatherLocalDataSource
-{
+) : IWeatherLocalDataSource {
 
-   override fun getAllFavCities(): Flow<List<City>> {
+    override fun getAllFavCities(): Flow<List<City>> {
         return weatherDao.getAllFavCities()
     }
 
@@ -39,8 +38,10 @@ class WeatherLocalDataSource private constructor(
     companion object {
         @Volatile
         private var instance: WeatherLocalDataSource? = null
-        fun getInstance(weatherDao: WeatherDao,
-                        alertDao: AlertDao ): WeatherLocalDataSource {
+        fun getInstance(
+            weatherDao: WeatherDao,
+            alertDao: AlertDao
+        ): WeatherLocalDataSource {
             return instance ?: synchronized(this) {
                 val temp = WeatherLocalDataSource(
                     weatherDao,

@@ -65,18 +65,20 @@ data class BottomNavigationItem(
 @SuppressLint("SuspiciousIndentation")
 @Composable
 fun HomeScreen(
-    lat: Double
-   , lon: Double
-   ,isNetworkAvailable : Boolean?
-   , snackBarHostState: SnackbarHostState
-    ,dayState:MutableState<String>
+    lat: Double,
+    lon: Double,
+    isNetworkAvailable: Boolean?,
+    snackBarHostState: SnackbarHostState,
+    dayState: MutableState<String>
 ) {
     val context = LocalContext.current
-    val weatherRepository = WeatherRepository.
-    getInstance(WeatherLocalDataSource
-        .getInstance(WeatherDatabase
-            .getInstance(context).getWeatherDao(),WeatherDatabase
-            .getInstance(context).getAlertDao()),
+    val weatherRepository = WeatherRepository.getInstance(
+        WeatherLocalDataSource
+            .getInstance(
+                WeatherDatabase
+                    .getInstance(context).getWeatherDao(), WeatherDatabase
+                    .getInstance(context).getAlertDao()
+            ),
         WeatherRemoteDataSource
             .getInstance(RetrofitHelper.weatherService)
     )
@@ -91,14 +93,14 @@ fun HomeScreen(
     val message = homeViewModel.message.collectAsStateWithLifecycle(initialValue = null).value
 
     LaunchedEffect(message) {
-        if(message !=null) {
+        if (message != null) {
             snackBarHostState.showSnackbar(
-                message =message,
+                message = message,
                 duration = SnackbarDuration.Short
             )
         }
     }
-    LaunchedEffect(appLatitude , currentLocation.value) {
+    LaunchedEffect(appLatitude, currentLocation.value) {
 
         homeViewModel.getCurrentWeatherData(
             lat = appLatitude,
@@ -118,86 +120,90 @@ fun HomeScreen(
     val forecastResponse = homeViewModel.forecastResponse.collectAsStateWithLifecycle().value
     val snackBarHostState = remember { SnackbarHostState() }
     val scrollState = rememberScrollState()
-        Column(
-            modifier = Modifier
-                .verticalScroll(scrollState)
-        ) {
-            when (weatherResponse) {
-                is Response.Success<WeatherResponse> -> {
-                    WeatherResponseData(
-                        weatherResponse.data,
-                        units = appTempUnit,
-                        homeViewModel
-                    )
-                    dayState.value = weatherResponse.data.weather?.get(0)?.weatherIcon ?:"01d"
-                }
-                is Response.Failure -> {}
-                is Response.Loading -> {
-                   CircularIndicator()
-                }
+    Column(
+        modifier = Modifier
+            .verticalScroll(scrollState)
+    ) {
+        when (weatherResponse) {
+            is Response.Success<WeatherResponse> -> {
+                WeatherResponseData(
+                    weatherResponse.data,
+                    units = appTempUnit,
+                    homeViewModel
+                )
+                dayState.value = weatherResponse.data.weather?.get(0)?.weatherIcon ?: "01d"
             }
-            Spacer(Modifier.height(24.dp))
-            Text(
-                text = stringResource(R.string.hourly_details),
-                color = Color.White,
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp)
-            )
-            when (forecastResponse) {
-                is Response.Failure -> {}
-                is Response.Loading -> { CircularIndicator() }
-                is Response.Success -> {
+
+            is Response.Failure -> {}
+            is Response.Loading -> {
+                CircularIndicator()
+            }
+        }
+        Spacer(Modifier.height(24.dp))
+        Text(
+            text = stringResource(R.string.hourly_details),
+            color = Color.White,
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp)
+        )
+        when (forecastResponse) {
+            is Response.Failure -> {}
+            is Response.Loading -> {
+                CircularIndicator()
+            }
+
+            is Response.Success -> {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                ) {
+                    LazyRow(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        val list = forecastResponse.data.weatherForecastList
+                        if (list != null) {
+                            itemsIndexed(list) { index, item ->
+                                HomeLazyRowItem(item, appTempUnit, homeViewModel)
+                            }
+                        }
+                    }
+                    Spacer(Modifier.height(24.dp))
+                    Text(
+                        text = stringResource(R.string._5_days_forecast),
+                        color = Color.White,
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                    )
+                    Spacer(Modifier.height(8.dp))
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp)
+                            .padding(horizontal = 8.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        LazyRow(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 8.dp),
-                            horizontalArrangement = Arrangement.spacedBy(12.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            val list = forecastResponse.data.weatherForecastList
-                            if (list != null) {
-                                itemsIndexed(list) { index, item ->
-                                    HomeLazyRowItem(item, appTempUnit, homeViewModel)
-                                }
-                            }
-                        }
-                        Spacer(Modifier.height(24.dp))
-                        Text(
-                            text = stringResource(R.string._5_days_forecast),
-                            color = Color.White,
-                            fontSize = 24.sp,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-                        )
-                        Spacer(Modifier.height(8.dp))
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 8.dp),
-                            verticalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-                            if (forecastResponse.data.weatherForecastList != null) {
-                                val forecastList =
-                                    homeViewModel.filterForecastList(forecastResponse.data.weatherForecastList)
-                                forecastList.forEachIndexed { index, item ->
-                                    HomeLazyColumnItem(
-                                        item,
-                                        appTempUnit,
-                                        homeViewModel
-                                    )
-                                }
+                        if (forecastResponse.data.weatherForecastList != null) {
+                            val forecastList =
+                                homeViewModel.filterForecastList(forecastResponse.data.weatherForecastList)
+                            forecastList.forEachIndexed { index, item ->
+                                HomeLazyColumnItem(
+                                    item,
+                                    appTempUnit,
+                                    homeViewModel
+                                )
                             }
                         }
                     }
                 }
             }
         }
+    }
 }
 
 @Composable
@@ -222,23 +228,26 @@ private fun WeatherResponseData(
                 modifier = Modifier.weight(1f)
             ) {
                 Text(
-                    text = weatherResponse.weather?.get(0)?.fullWeatherDesc?.toString()?:"",
+                    text = weatherResponse.weather?.get(0)?.fullWeatherDesc?.toString() ?: "",
                     color = Color.White,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Medium
                 )
                 Spacer(Modifier.height(4.dp))
-                Row (
+                Row(
                     horizontalArrangement = Arrangement.SpaceBetween
-                ){
+                ) {
                     Text(
                         text = stringResource(R.string.feels_like),
                         color = Color.White.copy(alpha = 0.8f),
                         fontSize = 16.sp,
-                        modifier = Modifier.padding(end=4.dp)
+                        modifier = Modifier.padding(end = 4.dp)
                     )
                     Text(
-                        text = "${weatherResponse.weatherDetails?.feels_like} "+ homeViewModel.getUnit(units,context),
+                        text = "${weatherResponse.weatherDetails?.feels_like} " + homeViewModel.getUnit(
+                            units,
+                            context
+                        ),
                         color = Color.White.copy(alpha = 0.8f),
                         fontSize = 16.sp
                     )
@@ -270,7 +279,7 @@ private fun WeatherResponseData(
         ) {
             Image(
                 painter = painterResource(
-                    homeViewModel.getWeatherIcon(weatherResponse.weather?.get(0)?.weatherIcon?:"")
+                    homeViewModel.getWeatherIcon(weatherResponse.weather?.get(0)?.weatherIcon ?: "")
                 ),
                 contentDescription = null,
                 modifier = Modifier.size(64.dp)
@@ -287,7 +296,7 @@ private fun WeatherResponseData(
                 )
                 Spacer(Modifier.width(4.dp))
                 Text(
-                    text = homeViewModel.getUnit(units,context),
+                    text = homeViewModel.getUnit(units, context),
                     color = Color.White,
                     fontSize = 32.sp,
                     fontWeight = FontWeight.Light
@@ -437,7 +446,7 @@ private fun HomeLazyRowItem(
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
-                    text = homeViewModel.getUnit(units,context),
+                    text = homeViewModel.getUnit(units, context),
                     color = Color.White.copy(alpha = 0.8f),
                     fontSize = 14.sp,
                     modifier = Modifier.padding(bottom = 2.dp)
@@ -445,15 +454,15 @@ private fun HomeLazyRowItem(
             }
             weatherResponse.weather?.get(0)?.fullWeatherDesc
                 .let { description ->
-                Text(
-                    text = description?.toString()?:"",
-                    color = Color.White.copy(alpha = 0.8f),
-                    fontSize = 12.sp,
-                    textAlign = TextAlign.Center,
-                    maxLines = 1,
-                    modifier = Modifier.padding(top = 8.dp)
-                )
-            }
+                    Text(
+                        text = description?.toString() ?: "",
+                        color = Color.White.copy(alpha = 0.8f),
+                        fontSize = 12.sp,
+                        textAlign = TextAlign.Center,
+                        maxLines = 1,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
+                }
         }
     }
 }
@@ -539,7 +548,7 @@ private fun HomeLazyColumnItem(
                     )
                     Spacer(Modifier.width(4.dp))
                     Text(
-                        text = homeViewModel.getUnit(units,context),
+                        text = homeViewModel.getUnit(units, context),
                         color = Color.White.copy(alpha = 0.8f),
                         fontSize = 14.sp,
                         modifier = Modifier.padding(bottom = 2.dp)
@@ -578,7 +587,7 @@ private fun HomeLazyColumnItem(
                     }
                     Spacer(Modifier.width(4.dp))
                     Text(
-                        text = homeViewModel.getUnit(units,context),
+                        text = homeViewModel.getUnit(units, context),
                         color = Color.White.copy(alpha = 0.8f),
                         fontSize = 12.sp,
                         modifier = Modifier.padding(bottom = 1.dp)
@@ -608,7 +617,7 @@ private fun HomeLazyColumnItem(
                     }
                     Spacer(Modifier.width(4.dp))
                     Text(
-                        text = homeViewModel.getUnit(units,context),
+                        text = homeViewModel.getUnit(units, context),
                         color = Color.White.copy(alpha = 0.8f),
                         fontSize = 12.sp,
                         modifier = Modifier.padding(bottom = 1.dp)

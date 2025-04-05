@@ -18,18 +18,19 @@ import com.example.taq_c.utilities.NetworkManagement
 
 class MainActivity : ComponentActivity() {
 
-    lateinit var networkCallback : ConnectivityManager.NetworkCallback
+    lateinit var networkCallback: ConnectivityManager.NetworkCallback
+
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-         var isNetworkAvailable : MutableState<Boolean?> = mutableStateOf(null)
+        var isNetworkAvailable: MutableState<Boolean?> = mutableStateOf(null)
         val networkManagement = NetworkManagement(this)
-        if(networkManagement.isNetworkAvailable()){
+        if (networkManagement.isNetworkAvailable()) {
             isNetworkAvailable.value = true
-        }else{
+        } else {
             isNetworkAvailable.value = false
         }
-        networkCallback = object : ConnectivityManager.NetworkCallback(){
+        networkCallback = object : ConnectivityManager.NetworkCallback() {
             override fun onAvailable(network: Network) {
                 isNetworkAvailable.value = true
             }

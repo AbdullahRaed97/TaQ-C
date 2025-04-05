@@ -11,9 +11,11 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface WeatherDao {
     @Insert(onConflict = OnConflictStrategy.Companion.IGNORE)
-    suspend fun insertFavCity(city: City):Long
+    suspend fun insertFavCity(city: City): Long
+
     @Delete
-    suspend fun deleteFavCity(city: City):Int
+    suspend fun deleteFavCity(city: City): Int
+
     @Query("select * from Cities")
     fun getAllFavCities(): Flow<List<City>>
 }

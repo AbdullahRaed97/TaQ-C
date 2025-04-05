@@ -62,10 +62,10 @@ class AlertViewModel(private val weatherRepository: WeatherRepository) : ViewMod
     private val alertResponse_: MutableStateFlow<Response<List<Alert>?>> =
         MutableStateFlow(Response.Loading)
     val alertResponse = alertResponse_.asStateFlow()
-    private val forecastResponse_ : MutableStateFlow<Response<ForecastResponse>> =
+    private val forecastResponse_: MutableStateFlow<Response<ForecastResponse>> =
         MutableStateFlow(Response.Loading)
     val forecastResponse = forecastResponse_.asStateFlow()
-   private val message_ : MutableSharedFlow<String> = MutableSharedFlow()
+    private val message_: MutableSharedFlow<String> = MutableSharedFlow()
     val message = message_.asSharedFlow()
     fun getAllAlert() {
         viewModelScope.launch {
@@ -84,17 +84,17 @@ class AlertViewModel(private val weatherRepository: WeatherRepository) : ViewMod
         }
     }
 
-    fun getForeCastResponse(lat: Double,lon: Double){
+    fun getForeCastResponse(lat: Double, lon: Double) {
         viewModelScope.launch {
-            try{
-                weatherRepository.get5D_3HForeCastData(lat,lon,"metric","en")
+            try {
+                weatherRepository.get5D_3HForeCastData(lat, lon, "metric", "en")
                     .catch {
-                    forecastResponse_.emit(Response.Failure(it))
+                        forecastResponse_.emit(Response.Failure(it))
                         message_.emit(it.message.toString())
-                }.collect {
-                    forecastResponse_.emit(Response.Success(it as ForecastResponse))
+                    }.collect {
+                        forecastResponse_.emit(Response.Success(it as ForecastResponse))
                     }
-            }catch (e: Exception){
+            } catch (e: Exception) {
                 forecastResponse_.emit(Response.Failure(e))
                 message_.emit(e.message.toString())
             }
@@ -102,15 +102,15 @@ class AlertViewModel(private val weatherRepository: WeatherRepository) : ViewMod
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun requestAlert(context: Context, city: City, hour:Int, minute:Int, timeStamp :Long ) {
+    fun requestAlert(context: Context, city: City, hour: Int, minute: Int, timeStamp: Long) {
 
         val data = Data.Builder()
-            .putDouble("lat", city.coord?.lat?:0.0)
-            .putDouble("lon", city.coord?.lon?:0.0)
+            .putDouble("lat", city.coord?.lat ?: 0.0)
+            .putDouble("lon", city.coord?.lon ?: 0.0)
             .build()
-       val constraints = Builder()
-           .setRequiredNetworkType(NetworkType.CONNECTED)
-           .build()
+        val constraints = Builder()
+            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .build()
 
         val instant = Instant.ofEpochMilli(timeStamp)
         val localDateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault())
@@ -118,66 +118,69 @@ class AlertViewModel(private val weatherRepository: WeatherRepository) : ViewMod
         val month = localDateTime.monthValue
         val year = localDateTime.year
 
-        val duration = calculateTheDelay( hour = hour, minute = minute, day = day , month = month , year = year )
+        val duration =
+            calculateTheDelay(hour = hour, minute = minute, day = day, month = month, year = year)
 
         val alertRequest = OneTimeWorkRequestBuilder<AlertWorker>()
             .setInitialDelay(duration, TimeUnit.MILLISECONDS)
             .setInputData(data)
             .setBackoffCriteria(
-                BackoffPolicy.LINEAR,5, TimeUnit.SECONDS
+                BackoffPolicy.LINEAR, 5, TimeUnit.SECONDS
             )
             .setConstraints(constraints)
             .build()
 
         val requestCode = alertRequest.id.toString()
-        insertAlert(Alert(requestCode,city,timeStamp))
+        insertAlert(Alert(requestCode, city, timeStamp))
 
         WorkManager.getInstance(context).enqueue(alertRequest)
 
-        val result = WorkManager.getInstance(context).getWorkInfoByIdLiveData(alertRequest.id).observe(context as LifecycleOwner){
-            when(it.state){
-                WorkInfo.State.ENQUEUED -> Log.i("TAG", "requestAlert: enqueued")
-                WorkInfo.State.RUNNING -> Log.i("TAG", "requestAlert: Running")
-                WorkInfo.State.SUCCEEDED -> Log.i("TAG", "requestAlert: Succeed")
-                WorkInfo.State.FAILED -> {
-                    Log.i("TAG", "requestAlert: Failed")
-                val error = it.outputData.getString("Error")
-                    Log.i("TAG", "requestAlert: $error")
+        val result = WorkManager.getInstance(context).getWorkInfoByIdLiveData(alertRequest.id)
+            .observe(context as LifecycleOwner) {
+                when (it.state) {
+                    WorkInfo.State.ENQUEUED -> Log.i("TAG", "requestAlert: enqueued")
+                    WorkInfo.State.RUNNING -> Log.i("TAG", "requestAlert: Running")
+                    WorkInfo.State.SUCCEEDED -> Log.i("TAG", "requestAlert: Succeed")
+                    WorkInfo.State.FAILED -> {
+                        Log.i("TAG", "requestAlert: Failed")
+                        val error = it.outputData.getString("Error")
+                        Log.i("TAG", "requestAlert: $error")
+                    }
+
+                    WorkInfo.State.BLOCKED -> Log.i("TAG", "requestAlert: Blocked")
+                    WorkInfo.State.CANCELLED -> Log.i("TAG", "requestAlert: cancelled")
                 }
-                WorkInfo.State.BLOCKED -> Log.i("TAG", "requestAlert: Blocked")
-                WorkInfo.State.CANCELLED ->Log.i("TAG", "requestAlert: cancelled")
             }
-        }
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun calculateTheDelay(hour:Int, minute:Int, day:Int, month:Int, year :Int):Long{
-        val chosenTime = LocalDateTime.of(year,month,day,hour,minute)
+    private fun calculateTheDelay(hour: Int, minute: Int, day: Int, month: Int, year: Int): Long {
+        val chosenTime = LocalDateTime.of(year, month, day, hour, minute)
         val currentDate = LocalDateTime.now()
-        val duration = Duration.between(currentDate,chosenTime)
+        val duration = Duration.between(currentDate, chosenTime)
         return duration.toMillis().coerceAtLeast(0)
     }
 
-    fun deleteAlert(context: Context,alert:Alert){
+    fun deleteAlert(context: Context, alert: Alert) {
         viewModelScope.launch {
             try {
                 weatherRepository.deleteAlert(alert)
                 val workID = UUID.fromString(alert.requestCode)
                 WorkManager.getInstance(context).cancelWorkById(workID)
                 message_.emit("Deletion Success")
-            }catch (e : Exception){
+            } catch (e: Exception) {
                 alertResponse_.emit(Response.Failure(e))
                 message_.emit(e.message.toString())
             }
         }
     }
 
-   private fun insertAlert(alert:Alert){
+    private fun insertAlert(alert: Alert) {
         viewModelScope.launch {
             try {
                 weatherRepository.insertAlert(alert)
                 message_.emit("Insertion Success")
-            }catch (e : Exception){
+            } catch (e: Exception) {
                 alertResponse_.emit(Response.Failure(e))
                 message_.emit(e.message.toString())
             }
@@ -194,13 +197,14 @@ class AlertViewModel(private val weatherRepository: WeatherRepository) : ViewMod
         return sdf.format(date)
     }
 
-    fun checkNotificationOpened(context: Context): Boolean{
-        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-       return notificationManager.areNotificationsEnabled()
+    fun checkNotificationOpened(context: Context): Boolean {
+        val notificationManager =
+            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        return notificationManager.areNotificationsEnabled()
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun allowNotification(context: Context){
+    fun allowNotification(context: Context) {
         val myIntent = Intent().apply {
             action = Settings.ACTION_APP_NOTIFICATION_SETTINGS
             putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
@@ -210,7 +214,7 @@ class AlertViewModel(private val weatherRepository: WeatherRepository) : ViewMod
     }
 }
 
-class AlertFactory(val weatherRepository: WeatherRepository) : ViewModelProvider.Factory{
+class AlertFactory(val weatherRepository: WeatherRepository) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return AlertViewModel(weatherRepository) as T
     }
@@ -218,15 +222,18 @@ class AlertFactory(val weatherRepository: WeatherRepository) : ViewModelProvider
 
 class AlertWorker(context: Context, workerParameters: WorkerParameters) :
     CoroutineWorker(context, workerParameters) {
-    val weatherRepository = WeatherRepository.
-    getInstance(WeatherLocalDataSource
-        .getInstance(WeatherDatabase
-            .getInstance(context).getWeatherDao(),WeatherDatabase
-                .getInstance(context).getAlertDao()),
+    val weatherRepository = WeatherRepository.getInstance(
+        WeatherLocalDataSource
+            .getInstance(
+                WeatherDatabase
+                    .getInstance(context).getWeatherDao(), WeatherDatabase
+                    .getInstance(context).getAlertDao()
+            ),
         WeatherRemoteDataSource
             .getInstance(RetrofitHelper.weatherService)
     )
     val myContext = context
+
     @SuppressLint("RestrictedApi")
     override suspend fun doWork(): Result {
         try {
@@ -239,22 +246,23 @@ class AlertWorker(context: Context, workerParameters: WorkerParameters) :
                     return Result.retry()
                 }
             val content = getNotificationContent(weatherResponse)
-            showNotification(myContext,content,lat,lon)
+            showNotification(myContext, content, lat, lon)
             return Result.success()
-        }catch (e: Exception){
+        } catch (e: Exception) {
             return Result.Failure()
         }
 
     }
 
-    private fun getNotificationContent(weatherResponse: WeatherResponse?) :String{
+    private fun getNotificationContent(weatherResponse: WeatherResponse?): String {
         return "Weather Status in ${weatherResponse?.cityName?.uppercase()} is :\n" +
                 "Temperature is : ${weatherResponse?.weatherDetails?.feels_like} °C\n" +
                 "Weather Description is : ${weatherResponse?.weather?.get(0)?.fullWeatherDesc}"
     }
 
-    private fun showNotification(context: Context, content: String ,lat: Double,lon: Double){
-        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+    private fun showNotification(context: Context, content: String, lat: Double, lon: Double) {
+        val notificationManager =
+            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
         val soundUri =
             "${ContentResolver.SCHEME_ANDROID_RESOURCE}://${applicationContext.packageName}/${R.raw.alert}".toUri()
@@ -263,17 +271,17 @@ class AlertWorker(context: Context, workerParameters: WorkerParameters) :
             context,
             1,
             Intent(context, MainActivity::class.java),
-            if(Build.VERSION.SDK_INT>= Build.VERSION_CODES.O) PendingIntent.FLAG_IMMUTABLE else 0
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) PendingIntent.FLAG_IMMUTABLE else 0
         )
         //Building Snooze Intent
         val snoozeIntent = PendingIntent.getBroadcast(
-            context ,
+            context,
             2,
-            Intent(context, SnoozeNotificationReceiver::class.java).apply{
-                putExtra("lat",lat)
-                putExtra("lon",lon)
+            Intent(context, SnoozeNotificationReceiver::class.java).apply {
+                putExtra("lat", lat)
+                putExtra("lon", lon)
             },
-            if(Build.VERSION.SDK_INT>= Build.VERSION_CODES.O) PendingIntent.FLAG_IMMUTABLE else 0
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) PendingIntent.FLAG_IMMUTABLE else 0
         )
         //Building Cancel Intent
         val cancelIntent = PendingIntent.getBroadcast(
@@ -282,10 +290,10 @@ class AlertWorker(context: Context, workerParameters: WorkerParameters) :
             Intent(context, CancelNotificationReceiver::class.java).apply {
                 putExtra("notificationID", 1)
             },
-            if(Build.VERSION.SDK_INT>= Build.VERSION_CODES.O) PendingIntent.FLAG_IMMUTABLE else 0
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) PendingIntent.FLAG_IMMUTABLE else 0
         )
 
-        val notification = NotificationCompat.Builder(context,WEATHER_CHANNEL_ID)
+        val notification = NotificationCompat.Builder(context, WEATHER_CHANNEL_ID)
             .setSmallIcon(R.drawable.notification)
             .setContentTitle("Weather Caution !")
             .setContentText(content)
@@ -304,6 +312,6 @@ class AlertWorker(context: Context, workerParameters: WorkerParameters) :
             )
             .setSound(soundUri)
             .build()
-        notificationManager.notify(1,notification)
+        notificationManager.notify(1, notification)
     }
 }

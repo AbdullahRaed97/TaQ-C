@@ -61,4 +61,6 @@
     <string name="c">°س</string>
     <string name="k">°ك</string>
     <string name="f">°ف</string>
+    <string name="alert_validation">التحقق من المنبه</string>
+    <string name="please_select_your_destination">"من فضلك اختر وجهتك "</string>
 </resources>

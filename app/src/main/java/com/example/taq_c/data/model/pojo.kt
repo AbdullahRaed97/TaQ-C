@@ -11,15 +11,19 @@ import com.google.gson.annotations.SerializedName
 
 data class Clouds(
     @SerializedName("all")
-    var cloudPercentage: Int = 0)
+    var cloudPercentage: Int = 0
+)
 
 data class Wind(
     @SerializedName("speed")
     var windSpeed: Double = 0.0,
-    var deg: Int = 0)
+    var deg: Int = 0
+)
 
-data class Rain( @SerializedName("3h")
-                 var rainInLast3Hours: Double = 0.0)
+data class Rain(
+    @SerializedName("3h")
+    var rainInLast3Hours: Double = 0.0
+)
 
 data class Forecast(
     var dt: Long = 0,//TimeStamp
@@ -32,39 +36,45 @@ data class Forecast(
     var pop: Double = 0.0,
     var sys: Sys? = null,
     var dt_txt: String? = null,//Date and time in text format
-    var rain: Rain? = null)
+    var rain: Rain? = null
+)
 
-data class Coordinates(var lon: Double = 0.0,
-                       var lat: Double = 0.0)
+data class Coordinates(
+    var lon: Double = 0.0,
+    var lat: Double = 0.0
+)
 
 
 @Entity(tableName = "Cities")
-data class City (  @PrimaryKey
-                   var id: Int =0,
-                   var name: String? =null,
-                   @TypeConverters(TypeConverter::class)
-                   var coord: Coordinates? = null,
-                   var country: String = "",
-                   @Ignore
-                   var population: Int = 0,
-                   var timezone: Int = 0,
-                   @Ignore
-                   var sunrise: Long = 0,
-                   @Ignore
-                   var sunset: Long = 0)
+data class City(
+    @PrimaryKey
+    var id: Int = 0,
+    var name: String? = null,
+    @TypeConverters(TypeConverter::class)
+    var coord: Coordinates? = null,
+    var country: String = "",
+    @Ignore
+    var population: Int = 0,
+    var timezone: Int = 0,
+    @Ignore
+    var sunrise: Long = 0,
+    @Ignore
+    var sunset: Long = 0
+)
 
 
 //This class is used to determine the system-related information
 class Sys(
-           var country: String? = null,
-           var sunrise: Long = 0,
-           var sunset: Long = 0,
-           var pod :String?=null)//Part Of the Day ("d" for day, "n" for night)
+    var country: String? = null,
+    var sunrise: Long = 0,
+    var sunset: Long = 0,
+    var pod: String? = null
+)//Part Of the Day ("d" for day, "n" for night)
 
 //This is the returned Forecast response from the API
 data class ForecastResponse(
     @SerializedName("list")
-    val weatherForecastList: List<Forecast>?= null,
+    val weatherForecastList: List<Forecast>? = null,
     val city: City? = null,
 )
 
@@ -76,7 +86,8 @@ data class Weather(
     @SerializedName("description")
     var fullWeatherDesc: String? = null,//full weather description
     @SerializedName("icon")
-    var weatherIcon: String? = null)//icon that show the weather condition (snow , sunny , clear...)
+    var weatherIcon: String? = null
+)//icon that show the weather condition (snow , sunny , clear...)
 
 
 data class WeatherDetails(
@@ -88,11 +99,12 @@ data class WeatherDetails(
     var humidity: Int = 0,
     var sea_level: Int? = 0,
     var grnd_level: Int? = 0,
-    var temp_kf : Double? =0.0)
+    var temp_kf: Double? = 0.0
+)
 
-@Entity(tableName="Alert")
+@Entity(tableName = "Alert")
 data class Alert(
-    @PrimaryKey val requestCode: String ="",
-    @Embedded("alert") val city:City,
+    @PrimaryKey val requestCode: String = "",
+    @Embedded("alert") val city: City,
     val timeStamp: Long? = 0
 )

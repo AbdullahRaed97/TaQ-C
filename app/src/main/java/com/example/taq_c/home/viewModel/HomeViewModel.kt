@@ -22,142 +22,159 @@ import java.util.Date
 import java.util.Locale
 
 class HomeViewModel(private val weatherRepository: WeatherRepository) : ViewModel() {
-    private val weatherResponse_ : MutableStateFlow<Response<WeatherResponse>> =
+    private val weatherResponse_: MutableStateFlow<Response<WeatherResponse>> =
         MutableStateFlow(Response.Loading)
-    val weatherResponse=
+    val weatherResponse =
         weatherResponse_.asStateFlow()
-    private val forecastResponse_ : MutableStateFlow<Response<ForecastResponse>> =
+    private val forecastResponse_: MutableStateFlow<Response<ForecastResponse>> =
         MutableStateFlow(Response.Loading)
     val forecastResponse =
         forecastResponse_.asStateFlow()
-    private val message_ : MutableSharedFlow<String> =
+    private val message_: MutableSharedFlow<String> =
         MutableSharedFlow()
-    val message  =
+    val message =
         message_.asSharedFlow()
 
     val currentLocation = LocationHelper.locationState
 
-    fun getCurrentWeatherData(lat: Double,lon: Double,units: String , lang: String){
+    fun getCurrentWeatherData(lat: Double, lon: Double, units: String, lang: String) {
         viewModelScope.launch {
-            try{
-               weatherRepository.getCurrentWeatherData(lat = lat, lon = lon, units = units , lang = lang )
-                   .catch {
-                       weatherResponse_.emit(Response.Failure(it))
-                       message_.emit(it.message.toString())
-                   }.collect {
-                       weatherResponse_.emit(Response.Success<WeatherResponse>(it as WeatherResponse))
-                   }
-            }catch (e:Exception){
+            try {
+                weatherRepository.getCurrentWeatherData(
+                    lat = lat,
+                    lon = lon,
+                    units = units,
+                    lang = lang
+                )
+                    .catch {
+                        weatherResponse_.emit(Response.Failure(it))
+                        message_.emit(it.message.toString())
+                    }.collect {
+                        weatherResponse_.emit(Response.Success<WeatherResponse>(it as WeatherResponse))
+                    }
+            } catch (e: Exception) {
                 weatherResponse_.emit(Response.Failure(e))
                 message_.emit(e.message.toString())
             }
         }
     }
 
-    fun get5D_3HForecastData(lat: Double,lon: Double,units: String,lang: String){
+    fun get5D_3HForecastData(lat: Double, lon: Double, units: String, lang: String) {
         viewModelScope.launch {
-            try{
-                weatherRepository.get5D_3HForeCastData(lat = lat , lon = lon , units = units, lang = lang)
+            try {
+                weatherRepository.get5D_3HForeCastData(
+                    lat = lat,
+                    lon = lon,
+                    units = units,
+                    lang = lang
+                )
                     .catch {
                         forecastResponse_.emit(Response.Failure(it))
                         message_.emit(it.message.toString())
                     }.collect {
                         forecastResponse_.emit(Response<ForecastResponse>.Success(it) as Response<ForecastResponse>)
                     }
-            }catch (e:Exception){
+            } catch (e: Exception) {
                 message_.emit(e.message.toString())
                 forecastResponse_.emit(Response.Failure(e))
             }
         }
     }
 
-    fun getAppUnit(context: Context): String{
+    fun getAppUnit(context: Context): String {
         val sharedPreferences = context.getSharedPreferences("Settings", Context.MODE_PRIVATE)
-        return sharedPreferences.getString("TemperatureUnit","metric")?:"metric"
+        return sharedPreferences.getString("TemperatureUnit", "metric") ?: "metric"
     }
 
-    fun getAppLanguage(context: Context): String{
+    fun getAppLanguage(context: Context): String {
         val sharedPreferences = context.getSharedPreferences("Settings", Context.MODE_PRIVATE)
-        return sharedPreferences.getString("Language","en")?:"en"
+        return sharedPreferences.getString("Language", "en") ?: "en"
     }
 
-    fun getAppWindSpeedUnit(context: Context): String{
+    fun getAppWindSpeedUnit(context: Context): String {
         val sharedPreferences = context.getSharedPreferences("Settings", Context.MODE_PRIVATE)
-        val langCode =sharedPreferences.getString("Language","en")?:"en"
-        val unitCode =sharedPreferences.getString("WindSpeedUnit","km/h")?:"km/h"
-        return when(langCode){
-            "en"->{
-                when(unitCode){
-                    "km/h"->"km/h"
-                    "mph"->"mph"
-                    else->"km/h"
+        val langCode = sharedPreferences.getString("Language", "en") ?: "en"
+        val unitCode = sharedPreferences.getString("WindSpeedUnit", "km/h") ?: "km/h"
+        return when (langCode) {
+            "en" -> {
+                when (unitCode) {
+                    "km/h" -> "km/h"
+                    "mph" -> "mph"
+                    else -> "km/h"
                 }
             }
-            "ar"->{
-                when(unitCode){
-                    "km/h"->"كم/س"
-                    "mph"->"ميل/س"
-                    else->"كم/س"
+
+            "ar" -> {
+                when (unitCode) {
+                    "km/h" -> "كم/س"
+                    "mph" -> "ميل/س"
+                    else -> "كم/س"
                 }
             }
+
             else -> {
-                when(unitCode){
-                    "km/h"->"km/h"
-                    "mph"->"mph"
-                    else->"km/h"
+                when (unitCode) {
+                    "km/h" -> "km/h"
+                    "mph" -> "mph"
+                    else -> "km/h"
                 }
             }
         }
     }
 
-    fun calculateWindSpeed(speedUnit : String , weatherResponse: WeatherResponse): String{
+    fun calculateWindSpeed(speedUnit: String, weatherResponse: WeatherResponse): String {
         var speed = ""
-        when(speedUnit){
-            "km/h" ->{
+        when (speedUnit) {
+            "km/h" -> {
                 weatherResponse.wind?.let {
-                    speed = (it.windSpeed*1.609).format(3)
+                    speed = (it.windSpeed * 1.609).format(3)
                 }
             }
-            "mph" ->{
+
+            "mph" -> {
                 weatherResponse.wind?.let {
-                    speed = (it.windSpeed*0.621).format(3)
+                    speed = (it.windSpeed * 0.621).format(3)
                 }
             }
         }
         return speed
     }
 
-    fun getAppLatitude(lat: Double,context: Context) : Double{
+    fun getAppLatitude(lat: Double, context: Context): Double {
         var latitude = lat
         val locationType = context.getSharedPreferences("Settings", Context.MODE_PRIVATE)
-            .getString("Location","GPS")
-        when(locationType){
+            .getString("Location", "GPS")
+        when (locationType) {
             "Map" -> {
-                val sharedPreferences = context.getSharedPreferences("Coordinates", Context.MODE_PRIVATE)
-                latitude = sharedPreferences.getFloat("Latitude",0f).toDouble()
+                val sharedPreferences =
+                    context.getSharedPreferences("Coordinates", Context.MODE_PRIVATE)
+                latitude = sharedPreferences.getFloat("Latitude", 0f).toDouble()
             }
+
             "GPS" -> latitude = lat
         }
         return latitude
     }
 
-    fun getAppLongitude(lon: Double,context: Context) : Double{
+    fun getAppLongitude(lon: Double, context: Context): Double {
         var longitude = lon
         val locationType = context.getSharedPreferences("Settings", Context.MODE_PRIVATE)
-            .getString("Location","GPS")
-        when(locationType){
+            .getString("Location", "GPS")
+        when (locationType) {
             "Map" -> {
-                val sharedPreferences = context.getSharedPreferences("Coordinates", Context.MODE_PRIVATE)
-                longitude = sharedPreferences.getFloat("Longitude",0f).toDouble()
+                val sharedPreferences =
+                    context.getSharedPreferences("Coordinates", Context.MODE_PRIVATE)
+                longitude = sharedPreferences.getFloat("Longitude", 0f).toDouble()
             }
+
             "GPS" -> longitude = lon
         }
         return longitude
     }
 
-    fun filterForecastList(forecastList:List<Forecast>):List<Forecast>{
+    fun filterForecastList(forecastList: List<Forecast>): List<Forecast> {
         return forecastList.filter {
-            it.dt_txt?.endsWith("12:00:00")?: false
+            it.dt_txt?.endsWith("12:00:00") ?: false
         }
     }
 
@@ -185,7 +202,7 @@ class HomeViewModel(private val weatherRepository: WeatherRepository) : ViewMode
         }
     }
 
-    fun getUnit(units: String,context: Context): String {
+    fun getUnit(units: String, context: Context): String {
         when (units) {
             "metric" -> {
                 return context.getString(R.string.c)
@@ -211,8 +228,8 @@ class HomeViewModel(private val weatherRepository: WeatherRepository) : ViewMode
         return sdf.format(date)
     }
 
-    fun getWeatherIcon(iconCode : String):Int{
-        return when(iconCode){
+    fun getWeatherIcon(iconCode: String): Int {
+        return when (iconCode) {
             "01d" -> R.drawable.dclearsky
             "01n" -> R.drawable.nclearsky
             "02d" -> R.drawable.dfewcloud
@@ -232,7 +249,7 @@ class HomeViewModel(private val weatherRepository: WeatherRepository) : ViewMode
 
 }
 
-class HomeFactory(private val repository: WeatherRepository): ViewModelProvider.Factory{
+class HomeFactory(private val repository: WeatherRepository) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return HomeViewModel(repository) as T
     }

@@ -20,15 +20,16 @@ import kotlinx.coroutines.launch
 import java.io.IOException
 import java.util.Locale
 
-class FavouriteViewModel(private val weatherRepository: IWeatherRepository): ViewModel() {
+class FavouriteViewModel(private val weatherRepository: IWeatherRepository) : ViewModel() {
     private val favCitiesResponse_: MutableStateFlow<Response<List<City>?>> =
         MutableStateFlow(Response.Loading)
     val favCitiesResponse = favCitiesResponse_.asStateFlow()
-    private val forecastResponse_ : MutableStateFlow<Response<ForecastResponse>> =
+    private val forecastResponse_: MutableStateFlow<Response<ForecastResponse>> =
         MutableStateFlow(Response.Loading)
     val forecastResponse =
         forecastResponse_.asStateFlow()
-    private val message_: MutableSharedFlow<String?> = MutableSharedFlow(extraBufferCapacity = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
+    private val message_: MutableSharedFlow<String?> =
+        MutableSharedFlow(extraBufferCapacity = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
     val message = message_.asSharedFlow()
 
     fun getAllFavCities() {
@@ -47,76 +48,82 @@ class FavouriteViewModel(private val weatherRepository: IWeatherRepository): Vie
             }
         }
     }
-        fun insertFavCity(city: City) {
-            viewModelScope.launch {
-                try {
-                    val result = weatherRepository.insertFavCity(city)
-                    if (result > 0) {
-                        message_.emit("Insertion Success")
-                    } else {
-                        message_.emit("Error : Failed to insert city")
-                    }
-                } catch (e: Exception) {
-                    message_.emit(e.message)
+
+    fun insertFavCity(city: City) {
+        viewModelScope.launch {
+            try {
+                val result = weatherRepository.insertFavCity(city)
+                if (result > 0) {
+                    message_.emit("Insertion Success")
+                } else {
+                    message_.emit("Error : Failed to insert city")
                 }
+            } catch (e: Exception) {
+                message_.emit(e.message)
             }
         }
-
-        fun deleteFavCity(city: City) {
-            viewModelScope.launch {
-                try {
-                    val result = weatherRepository.deleteFavCity(city)
-                    if (result > 0) {
-                        message_.emit("Deletion Success")
-
-                    } else {
-                        message_.emit("Unable to delete City")
-                    }
-                } catch (e: Exception) {
-                    message_.emit(e.message)
-                }
-            }
-        }
-
-        fun get5D_3HForeCastData(lat: Double, lon: Double, units: String,lang: String) {
-            viewModelScope.launch {
-                try {
-                    weatherRepository.get5D_3HForeCastData(lat = lat, lon = lon, units = units, lang = lang)
-                        .catch {
-                            forecastResponse_.emit(Response.Failure(it))
-                            message_.emit(it.message.toString())
-                        }.collect {
-                            forecastResponse_.emit(Response.Success<ForecastResponse>(it as ForecastResponse))
-                        }
-                } catch (e: Exception) {
-                    forecastResponse_.emit(Response.Failure(e))
-                    message_.emit(e.message.toString())
-                }
-            }
-        }
-
-    fun getAppUnit(context: Context): String{
-        val sharedPreferences = context.getSharedPreferences("Settings", Context.MODE_PRIVATE)
-        return sharedPreferences.getString("TemperatureUnit","metric")?:"metric"
     }
 
-    fun getAppLanguage(context: Context): String{
-        val sharedPreferences = context.getSharedPreferences("Settings", Context.MODE_PRIVATE)
-        return sharedPreferences.getString("Language","en")?:"en"
+    fun deleteFavCity(city: City) {
+        viewModelScope.launch {
+            try {
+                val result = weatherRepository.deleteFavCity(city)
+                if (result > 0) {
+                    message_.emit("Deletion Success")
+
+                } else {
+                    message_.emit("Unable to delete City")
+                }
+            } catch (e: Exception) {
+                message_.emit(e.message)
+            }
+        }
     }
 
-    fun setAppLatitude(context: Context,lat: Double){
+    fun get5D_3HForeCastData(lat: Double, lon: Double, units: String, lang: String) {
+        viewModelScope.launch {
+            try {
+                weatherRepository.get5D_3HForeCastData(
+                    lat = lat,
+                    lon = lon,
+                    units = units,
+                    lang = lang
+                )
+                    .catch {
+                        forecastResponse_.emit(Response.Failure(it))
+                        message_.emit(it.message.toString())
+                    }.collect {
+                        forecastResponse_.emit(Response.Success<ForecastResponse>(it as ForecastResponse))
+                    }
+            } catch (e: Exception) {
+                forecastResponse_.emit(Response.Failure(e))
+                message_.emit(e.message.toString())
+            }
+        }
+    }
+
+    fun getAppUnit(context: Context): String {
+        val sharedPreferences = context.getSharedPreferences("Settings", Context.MODE_PRIVATE)
+        return sharedPreferences.getString("TemperatureUnit", "metric") ?: "metric"
+    }
+
+    fun getAppLanguage(context: Context): String {
+        val sharedPreferences = context.getSharedPreferences("Settings", Context.MODE_PRIVATE)
+        return sharedPreferences.getString("Language", "en") ?: "en"
+    }
+
+    fun setAppLatitude(context: Context, lat: Double) {
         val sharedPreferences = context.getSharedPreferences("Coordinates", Context.MODE_PRIVATE)
         sharedPreferences.edit().apply {
-            putFloat("Latitude",lat.toFloat())
+            putFloat("Latitude", lat.toFloat())
             apply()
         }
     }
 
-    fun setAppLongitude(context: Context,lon: Double){
+    fun setAppLongitude(context: Context, lon: Double) {
         val sharedPreferences = context.getSharedPreferences("Coordinates", Context.MODE_PRIVATE)
         sharedPreferences.edit().apply {
-            putFloat("Longitude",lon.toFloat())
+            putFloat("Longitude", lon.toFloat())
             apply()
         }
     }
@@ -142,7 +149,7 @@ class FavouriteViewModel(private val weatherRepository: IWeatherRepository): Vie
 
 }
 
-class FavouriteFactory(private val repository: WeatherRepository): ViewModelProvider.Factory{
+class FavouriteFactory(private val repository: WeatherRepository) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return FavouriteViewModel(repository) as T
     }

@@ -63,11 +63,13 @@ fun FavoriteCityScreen(
 ) {
     var isClicked by remember { mutableStateOf(false) }
     val context = LocalContext.current
-    val weatherRepository = WeatherRepository.
-    getInstance(WeatherLocalDataSource
-        .getInstance(WeatherDatabase
-            .getInstance(context).getWeatherDao(),WeatherDatabase
-            .getInstance(context).getAlertDao()),
+    val weatherRepository = WeatherRepository.getInstance(
+        WeatherLocalDataSource
+            .getInstance(
+                WeatherDatabase
+                    .getInstance(context).getWeatherDao(), WeatherDatabase
+                    .getInstance(context).getAlertDao()
+            ),
         WeatherRemoteDataSource
             .getInstance(RetrofitHelper.weatherService)
     )
@@ -75,9 +77,9 @@ fun FavoriteCityScreen(
     val message = favViewModel.message.collectAsStateWithLifecycle(initialValue = null).value
 
     LaunchedEffect(message) {
-        if(message != null){
+        if (message != null) {
             snackBarHostState.showSnackbar(
-                message=message,
+                message = message,
                 duration = SnackbarDuration.Short
             )
         }
@@ -90,12 +92,14 @@ fun FavoriteCityScreen(
     val snackBarHostState = remember { SnackbarHostState() }
 
     floatingActionButtonAction.value = {
-        navController.navigate(NavigationRoute.MapScreen(false,false))
+        navController.navigate(NavigationRoute.MapScreen(false, false))
     }
 
-    Column(modifier = Modifier.padding(),
+    Column(
+        modifier = Modifier.padding(),
         verticalArrangement = Arrangement.Top,
-        horizontalAlignment = Alignment.CenterHorizontally) {
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
         when (favCityResponse) {
             is Response.Failure -> {}
             is Response.Loading -> {

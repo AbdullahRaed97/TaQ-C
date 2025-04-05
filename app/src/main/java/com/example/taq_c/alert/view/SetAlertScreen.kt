@@ -76,11 +76,13 @@ fun SetAlertScreen(
     snackBarHostState: SnackbarHostState
 ) {
     val context = LocalContext.current
-    val weatherRepository = WeatherRepository.
-    getInstance(WeatherLocalDataSource
-        .getInstance(WeatherDatabase
-            .getInstance(context).getWeatherDao(),WeatherDatabase
-            .getInstance(context).getAlertDao()),
+    val weatherRepository = WeatherRepository.getInstance(
+        WeatherLocalDataSource
+            .getInstance(
+                WeatherDatabase
+                    .getInstance(context).getWeatherDao(), WeatherDatabase
+                    .getInstance(context).getAlertDao()
+            ),
         WeatherRemoteDataSource
             .getInstance(RetrofitHelper.weatherService)
     )
@@ -98,7 +100,7 @@ fun SetAlertScreen(
         is24Hour = false,
     )
     LaunchedEffect(message) {
-        if(message != null){
+        if (message != null) {
             snackBarHostState.showSnackbar(
                 message = message,
                 duration = SnackbarDuration.Short
@@ -126,7 +128,7 @@ fun SetAlertScreen(
                     verticalArrangement = Arrangement.Center
                 ) {
                     Image(
-                       painter =  painterResource(R.drawable.alarm),
+                        painter = painterResource(R.drawable.alarm),
                         contentDescription = null,
                         modifier = Modifier.size(64.dp)
 
@@ -197,9 +199,9 @@ fun SetAlertScreen(
 
                     Button(
                         onClick = {
-                            if((lat==0.0)&&(lon==0.0)){
+                            if ((lat == 0.0) && (lon == 0.0)) {
                                 showValidation = true
-                            }else {
+                            } else {
                                 alertViewModel.requestAlert(
                                     context,
                                     forecastResponse.data.city ?: City(),
@@ -249,7 +251,7 @@ fun SetAlertScreen(
         }) {
             showDatePicker = false
         }
-    if(showValidation){
+    if (showValidation) {
         AlertDialog(
             onDismissRequest = { showValidation = false },
             title = { Text(stringResource(R.string.alert_validation)) },
@@ -265,13 +267,13 @@ fun SetAlertScreen(
                 TextButton(
                     onClick = { showValidation = false }
                 ) {
-                    Text(stringResource(R.string.cancel),
+                    Text(
+                        stringResource(R.string.cancel),
                         color = Color.Red
                     )
 
                 }
-            }
-            ,containerColor = Color(0xFF424242),
+            }, containerColor = Color(0xFF424242),
             titleContentColor = Color.White,
             textContentColor = Color.White.copy(alpha = 0.8f)
         )
@@ -339,9 +341,9 @@ private fun ShowDatePicker(
 ) {
     val datePickerState = rememberDatePickerState(
         initialSelectedDateMillis = System.currentTimeMillis(),
-        selectableDates = object:SelectableDates{
+        selectableDates = object : SelectableDates {
             override fun isSelectableDate(utcTimeMillis: Long): Boolean {
-                return utcTimeMillis>= System.currentTimeMillis()
+                return utcTimeMillis >= System.currentTimeMillis()
             }
         }
     )

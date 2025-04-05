@@ -66,19 +66,23 @@ import com.google.maps.android.compose.rememberCameraPositionState
 @Composable
 fun MapScreen(
     fromSetting: Boolean = false,
-    fromAlert : Boolean,
+    fromAlert: Boolean,
     navController: NavController,
     snackBarHostState: SnackbarHostState
 ) {
-    var defaultLocation by remember { mutableStateOf(LatLng(30.0444,  31.2357))}// Cairo coordinates
-    val cameraPositionState = rememberCameraPositionState { position = CameraPosition.fromLatLngZoom(defaultLocation, 10f) }
-    var markerTitle by remember {mutableStateOf("Egypt")}
+    var defaultLocation by remember { mutableStateOf(LatLng(30.0444, 31.2357)) }// Cairo coordinates
+    val cameraPositionState = rememberCameraPositionState {
+        position = CameraPosition.fromLatLngZoom(defaultLocation, 10f)
+    }
+    var markerTitle by remember { mutableStateOf("Egypt") }
     val context = LocalContext.current
-    val weatherRepository = WeatherRepository.
-    getInstance(WeatherLocalDataSource
-        .getInstance(WeatherDatabase
-            .getInstance(context).getWeatherDao(),WeatherDatabase
-            .getInstance(context).getAlertDao()),
+    val weatherRepository = WeatherRepository.getInstance(
+        WeatherLocalDataSource
+            .getInstance(
+                WeatherDatabase
+                    .getInstance(context).getWeatherDao(), WeatherDatabase
+                    .getInstance(context).getAlertDao()
+            ),
         WeatherRemoteDataSource
             .getInstance(RetrofitHelper.weatherService)
     )
@@ -97,7 +101,7 @@ fun MapScreen(
         }
     }
     LaunchedEffect(message) {
-        if(message != null){
+        if (message != null) {
             snackBarHostState.showSnackbar(
                 message = message,
                 duration = SnackbarDuration.Short
@@ -105,8 +109,17 @@ fun MapScreen(
         }
     }
     LaunchedEffect(defaultLocation) {
-        cameraPositionState.animate(update = CameraUpdateFactory.newLatLngZoom(defaultLocation,10f))
-        markerTitle = favViewModel.getCountryName(context, defaultLocation.latitude, defaultLocation.longitude) ?: ""
+        cameraPositionState.animate(
+            update = CameraUpdateFactory.newLatLngZoom(
+                defaultLocation,
+                10f
+            )
+        )
+        markerTitle = favViewModel.getCountryName(
+            context,
+            defaultLocation.latitude,
+            defaultLocation.longitude
+        ) ?: ""
     }
 
     Column(
@@ -126,7 +139,8 @@ fun MapScreen(
                 .padding(8.dp),
             colors = ButtonDefaults.buttonColors(Color.LightGray)
         ) {
-            Icon(painter = painterResource(R.drawable.search),
+            Icon(
+                painter = painterResource(R.drawable.search),
                 contentDescription = null
             )
             Text("Search for a place")
@@ -158,17 +172,32 @@ fun MapScreen(
             }
         }
     }
-    if(fromSetting) {
-        FromSettingConfiguration(favViewModel,navController,defaultLocation.latitude, defaultLocation.longitude)
-    }else if(fromAlert){
-        FromAlertConfiguration(navController,defaultLocation.latitude,defaultLocation.longitude)
-    }else{
-        ShowCardDetails(defaultLocation.latitude, defaultLocation.longitude, favViewModel , snackBarHostState)
+    if (fromSetting) {
+        FromSettingConfiguration(
+            favViewModel,
+            navController,
+            defaultLocation.latitude,
+            defaultLocation.longitude
+        )
+    } else if (fromAlert) {
+        FromAlertConfiguration(navController, defaultLocation.latitude, defaultLocation.longitude)
+    } else {
+        ShowCardDetails(
+            defaultLocation.latitude,
+            defaultLocation.longitude,
+            favViewModel,
+            snackBarHostState
+        )
     }
 }
 
 @Composable
-fun ShowCardDetails(lat: Double, lon: Double, favViewModel: FavouriteViewModel,snackBarHostState: SnackbarHostState) {
+fun ShowCardDetails(
+    lat: Double,
+    lon: Double,
+    favViewModel: FavouriteViewModel,
+    snackBarHostState: SnackbarHostState
+) {
     val context = LocalContext.current
     val appUnit = favViewModel.getAppUnit(context)
     val appLanguage = favViewModel.getAppLanguage(context)
@@ -176,7 +205,7 @@ fun ShowCardDetails(lat: Double, lon: Double, favViewModel: FavouriteViewModel,s
     val message = favViewModel.message.collectAsStateWithLifecycle(initialValue = null).value
     favViewModel.get5D_3HForeCastData(lat = lat, lon = lon, units = appUnit, lang = appLanguage)
     LaunchedEffect(message) {
-        if(message !=null){
+        if (message != null) {
             snackBarHostState.showSnackbar(
                 message = message,
                 duration = SnackbarDuration.Short
@@ -190,10 +219,11 @@ fun ShowCardDetails(lat: Double, lon: Double, favViewModel: FavouriteViewModel,s
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Bottom
     ) {
-        when(forecastResponse) {
+        when (forecastResponse) {
             is Response.Loading -> {
                 CircularIndicator()
             }
+
             is Response.Failure -> {
                 Text(
                     text = "${forecastResponse.exception.message}",
@@ -202,6 +232,7 @@ fun ShowCardDetails(lat: Double, lon: Double, favViewModel: FavouriteViewModel,s
                     modifier = Modifier.padding(16.dp)
                 )
             }
+
             is Response.Success -> {
                 Card(
                     modifier = Modifier
@@ -300,17 +331,22 @@ fun ShowCardDetails(lat: Double, lon: Double, favViewModel: FavouriteViewModel,s
 }
 
 @Composable
-private fun FromSettingConfiguration(favViewModel: FavouriteViewModel,navController: NavController,lat : Double, lon : Double ){
+private fun FromSettingConfiguration(
+    favViewModel: FavouriteViewModel,
+    navController: NavController,
+    lat: Double,
+    lon: Double
+) {
     val context = LocalContext.current
-    Column (
+    Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Bottom
-    ){
+    ) {
         Button(
             onClick = {
-                favViewModel.setAppLatitude(context,lat)
-                favViewModel.setAppLongitude(context,lon)
+                favViewModel.setAppLatitude(context, lat)
+                favViewModel.setAppLongitude(context, lon)
                 navController.navigate(NavigationRoute.SettingScreen)
             },
             colors = ButtonDefaults.buttonColors(Color.Black)
@@ -326,15 +362,15 @@ private fun FromSettingConfiguration(favViewModel: FavouriteViewModel,navControl
 }
 
 @Composable
-private fun FromAlertConfiguration(navController: NavController , lat: Double, lon: Double){
-    Column (
+private fun FromAlertConfiguration(navController: NavController, lat: Double, lon: Double) {
+    Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Bottom
-    ){
+    ) {
         Button(
             onClick = {
-                navController.navigate(NavigationRoute.SetAlertScreen(lat,lon))
+                navController.navigate(NavigationRoute.SetAlertScreen(lat, lon))
             },
             colors = ButtonDefaults.buttonColors(Color.Black)
 

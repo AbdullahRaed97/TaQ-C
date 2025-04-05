@@ -83,8 +83,8 @@ fun SettingsScreen(navController: NavController) {
             colors = CardDefaults.cardColors(Color(0xFF424242))
         ) {
             Row(
-                horizontalArrangement = Arrangement.Start
-            , verticalAlignment = Alignment.CenterVertically
+                horizontalArrangement = Arrangement.Start,
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Image(
                     painter = painterResource(R.drawable.temperature),
@@ -99,7 +99,7 @@ fun SettingsScreen(navController: NavController) {
                     color = Color.White
                 )
             }
-            TemperatureSettings(context , settingViewModel)
+            TemperatureSettings(context, settingViewModel)
         }
         Spacer(modifier = Modifier.height(10.dp))
         Card(
@@ -110,8 +110,8 @@ fun SettingsScreen(navController: NavController) {
             colors = CardDefaults.cardColors(Color(0xFF424242))
         ) {
             Row(
-                horizontalArrangement = Arrangement.Start
-                , verticalAlignment = Alignment.CenterVertically
+                horizontalArrangement = Arrangement.Start,
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Image(
                     painter = painterResource(R.drawable.windspeed),
@@ -126,7 +126,7 @@ fun SettingsScreen(navController: NavController) {
                     color = Color.White
                 )
             }
-            SpeedUnitSetting(context,settingViewModel)
+            SpeedUnitSetting(context, settingViewModel)
         }
         Spacer(modifier = Modifier.height(10.dp))
         Card(
@@ -137,8 +137,9 @@ fun SettingsScreen(navController: NavController) {
             colors = CardDefaults.cardColors(Color(0xFF424242))
         ) {
             Row(
-                horizontalArrangement = Arrangement.Start
-                , verticalAlignment = Alignment.CenterVertically) {
+                horizontalArrangement = Arrangement.Start,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Image(
                     painter = painterResource(R.drawable.location),
                     contentDescription = null,
@@ -152,7 +153,7 @@ fun SettingsScreen(navController: NavController) {
                     color = Color.White
                 )
             }
-            LocationSetting(context,settingViewModel,navController)
+            LocationSetting(context, settingViewModel, navController)
         }
     }
 }
@@ -189,23 +190,23 @@ private fun LanguageSettings(
                         selectedOption = language
                         when (language) {
                             R.string.arabic -> {
-                                settingViewModel.setLanguage(context,"ar")
-                                settingViewModel.setAppLanguage(context,"ar")
+                                settingViewModel.setLanguage(context, "ar")
+                                settingViewModel.setAppLanguage(context, "ar")
                             }
 
                             R.string.english -> {
                                 settingViewModel.setLanguage(context)
-                                settingViewModel.setAppLanguage(context,"en")
+                                settingViewModel.setAppLanguage(context, "en")
                             }
 
                             R.string.defaultLang -> {
                                 settingViewModel.setLanguage(context)
-                                settingViewModel.setAppLanguage(context,"en")
+                                settingViewModel.setAppLanguage(context, "en")
                             }
 
                             else -> {
                                 settingViewModel.setLanguage(context)
-                                settingViewModel.setAppLanguage(context,"en")
+                                settingViewModel.setAppLanguage(context, "en")
                             }
                         }
                     },
@@ -229,7 +230,7 @@ private fun LanguageSettings(
 private fun TemperatureSettings(
     context: Context,
     settingViewModel: SettingViewModel
-){
+) {
     val tempOptions = listOf(
         R.string.celsius,
         R.string.kelvin,
@@ -255,15 +256,15 @@ private fun TemperatureSettings(
                         selectedOption = temp
                         when (temp) {
                             R.string.celsius -> {
-                                settingViewModel.setTemperatureUnit(context,"metric")
+                                settingViewModel.setTemperatureUnit(context, "metric")
                             }
 
                             R.string.kelvin -> {
-                                settingViewModel.setTemperatureUnit(context,"kelvin")
+                                settingViewModel.setTemperatureUnit(context, "kelvin")
                             }
 
                             R.string.fahrenheit -> {
-                                settingViewModel.setTemperatureUnit(context,"imperial")
+                                settingViewModel.setTemperatureUnit(context, "imperial")
                             }
 
                             else -> {
@@ -291,10 +292,10 @@ private fun TemperatureSettings(
 private fun SpeedUnitSetting(
     context: Context,
     settingViewModel: SettingViewModel
-){
+) {
     val speedOptions = listOf(
         R.string.km_h,
-       R.string.mph
+        R.string.mph
     )
     val selectedSpeed = settingViewModel.getSelectedWindSpeedUnitPreference(context)
     var selectedOption by remember { mutableStateOf(speedOptions[selectedSpeed]) }
@@ -316,12 +317,13 @@ private fun SpeedUnitSetting(
                         selectedOption = speed
                         when (speed) {
                             R.string.km_h -> {
-                                settingViewModel.setWindSpeedUnit(context,"km/h")
+                                settingViewModel.setWindSpeedUnit(context, "km/h")
                             }
 
                             R.string.mph -> {
-                                settingViewModel.setWindSpeedUnit(context,"mph")
+                                settingViewModel.setWindSpeedUnit(context, "mph")
                             }
+
                             else -> {
                                 settingViewModel.setWindSpeedUnit(context)
                             }
@@ -348,7 +350,7 @@ private fun LocationSetting(
     context: Context,
     settingViewModel: SettingViewModel,
     navController: NavController
-){
+) {
     val speedOptions = listOf(
         R.string.gps,
         R.string.map
@@ -374,13 +376,14 @@ private fun LocationSetting(
                         selectedOption = location
                         when (location) {
                             R.string.gps -> {
-                                settingViewModel.setLocationType(context,"GPS")
+                                settingViewModel.setLocationType(context, "GPS")
                             }
 
-                            R.string.map-> {
-                                settingViewModel.setLocationType(context,"Map")
-                                navController.navigate(NavigationRoute.MapScreen(true,false))
+                            R.string.map -> {
+                                settingViewModel.setLocationType(context, "Map")
+                                navController.navigate(NavigationRoute.MapScreen(true, false))
                             }
+
                             else -> {
                                 settingViewModel.setLocationType(context)
                             }

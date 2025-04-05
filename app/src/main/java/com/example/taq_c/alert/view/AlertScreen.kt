@@ -61,16 +61,17 @@ import com.example.taq_c.utilities.NavigationRoute
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun AlertScreen(
-    floatingActionButtonAction : MutableState<(()->Unit)?>
-    ,navController: NavController,
+    floatingActionButtonAction: MutableState<(() -> Unit)?>, navController: NavController,
     snackBarHostState: SnackbarHostState
 ) {
     val context = LocalContext.current
-    val weatherRepository = WeatherRepository.
-    getInstance(WeatherLocalDataSource
-        .getInstance(WeatherDatabase
-            .getInstance(context).getWeatherDao(),WeatherDatabase
-            .getInstance(context).getAlertDao()),
+    val weatherRepository = WeatherRepository.getInstance(
+        WeatherLocalDataSource
+            .getInstance(
+                WeatherDatabase
+                    .getInstance(context).getWeatherDao(), WeatherDatabase
+                    .getInstance(context).getAlertDao()
+            ),
         WeatherRemoteDataSource
             .getInstance(RetrofitHelper.weatherService)
     )
@@ -83,7 +84,7 @@ fun AlertScreen(
         alertViewModel.getAllAlert()
     }
     LaunchedEffect(message) {
-        if(message != null) {
+        if (message != null) {
             snackBarHostState.showSnackbar(
                 message = message,
                 duration = SnackbarDuration.Short
@@ -91,24 +92,27 @@ fun AlertScreen(
         }
     }
 
-    floatingActionButtonAction.value ={
-     if(alertViewModel.checkNotificationOpened(context)){
-     navController.navigate(NavigationRoute.SetAlertScreen(0.0,0.0)){
-         launchSingleTop=true
-         }
-     }else{
-         showDialog = true
-     }
+    floatingActionButtonAction.value = {
+        if (alertViewModel.checkNotificationOpened(context)) {
+            navController.navigate(NavigationRoute.SetAlertScreen(0.0, 0.0)) {
+                launchSingleTop = true
+            }
+        } else {
+            showDialog = true
+        }
     }
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        when(alertResponse){
-            is Response.Failure ->{}
-            Response.Loading -> { CircularIndicator() }
-            is Response.Success ->{
+        when (alertResponse) {
+            is Response.Failure -> {}
+            Response.Loading -> {
+                CircularIndicator()
+            }
+
+            is Response.Success -> {
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxSize()
@@ -118,14 +122,14 @@ fun AlertScreen(
                 ) {
                     if (alertResponse.data != null) {
                         itemsIndexed(alertResponse.data) { index, item ->
-                            AlertItem(item,alertViewModel)
+                            AlertItem(item, alertViewModel)
                         }
                     }
                 }
             }
         }
     }
-    if(showDialog){
+    if (showDialog) {
         AlertDialog(
             onDismissRequest = { showDialog = false },
             title = { Text(stringResource(R.string.allow_notification)) },
@@ -173,7 +177,7 @@ fun AlertItem(alert: Alert, alertViewModel: AlertViewModel) {
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column (
+            Column(
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(
@@ -183,7 +187,7 @@ fun AlertItem(alert: Alert, alertViewModel: AlertViewModel) {
                     fontWeight = FontWeight.Medium
                 )
                 Text(
-                    text = alertViewModel.convertTimeStampToDate(alert.timeStamp?:0),
+                    text = alertViewModel.convertTimeStampToDate(alert.timeStamp ?: 0),
                     fontSize = 14.sp,
                     color = Color.White.copy(alpha = 0.8f),
                     fontWeight = FontWeight.Medium

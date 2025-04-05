@@ -23,7 +23,7 @@ class MyApp : Application() {
     }
 
     private fun createNotificationChannel() {
-        if(Build.VERSION.SDK_INT>= Build.VERSION_CODES.O){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val soundUri =
                 "${ContentResolver.SCHEME_ANDROID_RESOURCE}://${applicationContext.packageName}/${R.raw.alert}".toUri()
             val channel = NotificationChannel(
@@ -32,12 +32,13 @@ class MyApp : Application() {
                 NotificationManager.IMPORTANCE_HIGH
             )
             channel.description = "This Notification is for Weather Cautions"
-            channel.setSound(soundUri
-                ,AudioAttributes.Builder()
-                .setUsage(AudioAttributes.USAGE_NOTIFICATION)
-                .build()
+            channel.setSound(
+                soundUri, AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+                    .build()
             )
-            val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            val notificationManager =
+                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.createNotificationChannel(channel)
         }
     }

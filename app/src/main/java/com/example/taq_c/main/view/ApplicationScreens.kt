@@ -67,16 +67,16 @@ import com.example.taq_c.utilities.NavigationRoute
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun ApplicationScreens(isNetworkAvailable : Boolean?) {
+fun ApplicationScreens(isNetworkAvailable: Boolean?) {
     val context = LocalContext.current
     val floatingActionButtonAction: MutableState<(() -> Unit)?> =
         remember { mutableStateOf(null) }
     val dayState = remember { mutableStateOf("01d") }
-    val showNavigationBar : MutableState<Boolean> = remember { mutableStateOf(false) }
+    val showNavigationBar: MutableState<Boolean> = remember { mutableStateOf(false) }
     val snackBarState = remember { SnackbarHostState() }
     val navController = rememberNavController()
     LaunchedEffect(isNetworkAvailable) {
-        when(isNetworkAvailable) {
+        when (isNetworkAvailable) {
             true -> {
                 snackBarState.showSnackbar(
                     message = context.getString(R.string.network_available),
@@ -98,19 +98,20 @@ fun ApplicationScreens(isNetworkAvailable : Boolean?) {
         modifier = Modifier.fillMaxSize()
     ) {
         Image(
-            painter = painterResource(when(dayState.value){
-                "01d" -> R.drawable.clear_skybg
-                "01n" -> R.drawable.nclear_skybg
-                "02d","03d","04d" -> R.drawable.dfew_cloud
-                "02n","03n","04n" -> R.drawable.nfew_cloudbg
-                 "09n","10n"  -> R.drawable.nrainbg
-                "09d" ,"10d"-> R.drawable.drainbg
-                "11d", "11n" -> R.drawable.thunderbg
-                "13d"-> R.drawable.dsnowbg
-                "13n" -> R.drawable.nsnowbg
-                "50d", "50n" -> R.drawable.mistbg
-                else -> R.drawable.clear_skybg
-            }
+            painter = painterResource(
+                when (dayState.value) {
+                    "01d" -> R.drawable.clear_skybg
+                    "01n" -> R.drawable.nclear_skybg
+                    "02d", "03d", "04d" -> R.drawable.dfew_cloud
+                    "02n", "03n", "04n" -> R.drawable.nfew_cloudbg
+                    "09n", "10n" -> R.drawable.nrainbg
+                    "09d", "10d" -> R.drawable.drainbg
+                    "11d", "11n" -> R.drawable.thunderbg
+                    "13d" -> R.drawable.dsnowbg
+                    "13n" -> R.drawable.nsnowbg
+                    "50d", "50n" -> R.drawable.mistbg
+                    else -> R.drawable.clear_skybg
+                }
             ),
             contentDescription = null,
             modifier = Modifier.fillMaxSize(),

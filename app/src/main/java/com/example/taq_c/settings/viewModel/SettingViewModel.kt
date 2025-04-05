@@ -50,7 +50,7 @@ class SettingViewModel() : ViewModel() {
             apply()
         }
     }
-    
+
     fun getSelectedLanguagePreference(context: Context): Int {
         val code = context.getSharedPreferences("Settings", 0).getString("Language", "")
 
@@ -80,9 +80,9 @@ class SettingViewModel() : ViewModel() {
         }
     }
 
-    fun getSelectedLocationPreference(context: Context) :Int {
+    fun getSelectedLocationPreference(context: Context): Int {
         val code = context.getSharedPreferences("Settings", 0).getString("Location", "")
-        return when(code){
+        return when (code) {
             "GPS" -> 0
             "Map" -> 1
             else -> 0

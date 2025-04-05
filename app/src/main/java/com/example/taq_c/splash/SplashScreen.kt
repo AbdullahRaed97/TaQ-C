@@ -28,7 +28,12 @@ import com.example.taq_c.utilities.NavigationRoute
 import kotlinx.coroutines.delay
 
 @Composable
-fun SplashScreen(navController: NavController,lat: Double , lon: Double , showNavigationBar : MutableState<Boolean>){
+fun SplashScreen(
+    navController: NavController,
+    lat: Double,
+    lon: Double,
+    showNavigationBar: MutableState<Boolean>
+) {
     val composition by
     rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.splash))
     val scale = remember {
@@ -53,7 +58,7 @@ fun SplashScreen(navController: NavController,lat: Double , lon: Double , showNa
         )
         delay(3000)
         showNavigationBar.value = true
-        navController.navigate(NavigationRoute.HomeScreen(lat,lon)) {
+        navController.navigate(NavigationRoute.HomeScreen(lat, lon)) {
             popUpTo(navController.graph.startDestinationId) {
                 inclusive = true
             }
@@ -63,12 +68,13 @@ fun SplashScreen(navController: NavController,lat: Double , lon: Double , showNa
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
-    ){
+    ) {
         LottieAnimation(
             composition = composition,
-            modifier = Modifier.size(500.dp)
+            modifier = Modifier
+                .size(500.dp)
                 .scale(scale.value),
-            progress = {progress},
+            progress = { progress },
         )
     }
 }
