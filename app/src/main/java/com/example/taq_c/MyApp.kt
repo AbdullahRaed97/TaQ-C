@@ -10,11 +10,15 @@ import android.net.Uri
 import android.os.Build
 import androidx.core.net.toUri
 import com.example.taq_c.utilities.WeatherNotificationService
+import com.google.android.libraries.places.api.Places
 
 class MyApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        if (!Places.isInitialized()) {
+            Places.initialize(applicationContext, "AIzaSyC9hCKfEcNFR2YQDeZ3Xdn3Dk0A7z2xd_c")
+        }
         createNotificationChannel()
     }
 

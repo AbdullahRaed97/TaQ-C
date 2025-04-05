@@ -1,7 +1,6 @@
 package com.example.taq_c.alert.view
 
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -56,16 +55,14 @@ import com.example.taq_c.alert.viewModel.AlertFactory
 import com.example.taq_c.alert.viewModel.AlertViewModel
 import com.example.taq_c.data.db.WeatherDatabase
 import com.example.taq_c.data.local.WeatherLocalDataSource
-import com.example.taq_c.data.model.Alert
 import com.example.taq_c.data.model.City
 import com.example.taq_c.data.model.Response
 import com.example.taq_c.data.remote.RetrofitHelper
 import com.example.taq_c.data.remote.WeatherRemoteDataSource
 import com.example.taq_c.data.repository.WeatherRepository
 import com.example.taq_c.home.view.CircularIndicator
-import com.example.taq_c.utilities.NavigationRoute.*
-import java.time.LocalDate
-import java.time.LocalTime
+import com.example.taq_c.utilities.NavigationRoute.AlertScreen
+import com.example.taq_c.utilities.NavigationRoute.MapScreen
 import java.util.Calendar
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -267,7 +264,6 @@ fun ShowTimePicker(
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center,
-            //verticalAlignment = Alignment.CenterVertically
         ) {
             Button(
                 onClick = onDismiss,

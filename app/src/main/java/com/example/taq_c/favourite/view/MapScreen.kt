@@ -1,6 +1,10 @@
 package com.example.taq_c.favourite.view
 
+import android.app.Activity
 import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -8,13 +12,21 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -25,8 +37,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -46,6 +60,10 @@ import com.example.taq_c.utilities.NavigationRoute
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.libraries.places.api.model.Place
+import com.google.android.libraries.places.widget.Autocomplete
+import com.google.android.libraries.places.widget.AutocompleteActivity
+import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapType
@@ -76,6 +94,17 @@ fun MapScreen(
     var favViewModel = viewModel<FavouriteViewModel>(factory = FavouriteFactory(weatherRepository))
     val message = favViewModel.message.collectAsStateWithLifecycle(initialValue = null).value
 
+    val autocompleteLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val place = Autocomplete.getPlaceFromIntent(result.data!!)
+            defaultLocation = place.latLng
+        } else if (result.resultCode == AutocompleteActivity.RESULT_ERROR) {
+            val status = Autocomplete.getStatusFromIntent(result.data!!)
+            Log.e("Places", "Error: ${status.statusMessage}")
+        }
+    }
     LaunchedEffect(message) {
         if(message != null){
             snackBarHostState.showSnackbar(
@@ -94,6 +123,23 @@ fun MapScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
+        Button(
+            onClick = {
+                val fields = listOf(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG)
+                val intent = Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, fields)
+                    .build(context)
+                autocompleteLauncher.launch(intent)
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
+            colors = ButtonDefaults.buttonColors(Color.LightGray)
+        ) {
+            Icon(painter = painterResource(com.google.android.gms.location.places.R.drawable.places_ic_search),
+                contentDescription = null
+            )
+            Text("Search for a place")
+        }
         GoogleMap(
             modifier = Modifier.fillMaxSize(),
             cameraPositionState = cameraPositionState,
@@ -110,10 +156,15 @@ fun MapScreen(
 
             }
         ) {
-            Marker(
-                state = MarkerState(position = defaultLocation),
-                title = markerTitle,
-            )
+            defaultLocation.let { latLng ->
+                LaunchedEffect(latLng) {
+                    cameraPositionState.animate(CameraUpdateFactory.newLatLngZoom(latLng, 15f))
+                }
+                Marker(
+                    state = MarkerState(position = defaultLocation),
+                    title = markerTitle,
+                )
+            }
         }
     }
     if(fromSetting) {

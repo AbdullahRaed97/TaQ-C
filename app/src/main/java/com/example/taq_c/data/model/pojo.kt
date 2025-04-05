@@ -6,6 +6,7 @@ import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import com.example.taq_c.utilities.TypeConverter
+import com.google.android.gms.maps.model.LatLng
 import com.google.gson.annotations.SerializedName
 
 data class Clouds(
@@ -94,4 +95,10 @@ data class Alert(
     @PrimaryKey val requestCode: String ="",
     @Embedded("alert") val city:City,
     val timeStamp: Long? = 0
+)
+
+data class Places(
+    val name: String,
+    val latLng: LatLng,
+    val address: String
 )
