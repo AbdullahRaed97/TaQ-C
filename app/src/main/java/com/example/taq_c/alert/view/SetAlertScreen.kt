@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -90,6 +91,7 @@ fun SetAlertScreen(
     val message = alertViewModel.message.collectAsStateWithLifecycle(initialValue = null).value
     var timeStamp: MutableState<Long> = remember { mutableStateOf(0) }
     val currentTime = Calendar.getInstance()
+    var showValidation by remember { mutableStateOf(false) }
     val timePickerState = rememberTimePickerState(
         initialHour = currentTime.get(Calendar.HOUR_OF_DAY),
         initialMinute = currentTime.get(Calendar.MINUTE),
@@ -195,8 +197,18 @@ fun SetAlertScreen(
 
                     Button(
                         onClick = {
-                            alertViewModel.requestAlert(context,forecastResponse.data.city?:City(),timePickerState.hour,timePickerState.minute,timeStamp.value)
-                            navController.navigate(AlertScreen)
+                            if((lat==0.0)&&(lon==0.0)){
+                                showValidation = true
+                            }else {
+                                alertViewModel.requestAlert(
+                                    context,
+                                    forecastResponse.data.city ?: City(),
+                                    timePickerState.hour,
+                                    timePickerState.minute,
+                                    timeStamp.value
+                                )
+                                navController.navigate(AlertScreen)
+                            }
                         },
                         colors = ButtonDefaults.buttonColors(Color.Black),
                         modifier = Modifier
@@ -237,6 +249,33 @@ fun SetAlertScreen(
         }) {
             showDatePicker = false
         }
+    if(showValidation){
+        AlertDialog(
+            onDismissRequest = { showValidation = false },
+            title = { Text(stringResource(R.string.alert_validation)) },
+            text = { Text(stringResource(R.string.please_select_your_destination)) },
+            confirmButton = {
+                TextButton(
+                    onClick = { showValidation = false }
+                ) {
+                    Text(stringResource(R.string.ok))
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { showValidation = false }
+                ) {
+                    Text(stringResource(R.string.cancel),
+                        color = Color.Red
+                    )
+
+                }
+            }
+            ,containerColor = Color(0xFF424242),
+            titleContentColor = Color.White,
+            textContentColor = Color.White.copy(alpha = 0.8f)
+        )
+    }
 
 }
 

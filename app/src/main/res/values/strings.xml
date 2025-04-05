@@ -57,4 +57,9 @@
     <string name="ok">OK</string>
     <string name="delete_city">Delete City</string>
     <string name="are_you_sure_you_want_to_delete_this_city">Are you sure you want to delete this city</string>
+    <string name="c">°C</string>
+    <string name="k">K</string>
+    <string name="f">°f</string>
+    <string name="alert_validation">Alert Validation</string>
+    <string name="please_select_your_destination">Please select your destination</string>
 </resources>

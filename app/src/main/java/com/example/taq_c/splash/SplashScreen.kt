@@ -1,5 +1,8 @@
 package com.example.taq_c.splash
 
+import android.view.animation.OvershootInterpolator
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -8,8 +11,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -25,8 +30,10 @@ import kotlinx.coroutines.delay
 @Composable
 fun SplashScreen(navController: NavController,lat: Double , lon: Double , showNavigationBar : MutableState<Boolean>){
     val composition by
-    rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.lottie))
-
+    rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.splash))
+    val scale = remember {
+        Animatable(0f)
+    }
     val progress by animateLottieCompositionAsState(
         composition = composition,
         iterations = LottieConstants.IterateForever,
@@ -35,6 +42,15 @@ fun SplashScreen(navController: NavController,lat: Double , lon: Double , showNa
     )
 
     LaunchedEffect(Unit) {
+        scale.animateTo(
+            targetValue = 0.3f,
+            animationSpec = tween(
+                durationMillis = 500,
+                easing = {
+                    OvershootInterpolator(2f).getInterpolation(it)
+                }
+            )
+        )
         delay(3000)
         showNavigationBar.value = true
         navController.navigate(NavigationRoute.HomeScreen(lat,lon)) {
@@ -45,14 +61,14 @@ fun SplashScreen(navController: NavController,lat: Double , lon: Double , showNa
     }
 
     Box(
-        modifier = Modifier.fillMaxSize()
-            .background(Color.White),
+        modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ){
         LottieAnimation(
             composition = composition,
-            modifier = Modifier.size(500.dp),
-            progress = {progress}
+            modifier = Modifier.size(500.dp)
+                .scale(scale.value),
+            progress = {progress},
         )
     }
 }

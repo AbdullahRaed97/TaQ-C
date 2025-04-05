@@ -126,7 +126,7 @@ fun MapScreen(
                 .padding(8.dp),
             colors = ButtonDefaults.buttonColors(Color.LightGray)
         ) {
-            Icon(painter = painterResource(com.google.android.gms.location.places.R.drawable.places_ic_search),
+            Icon(painter = painterResource(R.drawable.search),
                 contentDescription = null
             )
             Text("Search for a place")

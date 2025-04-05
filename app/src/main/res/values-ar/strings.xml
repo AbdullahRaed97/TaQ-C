@@ -58,4 +58,7 @@
     <string name="ok">تم</string>
     <string name="delete_city">حذف المدينة</string>
     <string name="are_you_sure_you_want_to_delete_this_city">هل أنت متأكد أنك تريد حذف هذه المدينة؟</string>
+    <string name="c">°س</string>
+    <string name="k">°ك</string>
+    <string name="f">°ف</string>
 </resources>

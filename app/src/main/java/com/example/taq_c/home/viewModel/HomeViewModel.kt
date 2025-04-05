@@ -83,7 +83,31 @@ class HomeViewModel(private val weatherRepository: WeatherRepository) : ViewMode
 
     fun getAppWindSpeedUnit(context: Context): String{
         val sharedPreferences = context.getSharedPreferences("Settings", Context.MODE_PRIVATE)
-        return sharedPreferences.getString("WindSpeedUnit","km/h")?:"km/h"
+        val langCode =sharedPreferences.getString("Language","en")?:"en"
+        val unitCode =sharedPreferences.getString("WindSpeedUnit","km/h")?:"km/h"
+        return when(langCode){
+            "en"->{
+                when(unitCode){
+                    "km/h"->"km/h"
+                    "mph"->"mph"
+                    else->"km/h"
+                }
+            }
+            "ar"->{
+                when(unitCode){
+                    "km/h"->"كم/س"
+                    "mph"->"ميل/س"
+                    else->"كم/س"
+                }
+            }
+            else -> {
+                when(unitCode){
+                    "km/h"->"km/h"
+                    "mph"->"mph"
+                    else->"km/h"
+                }
+            }
+        }
     }
 
     fun calculateWindSpeed(speedUnit : String , weatherResponse: WeatherResponse): String{
@@ -161,22 +185,22 @@ class HomeViewModel(private val weatherRepository: WeatherRepository) : ViewMode
         }
     }
 
-    fun getUnit(units: String): String {
+    fun getUnit(units: String,context: Context): String {
         when (units) {
             "metric" -> {
-                return "°C"
+                return context.getString(R.string.c)
             }
 
             "kelvin" -> {
-                return "K"
+                return context.getString(R.string.k)
             }
 
             "imperial" -> {
-                return "°f"
+                return context.getString(R.string.f)
             }
 
             else -> {
-                return "°C"
+                return context.getString(R.string.c)
             }
         }
     }

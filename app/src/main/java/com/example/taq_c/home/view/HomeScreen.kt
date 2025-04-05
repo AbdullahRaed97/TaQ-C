@@ -206,6 +206,7 @@ private fun WeatherResponseData(
     units: String,
     homeViewModel: HomeViewModel
 ) {
+    val context = LocalContext.current
     Column(
         modifier = Modifier
             .padding(horizontal = 16.dp, vertical = 24.dp)
@@ -237,7 +238,7 @@ private fun WeatherResponseData(
                         modifier = Modifier.padding(end=4.dp)
                     )
                     Text(
-                        text = "${weatherResponse.weatherDetails?.feels_like} "+ homeViewModel.getUnit(units),
+                        text = "${weatherResponse.weatherDetails?.feels_like} "+ homeViewModel.getUnit(units,context),
                         color = Color.White.copy(alpha = 0.8f),
                         fontSize = 16.sp
                     )
@@ -286,7 +287,7 @@ private fun WeatherResponseData(
                 )
                 Spacer(Modifier.width(4.dp))
                 Text(
-                    text = homeViewModel.getUnit(units),
+                    text = homeViewModel.getUnit(units,context),
                     color = Color.White,
                     fontSize = 32.sp,
                     fontWeight = FontWeight.Light
@@ -389,6 +390,7 @@ private fun HomeLazyRowItem(
     units: String,
     homeViewModel: HomeViewModel
 ) {
+    val context = LocalContext.current
     Card(
         modifier = Modifier
             .width(120.dp)
@@ -397,7 +399,7 @@ private fun HomeLazyRowItem(
         elevation = CardDefaults.cardElevation(4.dp),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color(0xFF424242)
+            containerColor = Color(0xB3424242)
         )
     ) {
         Column(
@@ -435,7 +437,7 @@ private fun HomeLazyRowItem(
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
-                    text = homeViewModel.getUnit(units),
+                    text = homeViewModel.getUnit(units,context),
                     color = Color.White.copy(alpha = 0.8f),
                     fontSize = 14.sp,
                     modifier = Modifier.padding(bottom = 2.dp)
@@ -478,6 +480,7 @@ private fun HomeLazyColumnItem(
     units: String,
     homeViewModel: HomeViewModel
 ) {
+    val context = LocalContext.current
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -485,7 +488,7 @@ private fun HomeLazyColumnItem(
             .padding(vertical = 8.dp),
         elevation = CardDefaults.cardElevation(4.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color(0xFF424242)
+            containerColor = Color(0xB3424242)
         ),
         shape = RoundedCornerShape(12.dp)
     ) {
@@ -536,7 +539,7 @@ private fun HomeLazyColumnItem(
                     )
                     Spacer(Modifier.width(4.dp))
                     Text(
-                        text = homeViewModel.getUnit(units),
+                        text = homeViewModel.getUnit(units,context),
                         color = Color.White.copy(alpha = 0.8f),
                         fontSize = 14.sp,
                         modifier = Modifier.padding(bottom = 2.dp)
@@ -575,7 +578,7 @@ private fun HomeLazyColumnItem(
                     }
                     Spacer(Modifier.width(4.dp))
                     Text(
-                        text = homeViewModel.getUnit(units),
+                        text = homeViewModel.getUnit(units,context),
                         color = Color.White.copy(alpha = 0.8f),
                         fontSize = 12.sp,
                         modifier = Modifier.padding(bottom = 1.dp)
@@ -605,7 +608,7 @@ private fun HomeLazyColumnItem(
                     }
                     Spacer(Modifier.width(4.dp))
                     Text(
-                        text = homeViewModel.getUnit(units),
+                        text = homeViewModel.getUnit(units,context),
                         color = Color.White.copy(alpha = 0.8f),
                         fontSize = 12.sp,
                         modifier = Modifier.padding(bottom = 1.dp)
@@ -631,7 +634,7 @@ private fun WeatherCard(
             .padding(horizontal = 16.dp, vertical = 8.dp),
         elevation = CardDefaults.cardElevation(8.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color(0xAA666666)
+            containerColor = Color(0xB3666666)
         )
     ) {
         Row(
