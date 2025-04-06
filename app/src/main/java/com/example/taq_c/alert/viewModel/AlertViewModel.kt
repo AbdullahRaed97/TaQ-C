@@ -246,7 +246,8 @@ class AlertWorker(context: Context, workerParameters: WorkerParameters) :
             .getInstance(
                 WeatherDatabase
                     .getInstance(context).getWeatherDao(), WeatherDatabase
-                    .getInstance(context).getAlertDao()
+                    .getInstance(context).getAlertDao(),
+                WeatherDatabase.getInstance(context).getResponsesDao()
             ),
         WeatherRemoteDataSource
             .getInstance(RetrofitHelper.weatherService)

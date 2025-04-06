@@ -7,6 +7,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.taq_c.R
 import com.example.taq_c.data.model.Forecast
 import com.example.taq_c.data.model.ForecastResponse
+import com.example.taq_c.data.model.LocalForecastResponse
+import com.example.taq_c.data.model.LocalWeatherResponse
 import com.example.taq_c.data.model.Response
 import com.example.taq_c.data.model.WeatherResponse
 import com.example.taq_c.data.repository.WeatherRepository
@@ -26,6 +28,16 @@ class HomeViewModel(private val weatherRepository: WeatherRepository) : ViewMode
         MutableStateFlow(Response.Loading)
     val weatherResponse =
         weatherResponse_.asStateFlow()
+
+    private val localWeatherResponse_ : MutableStateFlow<Response<LocalWeatherResponse>> =
+        MutableStateFlow(Response.Loading)
+    val localWeatherResponse = localWeatherResponse_.asStateFlow()
+
+    private val localForecastResponse_ : MutableStateFlow<Response<LocalForecastResponse>> =
+        MutableStateFlow(Response.Loading)
+    val localForecastResponse = localForecastResponse_.asStateFlow()
+
+
     private val forecastResponse_: MutableStateFlow<Response<ForecastResponse>> =
         MutableStateFlow(Response.Loading)
     val forecastResponse =
@@ -78,6 +90,42 @@ class HomeViewModel(private val weatherRepository: WeatherRepository) : ViewMode
                 message_.emit(e.message.toString())
                 forecastResponse_.emit(Response.Failure(e))
             }
+        }
+    }
+
+    fun insertWeatherResponse(weatherResponse: WeatherResponse){
+        viewModelScope.launch {
+            weatherRepository.insertWeatherResponse(LocalWeatherResponse(1, weatherResponse))
+        }
+    }
+
+    fun insertForecastResponse(forecastResponse: ForecastResponse){
+        viewModelScope.launch {
+            weatherRepository.insertForecastResponse(LocalForecastResponse(1,forecastResponse))
+        }
+    }
+
+    fun getAllLocalWeatherResponse(){
+        viewModelScope.launch {
+            weatherRepository.getAllWeatherResponse()
+                .catch {
+                    localWeatherResponse_.emit(Response.Failure(it))
+                }
+                .collect {
+                    localWeatherResponse_.emit(Response.Success(it))
+                }
+        }
+    }
+
+    fun getAllLocalForecastResponse(){
+        viewModelScope.launch {
+            weatherRepository.getAllForecastResponse()
+                .catch {
+                    localForecastResponse_.emit(Response.Failure(it))
+                }
+                .collect {
+                    localForecastResponse_.emit(Response.Success(it))
+                }
         }
     }
 

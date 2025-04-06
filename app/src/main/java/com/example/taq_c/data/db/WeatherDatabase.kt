@@ -7,13 +7,16 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.example.taq_c.data.model.Alert
 import com.example.taq_c.data.model.City
+import com.example.taq_c.data.model.LocalForecastResponse
+import com.example.taq_c.data.model.LocalWeatherResponse
 import com.example.taq_c.utilities.TypeConverter
 
-@Database(entities = [City::class, Alert::class], version = 1)
+@Database(entities = [City::class, Alert::class, LocalWeatherResponse::class, LocalForecastResponse::class], version = 1)
 @TypeConverters(TypeConverter::class)
 abstract class WeatherDatabase : RoomDatabase() {
     abstract fun getWeatherDao(): WeatherDao
     abstract fun getAlertDao(): AlertDao
+    abstract fun getResponsesDao(): ResponsesDao
 
     companion object {
         @Volatile

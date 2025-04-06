@@ -108,3 +108,20 @@ data class Alert(
     @Embedded("alert") val city: City,
     val timeStamp: Long? = 0
 )
+
+
+@Entity(tableName = "WeatherResponse")
+data class LocalWeatherResponse(
+    @PrimaryKey
+    val id : Int = 1,
+    @TypeConverters(TypeConverter::class)
+    val weatherResponse : WeatherResponse?=null
+)
+
+@Entity(tableName = "ForecastResponse")
+data class LocalForecastResponse(
+    @PrimaryKey
+    val id : Int = 1,
+    @TypeConverters(TypeConverter::class)
+    val forecastResponse: ForecastResponse
+)

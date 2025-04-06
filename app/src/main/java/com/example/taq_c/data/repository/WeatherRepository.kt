@@ -5,6 +5,8 @@ import com.example.taq_c.data.local.WeatherLocalDataSource
 import com.example.taq_c.data.model.Alert
 import com.example.taq_c.data.model.City
 import com.example.taq_c.data.model.ForecastResponse
+import com.example.taq_c.data.model.LocalForecastResponse
+import com.example.taq_c.data.model.LocalWeatherResponse
 import com.example.taq_c.data.model.WeatherResponse
 import com.example.taq_c.data.remote.IWeatherRemoteDataSource
 import com.example.taq_c.data.remote.WeatherRemoteDataSource
@@ -62,6 +64,22 @@ class WeatherRepository private constructor(
 
     override suspend fun deleteAlertByTime(timeStamp: Long): Int {
         return localDataSource.deleteAlertByTime(timeStamp)
+    }
+
+    override suspend fun insertWeatherResponse(weatherResponse: LocalWeatherResponse): Long {
+        return localDataSource.insertWeatherResponse(weatherResponse)
+    }
+
+    override suspend fun insertForecastResponse(forecastResponse: LocalForecastResponse): Long {
+        return localDataSource.insertForecastResponse(forecastResponse)
+    }
+
+    override fun getAllWeatherResponse(): Flow<LocalWeatherResponse> {
+        return localDataSource.getAllWeatherResponse()
+    }
+
+    override fun getAllForecastResponse(): Flow<LocalForecastResponse> {
+        return localDataSource.getAllForecastResponse()
     }
 
     companion object {

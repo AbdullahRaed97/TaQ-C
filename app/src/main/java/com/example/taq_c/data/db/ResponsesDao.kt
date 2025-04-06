@@ -1,33 +1,22 @@
-package com.example.taq_c.data.local
+package com.example.taq_c.data.db
 
-import com.example.taq_c.data.model.Alert
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
 import com.example.taq_c.data.model.City
 import com.example.taq_c.data.model.LocalForecastResponse
 import com.example.taq_c.data.model.LocalWeatherResponse
 import kotlinx.coroutines.flow.Flow
 
-interface IWeatherLocalDataSource {
-
-    fun getAllFavCities(): Flow<List<City>>
-
-    suspend fun insertFavCity(city: City): Long
-
-    suspend fun deleteFavCity(city: City): Int
-
-    fun getAllAlerts(): Flow<List<Alert>>
-
-    suspend fun insertAlert(alert: Alert): Long
-
-    suspend fun deleteAlert(alert: Alert): Int
-
-    suspend fun deleteAlertByTime(timeStamp: Long) : Int
-
+@Dao
+interface ResponsesDao {
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertWeatherResponse(weatherResponse: LocalWeatherResponse): Long
-
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertForecastResponse(forecastResponse: LocalForecastResponse): Long
-
+    @Query("SELECT * FROM WeatherResponse")
     fun getAllWeatherResponse():Flow<LocalWeatherResponse>
-
+    @Query("SELECT * FROM ForecastResponse")
     fun getAllForecastResponse():Flow<LocalForecastResponse>
-
 }

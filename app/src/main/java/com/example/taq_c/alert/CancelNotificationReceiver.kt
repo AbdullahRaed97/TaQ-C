@@ -22,7 +22,8 @@ class CancelNotificationReceiver : BroadcastReceiver() {
                 .getInstance(
                     WeatherDatabase
                         .getInstance(context).getWeatherDao(), WeatherDatabase
-                        .getInstance(context).getAlertDao()
+                        .getInstance(context).getAlertDao(),
+                    WeatherDatabase.getInstance(context).getResponsesDao()
                 ),
             WeatherRemoteDataSource
                 .getInstance(RetrofitHelper.weatherService)

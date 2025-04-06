@@ -3,6 +3,8 @@ package com.example.taq_c.data.repository
 import com.example.taq_c.data.model.Alert
 import com.example.taq_c.data.model.City
 import com.example.taq_c.data.model.ForecastResponse
+import com.example.taq_c.data.model.LocalForecastResponse
+import com.example.taq_c.data.model.LocalWeatherResponse
 import com.example.taq_c.data.model.WeatherResponse
 import kotlinx.coroutines.flow.Flow
 
@@ -35,4 +37,12 @@ interface IWeatherRepository {
     suspend fun deleteAlert(alert: Alert): Int
 
     suspend fun deleteAlertByTime(timeStamp: Long) : Int
+
+    suspend fun insertWeatherResponse(weatherResponse: LocalWeatherResponse): Long
+
+    suspend fun insertForecastResponse(forecastResponse: LocalForecastResponse): Long
+
+    fun getAllWeatherResponse():Flow<LocalWeatherResponse>
+
+    fun getAllForecastResponse():Flow<LocalForecastResponse>
 }

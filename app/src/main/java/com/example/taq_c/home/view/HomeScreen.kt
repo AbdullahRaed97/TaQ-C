@@ -47,6 +47,7 @@ import com.example.taq_c.R
 import com.example.taq_c.data.db.WeatherDatabase
 import com.example.taq_c.data.local.WeatherLocalDataSource
 import com.example.taq_c.data.model.Forecast
+import com.example.taq_c.data.model.LocalWeatherResponse
 import com.example.taq_c.data.model.Response
 import com.example.taq_c.data.model.WeatherResponse
 import com.example.taq_c.data.remote.RetrofitHelper
@@ -78,7 +79,8 @@ fun HomeScreen(
             .getInstance(
                 WeatherDatabase
                     .getInstance(context).getWeatherDao(), WeatherDatabase
-                    .getInstance(context).getAlertDao()
+                    .getInstance(context).getAlertDao(),
+                WeatherDatabase.getInstance(context).getResponsesDao()
             ),
         WeatherRemoteDataSource
             .getInstance(RetrofitHelper.weatherService)
@@ -92,7 +94,10 @@ fun HomeScreen(
     val appLatitude = homeViewModel.getAppLatitude(lat, context)
     val appLongitude = homeViewModel.getAppLongitude(lon, context)
     val message = homeViewModel.message.collectAsStateWithLifecycle(initialValue = null).value
-
+    val localWeatherResponse = homeViewModel.localWeatherResponse.collectAsStateWithLifecycle().value
+    val localForecastResponse = homeViewModel.localForecastResponse.collectAsStateWithLifecycle().value
+    homeViewModel.getAllLocalWeatherResponse()
+    homeViewModel.getAllLocalForecastResponse()
     LaunchedEffect(message) {
         if (message != null) {
             snackBarHostState.showSnackbar(
@@ -125,20 +130,40 @@ fun HomeScreen(
         modifier = Modifier
             .verticalScroll(scrollState)
     ) {
-        when (weatherResponse) {
-            is Response.Success<WeatherResponse> -> {
-                WeatherResponseData(
-                    weatherResponse.data,
-                    units = appTempUnit,
-                    homeViewModel
-                )
-                dayState.value = weatherResponse.data.weather?.get(0)?.weatherIcon ?: "01d"
+        if (isNetworkAvailable == true) {
+            when (weatherResponse) {
+                is Response.Success<WeatherResponse> -> {
+                    homeViewModel.insertWeatherResponse(weatherResponse.data)
+                    WeatherResponseData(
+                        weatherResponse.data,
+                        units = appTempUnit,
+                        homeViewModel
+                    )
+                    dayState.value = weatherResponse.data.weather?.get(0)?.weatherIcon ?: "01d"
+                }
+
+                is Response.Failure -> {}
+                is Response.Loading -> {
+                    CircularIndicator()
+                }
+            }
+        }else{
+            when (localWeatherResponse) {
+                is Response.Success<LocalWeatherResponse> -> {
+                    WeatherResponseData(
+                        localWeatherResponse.data.weatherResponse as WeatherResponse,
+                        units = appTempUnit,
+                        homeViewModel
+                    )
+                    dayState.value = localWeatherResponse.data.weatherResponse.weather?.get(0)?.weatherIcon ?: "01d"
+                }
+
+                is Response.Failure -> {}
+                is Response.Loading -> {
+                    CircularIndicator()
+                }
             }
 
-            is Response.Failure -> {}
-            is Response.Loading -> {
-                CircularIndicator()
-            }
         }
         Spacer(Modifier.height(24.dp))
         Text(
@@ -148,56 +173,115 @@ fun HomeScreen(
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp)
         )
-        when (forecastResponse) {
-            is Response.Failure -> {}
-            is Response.Loading -> {
-                CircularIndicator()
-            }
+        if(isNetworkAvailable == true) {
+            when (forecastResponse) {
+                is Response.Failure -> {}
+                is Response.Loading -> {
+                    CircularIndicator()
+                }
 
-            is Response.Success -> {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp)
-                ) {
-                    LazyRow(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 8.dp),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        val list = forecastResponse.data.weatherForecastList
-                        if (list != null) {
-                            itemsIndexed(list) { index, item ->
-                                HomeLazyRowItem(item, appTempUnit, homeViewModel)
-                            }
-                        }
-                    }
-                    Spacer(Modifier.height(24.dp))
-                    Text(
-                        text = stringResource(R.string._5_days_forecast),
-                        color = Color.White,
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-                    )
-                    Spacer(Modifier.height(8.dp))
+                is Response.Success -> {
+                    homeViewModel.insertForecastResponse(forecastResponse.data)
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 8.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                            .padding(horizontal = 16.dp)
                     ) {
-                        if (forecastResponse.data.weatherForecastList != null) {
-                            val forecastList =
-                                homeViewModel.filterForecastList(forecastResponse.data.weatherForecastList)
-                            forecastList.forEachIndexed { index, item ->
-                                HomeLazyColumnItem(
-                                    item,
-                                    appTempUnit,
-                                    homeViewModel
-                                )
+                        LazyRow(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 8.dp),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            val list = forecastResponse.data.weatherForecastList
+                            if (list != null) {
+                                itemsIndexed(list) { index, item ->
+                                    HomeLazyRowItem(item, appTempUnit, homeViewModel)
+                                }
+                            }
+                        }
+                        Spacer(Modifier.height(24.dp))
+                        Text(
+                            text = stringResource(R.string._5_days_forecast),
+                            color = Color.White,
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                        )
+                        Spacer(Modifier.height(8.dp))
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 8.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            if (forecastResponse.data.weatherForecastList != null) {
+                                val forecastList =
+                                    homeViewModel.filterForecastList(forecastResponse.data.weatherForecastList)
+                                forecastList.forEachIndexed { index, item ->
+                                    HomeLazyColumnItem(
+                                        item,
+                                        appTempUnit,
+                                        homeViewModel
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }else{
+            when (localForecastResponse) {
+                is Response.Failure -> {}
+                is Response.Loading -> {
+                    CircularIndicator()
+                }
+                is Response.Success -> {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp)
+                    ) {
+                        LazyRow(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 8.dp),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            val list = localForecastResponse.data.forecastResponse.weatherForecastList
+                            if (list != null) {
+                                itemsIndexed(list) { index, item ->
+                                    HomeLazyRowItem(item, appTempUnit, homeViewModel)
+                                }
+                            }
+                        }
+                        Spacer(Modifier.height(24.dp))
+                        Text(
+                            text = stringResource(R.string._5_days_forecast),
+                            color = Color.White,
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                        )
+                        Spacer(Modifier.height(8.dp))
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 8.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            if (localForecastResponse.data.forecastResponse.weatherForecastList != null) {
+                                val forecastList =
+                                    homeViewModel.filterForecastList(localForecastResponse.data.forecastResponse.weatherForecastList)
+                                forecastList.forEachIndexed { index, item ->
+                                    HomeLazyColumnItem(
+                                        item,
+                                        appTempUnit,
+                                        homeViewModel
+                                    )
+                                }
                             }
                         }
                     }
