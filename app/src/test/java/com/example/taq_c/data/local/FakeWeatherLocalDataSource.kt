@@ -32,4 +32,8 @@ class FakeWeatherLocalDataSource(private val cityList : MutableList<City> = muta
     override suspend fun deleteAlert(alert: Alert): Int {
         TODO("Not yet implemented")
     }
+
+    override suspend fun deleteAlertByTime(timeStamp: Long): Int {
+        TODO("Not yet implemented")
+    }
 }

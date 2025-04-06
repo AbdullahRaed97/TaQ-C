@@ -72,7 +72,7 @@ fun SettingsScreen(navController: NavController) {
                     color = Color.White
                 )
             }
-            LanguageSettings(settingViewModel, context)
+            LanguageSettings(settingViewModel, context,navController)
         }
         Spacer(modifier = Modifier.height(10.dp))
         Card(
@@ -161,7 +161,8 @@ fun SettingsScreen(navController: NavController) {
 @Composable
 private fun LanguageSettings(
     settingViewModel: SettingViewModel,
-    context: Context
+    context: Context,
+    navController: NavController
 ) {
     settingViewModel
     val langOptions = listOf(
@@ -171,7 +172,8 @@ private fun LanguageSettings(
     )
     val selectedLanguage = settingViewModel.getSelectedLanguagePreference(context)
     var selectedOption by remember { mutableStateOf(langOptions[selectedLanguage]) }
-
+    val lat = settingViewModel.getLatitude(context)
+    val lon = settingViewModel.getLongitude(context)
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -192,21 +194,25 @@ private fun LanguageSettings(
                             R.string.arabic -> {
                                 settingViewModel.setLanguage(context, "ar")
                                 settingViewModel.setAppLanguage(context, "ar")
+                                navController.navigate(NavigationRoute.HomeScreen(lat,lon))
                             }
 
                             R.string.english -> {
                                 settingViewModel.setLanguage(context)
                                 settingViewModel.setAppLanguage(context, "en")
+                                navController.navigate(NavigationRoute.HomeScreen(lat,lon))
                             }
 
                             R.string.defaultLang -> {
                                 settingViewModel.setLanguage(context)
                                 settingViewModel.setAppLanguage(context, "en")
+                                navController.navigate(NavigationRoute.HomeScreen(lat,lon))
                             }
 
                             else -> {
                                 settingViewModel.setLanguage(context)
                                 settingViewModel.setAppLanguage(context, "en")
+                                navController.navigate(NavigationRoute.HomeScreen(lat,lon))
                             }
                         }
                     },

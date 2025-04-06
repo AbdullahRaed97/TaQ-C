@@ -347,7 +347,7 @@ private fun FromSettingConfiguration(
             onClick = {
                 favViewModel.setAppLatitude(context, lat)
                 favViewModel.setAppLongitude(context, lon)
-                navController.navigate(NavigationRoute.SettingScreen)
+                navController.navigate(NavigationRoute.HomeScreen(lat,lon))
             },
             colors = ButtonDefaults.buttonColors(Color.Black)
 

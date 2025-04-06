@@ -225,7 +225,8 @@ class HomeViewModel(private val weatherRepository: WeatherRepository) : ViewMode
         return sdf.format(date)
     }
 
-    fun getCountryName(countryCode: String?): String {
+    fun getCountryName(countryCode: String?): String
+    {
         return if (!countryCode.isNullOrBlank()) {
             try {
                 Locale("", countryCode).displayCountry ?: "Unspecified"
@@ -282,6 +283,30 @@ class HomeViewModel(private val weatherRepository: WeatherRepository) : ViewMode
 
     }
 
+    fun convertNumberToAppLanguage(input: String,context: Context): String {
+        val sharedPreferences = context.getSharedPreferences("Settings", Context.MODE_PRIVATE)
+        val langCode = sharedPreferences.getString("Language", "en") ?: "en"
+        return when(langCode){
+            "ar" ->{
+                val arabicNumbers = mapOf(
+                    '0' to '٠',
+                    '1' to '١',
+                    '2' to '٢',
+                    '3' to '٣',
+                    '4' to '٤',
+                    '5' to '٥',
+                    '6' to '٦',
+                    '7' to '٧',
+                    '8' to '٨',
+                    '9' to '٩',
+                    '.' to '٫'
+                )
+                input.map { arabicNumbers[it] ?: it }.joinToString("")
+            }
+            "en"-> input
+            else -> input
+        }
+    }
 }
 
 class HomeFactory(private val repository: WeatherRepository) : ViewModelProvider.Factory {

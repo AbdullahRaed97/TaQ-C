@@ -33,4 +33,6 @@ interface IWeatherRepository {
     suspend fun insertAlert(alert: Alert): Long
 
     suspend fun deleteAlert(alert: Alert): Int
+
+    suspend fun deleteAlertByTime(timeStamp: Long) : Int
 }

@@ -245,10 +245,9 @@ private fun WeatherResponseData(
                         modifier = Modifier.padding(end = 4.dp)
                     )
                     Text(
-                        text = "${weatherResponse.weatherDetails?.feels_like} " + homeViewModel.getUnit(
-                            units,
-                            context
-                        ),
+                        text = homeViewModel
+                            .convertNumberToAppLanguage("${weatherResponse.weatherDetails?.feels_like}",context)
+                                + homeViewModel.getUnit(units, context),
                         color = Color.White.copy(alpha = 0.8f),
                         fontSize = 16.sp
                     )
@@ -290,7 +289,7 @@ private fun WeatherResponseData(
                 verticalAlignment = Alignment.Top
             ) {
                 Text(
-                    text = weatherResponse.weatherDetails?.temp?.toString() ?: "--",
+                    text = homeViewModel.convertNumberToAppLanguage(weatherResponse.weatherDetails?.temp?.toString() ?: "--",context),
                     color = Color.White,
                     fontSize = 64.sp,
                     fontWeight = FontWeight.Light
@@ -440,7 +439,8 @@ private fun HomeLazyRowItem(
                 horizontalArrangement = Arrangement.Center
             ) {
                 Text(
-                    text = weatherResponse.weatherDetails?.temp?.toString() ?: "--",
+                    text = homeViewModel
+                        .convertNumberToAppLanguage(weatherResponse.weatherDetails?.temp?.toString() ?: "--",context),
                     color = Color.White,
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Bold
@@ -542,7 +542,8 @@ private fun HomeLazyColumnItem(
                     verticalAlignment = Alignment.Top
                 ) {
                     Text(
-                        text = forecast.weatherDetails?.temp?.toString() ?: "--",
+                        text = homeViewModel
+                            .convertNumberToAppLanguage(forecast.weatherDetails?.temp?.toString() ?: "--",context),
                         color = Color.White,
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold
@@ -579,7 +580,8 @@ private fun HomeLazyColumnItem(
                         )
                         Spacer(Modifier.width(4.dp))
                         Text(
-                            text = forecast.weatherDetails?.temp_max.toString(),
+                            text = homeViewModel
+                                .convertNumberToAppLanguage(forecast.weatherDetails?.temp_max.toString(),context),
                             color = Color.White.copy(alpha = 0.8f),
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Medium,
@@ -609,7 +611,8 @@ private fun HomeLazyColumnItem(
                         )
                         Spacer(Modifier.width(4.dp))
                         Text(
-                            text = forecast.weatherDetails?.temp_min.toString(),
+                            text = homeViewModel
+                                .convertNumberToAppLanguage(forecast.weatherDetails?.temp_min.toString(),context),
                             color = Color.White.copy(alpha = 0.8f),
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Medium,
@@ -685,7 +688,7 @@ private fun WeatherCard(
                         verticalAlignment = Alignment.Bottom
                     ) {
                         Text(
-                            text = weatherResponse.weatherDetails?.pressure?.toString() ?: "--",
+                            text = homeViewModel.convertNumberToAppLanguage(weatherResponse.weatherDetails?.pressure?.toString() ?: "--",context),
                             fontSize = 20.sp,
                             color = Color.White,
                             fontWeight = FontWeight.Bold
@@ -723,7 +726,8 @@ private fun WeatherCard(
                         verticalAlignment = Alignment.Bottom
                     ) {
                         Text(
-                            text = weatherResponse.weatherDetails?.humidity?.toString() ?: "--",
+                            text = homeViewModel
+                                .convertNumberToAppLanguage(weatherResponse.weatherDetails?.humidity?.toString() ?: "--",context),
                             fontSize = 20.sp,
                             color = Color.White,
                             fontWeight = FontWeight.Bold
@@ -807,7 +811,8 @@ private fun WeatherCard(
                         verticalAlignment = Alignment.Bottom
                     ) {
                         Text(
-                            text = weatherResponse.clouds?.cloudPercentage?.toString() ?: "--",
+                            text = homeViewModel
+                                .convertNumberToAppLanguage(weatherResponse.clouds?.cloudPercentage?.toString() ?: "--",context),
                             fontSize = 20.sp,
                             color = Color.White,
                             fontWeight = FontWeight.Bold,

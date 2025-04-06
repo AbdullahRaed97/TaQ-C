@@ -18,4 +18,7 @@ interface AlertDao {
 
     @Query("SELECT * FROM Alert")
     fun getAllAlert(): Flow<List<Alert>>
+
+    @Query("Delete from Alert where timeStamp= :timeStamp")
+    suspend fun deleteAlertByTime(timeStamp: Long) : Int
 }

@@ -108,11 +108,12 @@ class AlertViewModel(private val weatherRepository: WeatherRepository) : ViewMod
         val data = Data.Builder()
             .putDouble("lat", city.coord?.lat ?: 0.0)
             .putDouble("lon", city.coord?.lon ?: 0.0)
+            .putLong("timeStamp",timeStamp)
             .build()
         val constraints = Builder()
             .setRequiredNetworkType(NetworkType.CONNECTED)
             .build()
-
+        Log.i("TAG", "requestAlert: $timeStamp")
         val instant = Instant.ofEpochMilli(timeStamp)
         val localDateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault())
         val day = localDateTime.dayOfMonth
@@ -174,6 +175,20 @@ class AlertViewModel(private val weatherRepository: WeatherRepository) : ViewMod
                 message_.emit("Deletion Success")
             } catch (e: Exception) {
                 alertResponse_.emit(Response.Failure(e))
+                message_.emit(e.message.toString())
+            }
+        }
+    }
+
+    fun deleteAlertByTime(timeStamp: Long ,context: Context){
+        Log.i("TAG", "deleteAlertByTime: $timeStamp")
+        val notificationManager =
+            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        viewModelScope.launch {
+            try {
+                weatherRepository.deleteAlertByTime(timeStamp)
+                notificationManager.cancel(WeatherNotificationService.NOTIFICATION_ID)
+            } catch (e: Exception) {
                 message_.emit(e.message.toString())
             }
         }
@@ -243,6 +258,8 @@ class AlertWorker(context: Context, workerParameters: WorkerParameters) :
         try {
             val lat = inputData.getDouble("lat", 0.0)
             val lon = inputData.getDouble("lon", 0.0)
+            val timeStamp = inputData.getLong("timeStamp",0)
+            Log.i("TAG", "doWork: $timeStamp")
             val weatherResponse =
                 try {
                     weatherRepository.getCurrentWeatherData(lat, lon, "metric", "en").first()
@@ -250,7 +267,7 @@ class AlertWorker(context: Context, workerParameters: WorkerParameters) :
                     return Result.retry()
                 }
             val content = getNotificationContent(weatherResponse)
-            showNotification(myContext, content, lat, lon)
+            showNotification(myContext, content, lat, lon,timeStamp)
             return Result.success()
         } catch (e: Exception) {
             return Result.Failure()
@@ -264,10 +281,10 @@ class AlertWorker(context: Context, workerParameters: WorkerParameters) :
                 "Weather Description is : ${weatherResponse?.weather?.get(0)?.fullWeatherDesc}"
     }
 
-    private fun showNotification(context: Context, content: String, lat: Double, lon: Double) {
+    private fun showNotification(context: Context, content: String, lat: Double, lon: Double,timeStamp: Long) {
         val notificationManager =
             context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-
+        Log.i("TAG", "showNotification: $timeStamp")
         val soundUri =
             "${ContentResolver.SCHEME_ANDROID_RESOURCE}://${applicationContext.packageName}/${R.raw.alert}".toUri()
         //Pending Intent which will be executed when clicking on the notification
@@ -293,6 +310,7 @@ class AlertWorker(context: Context, workerParameters: WorkerParameters) :
             3,
             Intent(context, CancelNotificationReceiver::class.java).apply {
                 putExtra("notificationID", WeatherNotificationService.NOTIFICATION_ID)
+                putExtra("timeStamp",timeStamp)
             },
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) PendingIntent.FLAG_IMMUTABLE else 0
         )

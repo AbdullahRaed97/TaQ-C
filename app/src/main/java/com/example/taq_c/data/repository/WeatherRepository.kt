@@ -60,6 +60,10 @@ class WeatherRepository private constructor(
         return localDataSource.deleteAlert(alert)
     }
 
+    override suspend fun deleteAlertByTime(timeStamp: Long): Int {
+        return localDataSource.deleteAlertByTime(timeStamp)
+    }
+
     companion object {
         @Volatile
         var instance: WeatherRepository? = null

@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
 import androidx.lifecycle.ViewModel
 import com.example.taq_c.utilities.LocationHelper
+import com.example.taq_c.utilities.LocationHelper.locationState
 
 
 class SettingViewModel() : ViewModel() {
@@ -96,5 +97,17 @@ class SettingViewModel() : ViewModel() {
         } else {
             AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(languageCode))
         }
+    }
+
+    fun getLatitude(context: Context): Double {
+        val sharedPreferences = context.getSharedPreferences("Coordinates", Context.MODE_PRIVATE)
+        return sharedPreferences.getFloat("Latitude", locationState.value.latitude.toFloat())
+            .toDouble()
+    }
+
+    fun getLongitude(context: Context): Double {
+        val sharedPreferences = context.getSharedPreferences("Coordinates", Context.MODE_PRIVATE)
+        return sharedPreferences.getFloat("Longitude", locationState.value.longitude.toFloat())
+            .toDouble()
     }
 }

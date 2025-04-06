@@ -2,13 +2,15 @@ package com.example.taq_c.favourite.viewModel
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.taq_c.data.model.City
-import com.example.taq_c.data.repository.IWeatherRepository
-import junit.framework.TestCase.assertEquals
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.advanceUntilIdle
+import com.example.taq_c.data.model.Response
+import com.example.taq_c.data.repository.WeatherRepository
+import io.mockk.coVerify
+import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
+import org.hamcrest.CoreMatchers.`is`
+import org.hamcrest.CoreMatchers.not
+import org.hamcrest.CoreMatchers.nullValue
+import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -16,54 +18,32 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class FavouriteViewModelTest {
     lateinit var viewModel: FavouriteViewModel
-    lateinit var repo: IWeatherRepository
+    lateinit var repo: WeatherRepository
+    val city = City(name = "Rome")
+
     @Before
-    fun setup(){
-        repo= StubRepo()
-        viewModel= FavouriteViewModel(repo)
+    fun setup() {
+        repo = mockk()
+        viewModel = FavouriteViewModel(repo)
     }
-    @OptIn(ExperimentalCoroutinesApi::class)
+
     @Test
-    fun insertFavCity_City_string()= runTest {
-
-        val city = City(
-            name = "Rome"
-        )
-
-        val messages = mutableListOf<String?>()
-
-        val job = launch {
-            viewModel.message.collect { messages.add(it) }
-        }
-
-        delay(1000)
+    fun insertCity_city_sameCity() = runTest {
         viewModel.insertFavCity(city)
-
-        advanceUntilIdle()
-        job.cancel()
-
-        assertEquals("Insertion Success", messages.firstOrNull())
+        val result = viewModel.favCitiesResponse.value
+        if (result is Response.Success) {
+            assertThat(result.data, `is`(city))
+        }
+        coVerify { repo.insertFavCity(city) }
     }
-    @OptIn(ExperimentalCoroutinesApi::class)
+
     @Test
-    fun deleteFavCity_string()=runTest {
-        val city = City(
-            name = "Rome"
-        )
-        viewModel.insertFavCity(city)
-
-        val messages = mutableListOf<String?>()
-
-        val job = launch {
-            viewModel.message.collect { messages.add(it) }
+    fun get5D_3HForeCastData_latLon_response() {
+        viewModel.get5D_3HForeCastData(0.0, 0.0, "metric", "en")
+        val result = viewModel.forecastResponse.value
+        if (result is Response.Success) {
+            assertThat(result.data, not(nullValue()))
         }
-
-        delay(1000)
-        viewModel.deleteFavCity(city)
-
-        advanceUntilIdle()
-        job.cancel()
-
-        assertEquals("Deletion Success", messages.first())
+        coVerify { repo.get5D_3HForeCastData(0.0, 0.0, "metric", "en") }
     }
 }

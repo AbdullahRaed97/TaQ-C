@@ -35,6 +35,10 @@ class WeatherLocalDataSource private constructor(
         return alertDao.deleteAlert(alert)
     }
 
+    override suspend fun deleteAlertByTime(timeStamp: Long): Int {
+       return alertDao.deleteAlertByTime(timeStamp)
+    }
+
     companion object {
         @Volatile
         private var instance: WeatherLocalDataSource? = null
