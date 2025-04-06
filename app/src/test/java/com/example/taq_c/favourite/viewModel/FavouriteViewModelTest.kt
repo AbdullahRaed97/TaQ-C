@@ -38,7 +38,7 @@ class FavouriteViewModelTest {
     }
 
     @Test
-    fun get5D_3HForeCastData_latLon_response() {
+    fun get5D_3HForeCastData_latLon_foreCastResponse() {
         viewModel.get5D_3HForeCastData(0.0, 0.0, "metric", "en")
         val result = viewModel.forecastResponse.value
         if (result is Response.Success) {

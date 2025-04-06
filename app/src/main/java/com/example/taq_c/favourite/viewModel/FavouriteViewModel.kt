@@ -29,7 +29,7 @@ class FavouriteViewModel(private val weatherRepository: IWeatherRepository) : Vi
     val forecastResponse =
         forecastResponse_.asStateFlow()
     private val message_: MutableSharedFlow<String?> =
-        MutableSharedFlow(extraBufferCapacity = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
+        MutableSharedFlow()
     val message = message_.asSharedFlow()
 
     fun getAllFavCities() {
