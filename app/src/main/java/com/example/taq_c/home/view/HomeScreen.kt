@@ -96,8 +96,10 @@ fun HomeScreen(
     val message = homeViewModel.message.collectAsStateWithLifecycle(initialValue = null).value
     val localWeatherResponse = homeViewModel.localWeatherResponse.collectAsStateWithLifecycle().value
     val localForecastResponse = homeViewModel.localForecastResponse.collectAsStateWithLifecycle().value
-    homeViewModel.getAllLocalWeatherResponse()
-    homeViewModel.getAllLocalForecastResponse()
+    LaunchedEffect(Unit) {
+        homeViewModel.getAllLocalWeatherResponse()
+        homeViewModel.getAllLocalForecastResponse()
+    }
     LaunchedEffect(message) {
         if (message != null) {
             snackBarHostState.showSnackbar(

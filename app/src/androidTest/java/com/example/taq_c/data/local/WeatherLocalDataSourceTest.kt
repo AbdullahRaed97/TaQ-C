@@ -5,6 +5,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.example.taq_c.data.db.AlertDao
+import com.example.taq_c.data.db.ResponsesDao
 import com.example.taq_c.data.db.WeatherDao
 import com.example.taq_c.data.db.WeatherDatabase
 import com.example.taq_c.data.model.Alert
@@ -26,6 +27,7 @@ class WeatherLocalDataSourceTest {
     private lateinit var database: WeatherDatabase
     private lateinit var alertDao: AlertDao
     private lateinit var weatherDao: WeatherDao
+    private lateinit var responsesDao: ResponsesDao
     private lateinit var localDataSource: WeatherLocalDataSource
 
     @Before
@@ -38,7 +40,8 @@ class WeatherLocalDataSourceTest {
             .build()
         alertDao = database.getAlertDao()
         weatherDao = database.getWeatherDao()
-        localDataSource = WeatherLocalDataSource.getInstance(weatherDao, alertDao)
+        responsesDao = database.getResponsesDao()
+        localDataSource = WeatherLocalDataSource.getInstance(weatherDao, alertDao,responsesDao)
     }
 
     @Test
